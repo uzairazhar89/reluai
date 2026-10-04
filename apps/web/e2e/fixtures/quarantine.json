@@ -1,0 +1,155 @@
+{
+  "total": 447,
+  "items": [
+    {
+      "line_number": 624,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536414",
+        "Quantity": "56",
+        "StockCode": "22139",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 11:52:00"
+      }
+    },
+    {
+      "line_number": 1972,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536545",
+        "Quantity": "1",
+        "StockCode": "21134",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:32:00"
+      }
+    },
+    {
+      "line_number": 1987,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536546",
+        "Quantity": "1",
+        "StockCode": "22145",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:33:00"
+      }
+    },
+    {
+      "line_number": 1988,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536547",
+        "Quantity": "1",
+        "StockCode": "37509",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:33:00"
+      }
+    },
+    {
+      "line_number": 1989,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536549",
+        "Quantity": "1",
+        "StockCode": "85226A",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:34:00"
+      }
+    },
+    {
+      "line_number": 1990,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536550",
+        "Quantity": "1",
+        "StockCode": "85044",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:34:00"
+      }
+    },
+    {
+      "line_number": 2026,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536552",
+        "Quantity": "1",
+        "StockCode": "20950",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:34:00"
+      }
+    },
+    {
+      "line_number": 2027,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536554",
+        "Quantity": "23",
+        "StockCode": "84670",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:35:00"
+      }
+    },
+    {
+      "line_number": 2028,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536553",
+        "Quantity": "3",
+        "StockCode": "37461",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 14:35:00"
+      }
+    },
+    {
+      "line_number": 2408,
+      "reason_code": "stock_adjustment",
+      "severity": "reject",
+      "raw": {
+        "Price": "0",
+        "Country": "United Kingdom",
+        "Invoice": "536589",
+        "Quantity": "-10",
+        "StockCode": "21777",
+        "Customer ID": "",
+        "Description": "",
+        "InvoiceDate": "2010-12-01 16:50:00"
+      }
+    }
+  ]
+}

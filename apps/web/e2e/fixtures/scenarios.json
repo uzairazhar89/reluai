@@ -1,0 +1,37 @@
+[
+  {
+    "id": "standard",
+    "title": "Load next monthly drop",
+    "description": "Ingest the next unloaded month of real invoices. Once all 25 drops are loaded, the least recently processed drop is re-processed instead.",
+    "simulated": false,
+    "expected": "Succeeds; real data issues are quarantined or flagged."
+  },
+  {
+    "id": "replay",
+    "title": "Replay last drop (idempotency)",
+    "description": "Re-process the most recently loaded drop. Loads are idempotent, so no new rows should be written.",
+    "simulated": false,
+    "expected": "Succeeds with 0 new rows."
+  },
+  {
+    "id": "crm_flaky",
+    "title": "Flaky CRM API",
+    "description": "The CRM returns HTTP 503 twice for every page before recovering. The extractor retries with exponential backoff and jitter.",
+    "simulated": true,
+    "expected": "Succeeds after retries; retry count is recorded."
+  },
+  {
+    "id": "crm_outage",
+    "title": "CRM outage",
+    "description": "The CRM is down for the whole run. Retries are exhausted and the run fails before anything is written.",
+    "simulated": true,
+    "expected": "Fails at extract; warehouse unchanged."
+  },
+  {
+    "id": "corrupt_drop",
+    "title": "Corrupted file drop",
+    "description": "About 7.5% of the next drop's lines are damaged in transit (truncated lines, wrong date locale, text in numeric fields, invalid bytes).",
+    "simulated": true,
+    "expected": "Bad rows are quarantined, the quality gate fails and nothing is published."
+  }
+]

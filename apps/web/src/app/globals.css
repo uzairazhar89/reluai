@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Colour is used for state, not decoration: pass / warn / fail mark data-quality
+ * and run outcomes; primary actions are inverted (light on ink) rather than accent-coloured.
+ * Type: Archivo with its width axis — expanded for headings, normal for text; IBM Plex Mono
+ * only for real code and log output.
+ */
+@theme {
+  --color-ink: #0f1623;
+  --color-surface: #161f2e;
+  --color-surface-2: #1c2738;
+  --color-line: #2a3547;
+  --color-line-strong: #3a475c;
+  --color-text: #e8ebf1;
+  --color-muted: #9ba6b9;
+  --color-faint: #8290a5;
+  --color-pass: #62c7a6;
+  --color-warn: #e2b04a;
+  --color-fail: #e8776d;
+  --color-link: #93b5ff;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Major-third scale on a 17px text size. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.328rem;
+  --text-lg--line-height: 1.45;
+  --text-xl: 1.66rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 2.075rem;
+  --text-2xl--line-height: 1.15;
+  --text-3xl: 2.594rem;
+  --text-3xl--line-height: 1.08;
+  --text-4xl: 3.242rem;
+  --text-4xl--line-height: 1.04;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-feature-settings: "kern", "liga";
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: #304a75;
+    color: var(--color-text);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  a {
+    color: inherit;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Expanded width for display type: the identity of the site. */
+  .display {
+    font-stretch: 118%;
+    font-weight: 640;
+    letter-spacing: -0.012em;
+  }
+  .heading {
+    font-stretch: 112%;
+    font-weight: 600;
+    letter-spacing: -0.006em;
+  }
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .prose-link {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .prose-link:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

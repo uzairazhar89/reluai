@@ -1,0 +1,35 @@
+name: mirror
+
+# Refreshes the read-only per-project mirror repositories after a successful deploy, so each
+# project card can link to its own repository while all work happens in this monorepo.
+# Needs a MIRROR_TOKEN secret: a fine-grained token with "Contents: read and write" on the
+# mirror repositories only. Without it the job assembles the mirrors and stops.
+on:
+  workflow_run:
+    workflows: [deploy]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Assemble and publish mirrors
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: python scripts/mirror_projects.py --out "$RUNNER_TEMP/mirrors" --push

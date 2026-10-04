@@ -25,11 +25,21 @@ compose "${tag}" pull --quiet
 compose "${tag}" run --rm migrate
 compose "${tag}" up -d --remove-orphans
 
+ready() {
+  # 1. Inside the API container: database reachable, schema at the expected migration, disk free.
+  compose "${tag}" exec -T api python -c \
+    "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=3).status == 200 else 1)" \
+    > /dev/null 2>&1 || return 1
+  # 2. Through nginx and TLS on this host (-k: the first boot uses a temporary certificate).
+  curl -fsSk --max-time 3 --resolve "${DOMAIN}:443:127.0.0.1" "https://${DOMAIN}/api/status" \
+    | grep -q '"status":"\(operational\|degraded\)"' || return 1
+  # 3. The website itself renders.
+  curl -fsSk --max-time 5 --resolve "${DOMAIN}:443:127.0.0.1" -o /dev/null "https://${DOMAIN}/" || return 1
+}
+
 healthy=false
 for _ in $(seq 1 30); do
-  # Through nginx and TLS on this host (-k: the first boot uses a temporary certificate).
-  if curl -fsSk --max-time 3 --resolve "${DOMAIN}:443:127.0.0.1" \
-       "https://${DOMAIN}/api/status" | grep -q '"status":"\(operational\|degraded\)"'; then
+  if ready; then
     healthy=true
     break
   fi
@@ -37,6 +47,11 @@ for _ in $(seq 1 30); do
 done
 
 if [ "${healthy}" = true ]; then
+  # Pages are prerendered without an API at build time; one request each triggers their
+  # regeneration with live data so the next visitor sees real figures.
+  for page in / /projects/data-pipeline-observatory /status; do
+    curl -fsSk --max-time 5 --resolve "${DOMAIN}:443:127.0.0.1" -o /dev/null "https://${DOMAIN}${page}" || true
+  done
   echo "${tag}" > "${STATE}"
   docker image prune -f --filter "until=168h" > /dev/null
   echo "deploy ok: ${tag}"

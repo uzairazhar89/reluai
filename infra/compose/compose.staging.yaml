@@ -12,6 +12,9 @@ services:
     build:
       context: ../..
       dockerfile: infra/docker/web.Dockerfile
+      args:
+        # Staging is never indexed: robots.txt disallows everything off the production domain.
+        NEXT_PUBLIC_SITE_URL: ${STAGING_URL:-http://localhost:8080}
 
   api:
     build:

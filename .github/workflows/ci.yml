@@ -44,6 +44,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
+      - name: OpenAPI document is up to date (the website's types are generated from it)
+        run: |
+          uv run reluai openapi --out apps/web/openapi.json
+          git diff --exit-code -- apps/web/openapi.json
       - name: Block outbound network (demos must work without external APIs)
         run: |
           sudo iptables -A OUTPUT -o lo -j ACCEPT
@@ -110,6 +114,11 @@ jobs:
           cache-dependency-path: apps/web/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm exec prettier --check .
+      - name: Generated API types match openapi.json
+        run: |
+          pnpm api:types
+          git diff --exit-code -- src/lib/api/schema.d.ts
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build

@@ -1,0 +1,55 @@
+# Every third-party dataset, model and media file used by reluai.cloud.
+# Nothing listed here is committed to git: it is fetched at image-build time (or by
+# `reluai-data fetch <id>`) and accepted only if it passes the content checks below.
+# The website's /data page is generated from this file.
+version: 1
+datasets:
+  - id: online-retail-ii
+    title: Online Retail II
+    publisher: UCI Machine Learning Repository
+    homepage: https://archive.ics.uci.edu/dataset/502/online+retail+ii
+    doi: 10.24432/C5CG6D
+    description: >-
+      All transactions of a UK-based, registered, non-store online retailer of gift items
+      between 1 December 2009 and 9 December 2011: 1,067,371 invoice lines with invoice
+      number (prefix C = cancellation), stock code, description, quantity, timestamp,
+      unit price in GBP, anonymised customer ID and country. The company and its customers
+      are not named in the dataset.
+    real_data: true
+    modifications:
+      - Split into 25 monthly CSV "drops" and a derived product catalogue and customer
+        register so the pipeline demo has realistic sources. Values are not altered.
+      - Failure scenarios (corrupted drop, source outage) apply simulated faults to a copy
+        at run time and are labelled as simulated.
+    licence:
+      name: CC BY 4.0
+      url: https://creativecommons.org/licenses/by/4.0/
+      attribution: >-
+        Chen, D. (2012). Online Retail II [Dataset]. UCI Machine Learning Repository.
+        https://doi.org/10.24432/C5CG6D. Licensed under CC BY 4.0.
+      notes: >-
+        Licence as stated on the UCI dataset page. An earlier redistribution (the
+        onlineretail2 R package, 2020) quotes older donor terms restricting use to
+        non-commercial purposes; this site is a non-commercial portfolio demonstration.
+    sources:
+      - kind: uci_zip_xlsx
+        role: canonical
+        url: https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip
+        max_bytes: 104857600
+        notes: Excel workbook with two yearly sheets that overlap on 1-9 December 2010.
+      - kind: rda
+        role: mirror
+        url: https://raw.githubusercontent.com/allanvc/onlineretail2/35b2729b7bb4c46831cb4fb4efde29edd3a8dd7e/data/onlineretail2.rda
+        sha256: be2480b1fcb1fa123f90d731f63ab3cf44f6c97cba0a38eabee93759d411c6f7
+        max_bytes: 20971520
+        notes: >-
+          Unmodified redistribution in the onlineretail2 R package (pinned commit). Used
+          when the canonical host is unreachable; accepted only if the content checks pass.
+    checks:
+      rows: 1067371
+      columns: [invoice, stock_code, description, quantity, invoice_date, price, customer_id, country]
+      min_timestamp: 2009-12-01T07:45:00
+      max_timestamp: 2011-12-09T12:50:00
+      content_sha256: 56dbc9b75d5834fc0a3a451e126601b14cb4cbc3fed774161f864eacddf18e54
+      fingerprint_version: 1
+    used_by: [pipeline-observatory]

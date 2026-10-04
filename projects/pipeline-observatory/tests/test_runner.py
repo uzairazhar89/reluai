@@ -146,3 +146,20 @@ def test_summary_and_detail_read_models(
     page = service.quarantine_page(clean_db, ok.id, reason="duplicate_line", limit=10, offset=0)
     assert page.total == 1
     assert page.items[0].raw["StockCode"] == "71053"
+
+
+def test_results_aggregate_latest_successful_run_per_drop(
+    clean_db: Database, pipeline_settings: PipelineSettings, crm_client_factory: Factory
+) -> None:
+    run(clean_db, pipeline_settings, crm_client_factory, "standard")  # 2010-01
+    run(clean_db, pipeline_settings, crm_client_factory, "standard")  # 2010-02
+    run(clean_db, pipeline_settings, crm_client_factory, "crm_outage")
+    replay = run(clean_db, pipeline_settings, crm_client_factory, "replay")  # 2010-02 again
+    res = service.results(clean_db)
+    assert [d.drop_key for d in res.drops] == ["2010-01", "2010-02"]
+    assert res.drops[1].run_id == replay.id
+    assert res.totals.rows_read == 12 + 3
+    assert res.totals.rows_published == 8 + 3
+    assert (res.runs_succeeded, res.runs_failed) == (3, 1)
+    assert res.duration.median_ms is not None
+    assert res.environment is not None

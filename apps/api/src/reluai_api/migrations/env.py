@@ -5,6 +5,7 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import create_engine, pool
 
+import reluai_api.contact  # noqa: F401 - registers platform.contact_message
 import reluai_core.ratelimit  # noqa: F401 - registers platform.rate_counter
 import reluai_inference.ledger  # noqa: F401 - registers platform.llm_usage
 import reluai_pipeline.models  # noqa: F401 - registers pipeline.* and retail.*

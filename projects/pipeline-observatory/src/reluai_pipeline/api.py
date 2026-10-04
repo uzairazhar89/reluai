@@ -18,6 +18,7 @@ from reluai_pipeline.scenarios import SCENARIOS
 from reluai_pipeline.schemas import (
     DropOut,
     QuarantinePage,
+    ResultsOut,
     RunAccepted,
     RunDetailOut,
     RunOut,
@@ -41,6 +42,12 @@ def get_deferrer(request: Request) -> Deferrer:
 def get_summary(db: DatabaseDep, settings: SettingsDep) -> SummaryOut:
     """Dashboard tiles: last run, last success, totals, recent trend and queue state."""
     return service.summary(db, settings)
+
+
+@router.get("/results", response_model=ResultsOut)
+def get_results(db: DatabaseDep) -> ResultsOut:
+    """Measured results per drop (latest successful run of each), for the project page."""
+    return service.results(db)
 
 
 @router.get("/runs", response_model=list[RunOut])

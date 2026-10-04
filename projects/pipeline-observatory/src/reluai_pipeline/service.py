@@ -7,6 +7,7 @@ from collections.abc import Callable
 from datetime import timedelta
 
 from sqlalchemy import case, func, select, text
+from sqlalchemy.dialects.postgresql import distinct_on
 
 from reluai_core.cpu_lease import lease_status
 from reluai_core.db import Database
@@ -25,10 +26,14 @@ from reluai_pipeline.scenarios import SCENARIOS
 from reluai_pipeline.schemas import (
     DqOut,
     DropOut,
+    DropResult,
+    DurationStats,
     LogOut,
     QuarantinePage,
     QuarantineRowOut,
     ReasonCount,
+    ResultsOut,
+    ResultsTotals,
     RunDetailOut,
     RunOut,
     StepOut,
@@ -269,3 +274,61 @@ def status_counts(db: Database) -> dict[str, int]:
             ).select_from(PipelineRun)
         ).one()
     return {"runs": int(row[0] or 0), "failed": int(row[1] or 0)}
+
+
+def results(db: Database) -> ResultsOut:
+    """Latest successful run per drop, with duration percentiles across those runs."""
+    with db.session() as s:
+        latest = list(
+            s.scalars(
+                select(PipelineRun)
+                .where(PipelineRun.status == "succeeded", PipelineRun.drop_key.is_not(None))
+                .order_by(PipelineRun.drop_key, PipelineRun.finished_at.desc())
+                .ext(distinct_on(PipelineRun.drop_key))
+            )
+        )
+        counts = dict(
+            s.execute(
+                select(PipelineRun.status, func.count())
+                .where(PipelineRun.status.in_(("succeeded", "failed")))
+                .group_by(PipelineRun.status)
+            ).all()
+        )
+    drops = [
+        DropResult(
+            drop_key=r.drop_key or "",
+            run_id=r.id,
+            finished_at=r.finished_at,
+            rows_read=r.rows_read,
+            rows_rejected=r.rows_rejected,
+            rows_deduplicated=r.rows_deduplicated,
+            rows_published=r.rows_accepted,
+            dq_score=r.dq_score,
+            duration_ms=r.duration_ms,
+        )
+        for r in latest
+    ]
+    durations = sorted(r.duration_ms for r in latest if r.duration_ms is not None)
+
+    def pct(q: float) -> int | None:
+        if not durations:
+            return None
+        return durations[min(len(durations) - 1, round(q * (len(durations) - 1)))]
+
+    newest = max(latest, key=lambda r: r.finished_at or r.queued_at, default=None)
+    return ResultsOut(
+        drops=drops,
+        totals=ResultsTotals(
+            drops=len(drops),
+            rows_read=sum(d.rows_read for d in drops),
+            rows_rejected=sum(d.rows_rejected for d in drops),
+            rows_deduplicated=sum(d.rows_deduplicated for d in drops),
+            rows_published=sum(d.rows_published for d in drops),
+        ),
+        duration=DurationStats(
+            median_ms=pct(0.5), p95_ms=pct(0.95), max_ms=durations[-1] if durations else None
+        ),
+        environment=newest.environment if newest else None,
+        runs_succeeded=int(counts.get("succeeded", 0)),
+        runs_failed=int(counts.get("failed", 0)),
+    )

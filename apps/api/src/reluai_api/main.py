@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from reluai_api import status
+from reluai_api import contact, status
 from reluai_api.jobs import EXECUTE_TASK, build_job_app
 from reluai_core import health, metrics
 from reluai_core.db import Database
@@ -62,13 +62,14 @@ def create_app(
     app.add_middleware(
         BodySizeLimitMiddleware,
         default_limit=core.max_request_body_bytes,
-        prefix_limits={"/api/pipeline": 16 * 1024},
+        prefix_limits={"/api/pipeline": 16 * 1024, "/api/contact": 16 * 1024},
     )
     app.add_middleware(RequestContextMiddleware)
 
     app.include_router(health.router)
     app.include_router(metrics.router)
     app.include_router(status.router, prefix="/api")
+    app.include_router(contact.router, prefix="/api")
     app.include_router(pipeline_api.router, prefix="/api/pipeline")
     app.include_router(crm.router, prefix="/internal/crm")
     return app

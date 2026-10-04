@@ -39,6 +39,38 @@ def current() -> None:
     command.current(_alembic_config(), verbose=False)  # type: ignore[arg-type]
 
 
+contact_app = typer.Typer(help="Contact-form messages", no_args_is_help=True)
+app.add_typer(contact_app, name="contact")
+
+
+@contact_app.command("list")
+def contact_list(days: int = 14) -> None:
+    """Print messages received in the last N days."""
+    from datetime import UTC, datetime, timedelta
+
+    from sqlalchemy import select
+
+    from reluai_api.contact import ContactMessage
+    from reluai_core.db import Database
+    from reluai_core.settings import get_core_settings
+
+    db = Database(get_core_settings(), application_name="reluai-cli")
+    since = datetime.now(UTC) - timedelta(days=days)
+    with db.session() as s:
+        rows = s.scalars(
+            select(ContactMessage)
+            .where(ContactMessage.received_at >= since)
+            .order_by(ContactMessage.received_at.desc())
+        )
+        for m in rows:
+            typer.echo(
+                f"--- {m.received_at:%Y-%m-%d %H:%M} UTC | {m.topic} | {m.name} <{m.email}>"
+                + (f" | {m.company}" if m.company else "")
+            )
+            typer.echo(m.message)
+    db.dispose()
+
+
 @app.command()
 def worker(concurrency: int = 2) -> None:
     """Run the background worker (pipeline runs, scheduled jobs)."""

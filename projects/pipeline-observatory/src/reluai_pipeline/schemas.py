@@ -158,3 +158,40 @@ class RunAccepted(BaseModel):
     run_id: uuid.UUID
     status: str
     pending_runs: int
+
+
+class DropResult(BaseModel):
+    drop_key: str
+    run_id: uuid.UUID
+    finished_at: datetime | None
+    rows_read: int
+    rows_rejected: int
+    rows_deduplicated: int
+    rows_published: int
+    dq_score: float | None
+    duration_ms: int | None
+
+
+class DurationStats(BaseModel):
+    median_ms: int | None
+    p95_ms: int | None
+    max_ms: int | None
+
+
+class ResultsTotals(BaseModel):
+    drops: int
+    rows_read: int
+    rows_rejected: int
+    rows_deduplicated: int
+    rows_published: int
+
+
+class ResultsOut(BaseModel):
+    """Measured results: the latest successful run of every loaded drop."""
+
+    drops: list[DropResult]
+    totals: ResultsTotals
+    duration: DurationStats
+    environment: dict[str, Any] | None
+    runs_succeeded: int
+    runs_failed: int

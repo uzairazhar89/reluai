@@ -41,7 +41,7 @@ def test_probes_and_metrics(client: TestClient) -> None:
     assert client.get("/healthz").json() == {"status": "ok"}
     ready = client.get("/readyz")
     assert ready.status_code == 200
-    assert ready.json()["checks"]["migrations"]["revision"] == "0002"
+    assert ready.json()["checks"]["migrations"]["revision"] == "0003"
     metrics = client.get("/metrics")
     assert metrics.status_code == 200
     assert "reluai_http_requests_total" in metrics.text

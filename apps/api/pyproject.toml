@@ -1,0 +1,31 @@
+[project]
+name = "reluai-api"
+version = "0.1.0"
+description = "reluai.cloud API and worker: composition root mounting each project module"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "alembic>=1.20",
+  "reluai-core",
+  "reluai-datasets",
+  "reluai-inference",
+  "reluai-pipeline",
+  "typer>=0.17",
+  "uvicorn[standard]>=0.54",
+]
+
+[project.scripts]
+reluai = "reluai_api.cli:app"
+
+[tool.uv.sources]
+reluai-core = { workspace = true }
+reluai-datasets = { workspace = true }
+reluai-inference = { workspace = true }
+reluai-pipeline = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reluai_api"]

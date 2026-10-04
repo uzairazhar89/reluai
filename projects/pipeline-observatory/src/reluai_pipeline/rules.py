@@ -37,7 +37,7 @@ _REASONS = [
         "malformed_row",
         Severity.REJECT,
         "Malformed row",
-        "Wrong number of fields — the line is truncated or has unescaped delimiters.",
+        "Wrong number of fields: the line is truncated or has unescaped delimiters.",
     ),
     Reason("encoding_error", Severity.REJECT, "Encoding error", "Bytes that are not valid UTF-8."),
     # type and format problems

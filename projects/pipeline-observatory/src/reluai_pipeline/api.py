@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from reluai_core.db import DatabaseDep
 from reluai_core.errors import ProblemError
 from reluai_core.http import client_ip
+from reluai_core.logging import get_logger
 from reluai_core.ratelimit import visitor_key
 from reluai_pipeline import service
 from reluai_pipeline.rules import REASONS
@@ -29,6 +30,7 @@ from reluai_pipeline.schemas import (
 from reluai_pipeline.settings import PipelineSettings, get_pipeline_settings
 
 router = APIRouter(tags=["pipeline"])
+log = get_logger(__name__)
 SettingsDep = Annotated[PipelineSettings, Depends(get_pipeline_settings)]
 Deferrer = Callable[[uuid.UUID], None]
 
@@ -107,6 +109,14 @@ def post_run(
             "The pipeline queue is full right now; try again in a minute.",
             code="queue_full",
             headers={"Retry-After": "60"},
+        ) from exc
+    except service.RunQueueUnavailableError as exc:
+        log.exception("pipeline.defer_failed")
+        raise ProblemError(
+            503,
+            "The pipeline worker queue is unavailable right now; try again shortly.",
+            code="queue_unavailable",
+            headers={"Retry-After": "120"},
         ) from exc
     return RunAccepted(run_id=run_id, status="queued", pending_runs=pending)
 

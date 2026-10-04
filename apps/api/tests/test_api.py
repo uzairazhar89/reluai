@@ -6,10 +6,12 @@ from collections.abc import Callable, Iterator
 import httpx
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select, text
 
 from reluai_api.main import create_app
 from reluai_core.db import Database
 from reluai_core.settings import CoreSettings
+from reluai_pipeline.models import PipelineRun
 from reluai_pipeline.runner import execute_run
 from reluai_pipeline.settings import PipelineSettings, get_pipeline_settings
 
@@ -194,3 +196,41 @@ def test_docs_disabled_in_production(core_settings: CoreSettings) -> None:
     with TestClient(create_app(prod)) as c:
         assert c.get("/api/docs").status_code == 404
         assert c.get("/api/openapi.json").status_code == 404
+
+
+def test_visitor_run_reaches_the_real_job_queue(
+    core_settings: CoreSettings, pipeline_settings: PipelineSettings, clean_db: Database
+) -> None:
+    app = create_app(core_settings)  # real Procrastinate deferrer, opened in the lifespan
+    app.dependency_overrides[get_pipeline_settings] = lambda: pipeline_settings
+    with TestClient(app) as c:
+        r = c.post(
+            "/api/pipeline/runs", json={"scenario": "standard"}, headers={"X-Real-IP": "192.0.2.9"}
+        )
+    assert r.status_code == 202
+    with clean_db.session() as s:
+        job = s.execute(text("SELECT task_name, args, status FROM procrastinate_jobs")).one()
+    assert job.task_name == "pipeline:execute_run"
+    assert job.args == {"run_id": r.json()["run_id"]}
+    assert job.status == "todo"
+
+
+def test_run_is_failed_when_the_queue_is_unavailable(
+    core_settings: CoreSettings, pipeline_settings: PipelineSettings, clean_db: Database
+) -> None:
+    def broken(run_id: uuid.UUID) -> None:
+        raise ConnectionError("queue down")
+
+    app = create_app(core_settings, pipeline_deferrer=broken)
+    app.dependency_overrides[get_pipeline_settings] = lambda: pipeline_settings
+    with TestClient(app) as c:
+        r = c.post(
+            "/api/pipeline/runs", json={"scenario": "standard"}, headers={"X-Real-IP": "192.0.2.8"}
+        )
+    assert r.status_code == 503
+    assert r.json()["code"] == "queue_unavailable"
+    with clean_db.session() as s:
+        run = s.scalars(select(PipelineRun)).one()
+    assert run.status == "failed"
+    assert run.failure_step == "queue"
+    assert run.finished_at is not None

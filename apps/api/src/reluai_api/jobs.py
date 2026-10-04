@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from procrastinate import App, Blueprint
 
+from reluai_api.contact import purge_old_messages
 from reluai_core.jobs import QUEUE_DEFAULT, create_job_app
 from reluai_core.logging import get_logger
 from reluai_core.ratelimit import purge_expired
@@ -22,7 +23,13 @@ def housekeeping(timestamp: int) -> None:
     rt = get_runtime()
     with rt.db.session() as s:
         purged = purge_expired(s)
-    log.info("housekeeping.done", rate_counters_purged=purged, timestamp=timestamp)
+        messages = purge_old_messages(s)
+    log.info(
+        "housekeeping.done",
+        rate_counters_purged=purged,
+        contact_messages_purged=messages,
+        timestamp=timestamp,
+    )
 
 
 def build_job_app(settings: CoreSettings) -> App:

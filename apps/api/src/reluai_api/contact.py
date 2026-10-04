@@ -11,8 +11,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from sqlalchemy import DateTime, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, Integer, String, Text, delete, func
+from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from reluai_core.db import Base, DatabaseDep
 from reluai_core.errors import ProblemError
@@ -26,6 +26,7 @@ log = get_logger(__name__)
 EMAIL_PATTERN = r"^[^@\s]{1,64}@[^@\s]{1,255}\.[A-Za-z]{2,}$"
 MESSAGES_PER_HOUR = 3
 MESSAGES_PER_DAY = 6
+RETENTION_DAYS = 365  # stated on the website's privacy page
 
 
 class ContactMessage(Base):
@@ -111,3 +112,10 @@ def post_contact(body: ContactIn, request: Request, db: DatabaseDep) -> ContactA
         )
     log.info("contact.received", topic=body.topic, at=datetime.now(UTC).isoformat())
     return ContactAccepted()
+
+
+def purge_old_messages(session: Session, now: datetime | None = None) -> int:
+    """Delete messages older than the retention period; returns the number deleted."""
+    cutoff = (now or datetime.now(UTC)) - timedelta(days=RETENTION_DAYS)
+    result = session.execute(delete(ContactMessage).where(ContactMessage.received_at < cutoff))
+    return int(getattr(result, "rowcount", 0) or 0)

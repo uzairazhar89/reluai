@@ -36,11 +36,21 @@ def create_app(
     db = Database(core, application_name=f"{core.service_name}-api")
     jobs = build_job_app(core)
 
+    # The API only defers jobs. Its connection pool to the queue opens in the background, so
+    # the API still starts (and reports the problem) if PostgreSQL is briefly unavailable.
+    uses_queue = pipeline_deferrer is None
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         set_runtime(Runtime(settings=core, db=db, jobs=jobs))
-        yield
-        db.dispose()
+        if uses_queue:
+            jobs.open()
+        try:
+            yield
+        finally:
+            if uses_queue:
+                jobs.close()
+            db.dispose()
 
     app = FastAPI(
         title="reluai.cloud API",

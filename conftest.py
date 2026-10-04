@@ -92,7 +92,7 @@ def clean_db(db: Database) -> Database:
             text(
                 "TRUNCATE pipeline.run, pipeline.source_drop, retail.invoice_line, retail.invoice, "
                 "retail.customer, retail.product, platform.rate_counter, platform.llm_usage, "
-                "platform.contact_message "
+                "platform.contact_message, public.procrastinate_jobs "
                 "RESTART IDENTITY CASCADE"
             )
         )

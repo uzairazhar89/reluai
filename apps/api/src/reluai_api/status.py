@@ -34,6 +34,32 @@ class StatusOut(BaseModel):
     busy_with: str | None
 
 
+STALE_AFTER_HOURS = 13  # scheduled every 6 hours; allows one missed run
+
+
+def _ago(hours: float) -> str:
+    minutes = round(hours * 60)
+    if minutes < 1:
+        return "just now"
+    if minutes < 90:
+        return f"{minutes} min ago"
+    return f"{hours:.0f} h ago"
+
+
+def _pipeline_component(last: PipelineRun) -> ComponentStatus:
+    """Degraded if runs have stopped, or the latest real (non-simulated) run failed."""
+    finished = last.finished_at or datetime.now(UTC)
+    age_h = (datetime.now(UTC) - finished).total_seconds() / 3600
+    outcome = last.status
+    if last.status == "failed" and last.simulated:
+        outcome = "failed as designed (simulated fault)"
+    detail = f"Last run finished {_ago(age_h)}: {outcome}"
+    healthy = age_h < STALE_AFTER_HOURS and not (last.status == "failed" and not last.simulated)
+    return ComponentStatus(
+        name="Pipeline", status="operational" if healthy else "degraded", detail=detail
+    )
+
+
 @router.get("/status", response_model=StatusOut)
 def get_status(request: Request, db: DatabaseDep) -> StatusOut:
     core = request.app.state.core_settings
@@ -58,19 +84,7 @@ def get_status(request: Request, db: DatabaseDep) -> StatusOut:
                 ComponentStatus(name="Pipeline", status="degraded", detail="No runs recorded yet")
             )
         else:
-            age_h = (
-                (datetime.now(UTC) - last.finished_at).total_seconds() / 3600
-                if last.finished_at
-                else 0
-            )
-            ok = age_h < 13  # scheduled every 6 hours; allow one missed run
-            components.append(
-                ComponentStatus(
-                    name="Pipeline",
-                    status="operational" if ok else "degraded",
-                    detail=f"Last run {last.status} {age_h:.1f} h ago",
-                )
-            )
+            components.append(_pipeline_component(last))
         busy = lease_status(db.engine).holder
     except Exception as exc:
         log.warning("status.database_unreachable", error=type(exc).__name__)

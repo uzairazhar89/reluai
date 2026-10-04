@@ -6,7 +6,7 @@ import uuid
 from collections.abc import Callable
 from datetime import timedelta
 
-from sqlalchemy import case, func, select, text
+from sqlalchemy import case, func, select, text, update
 from sqlalchemy.dialects.postgresql import distinct_on
 
 from reluai_core.cpu_lease import lease_status
@@ -62,6 +62,10 @@ class RunQueueFullError(Exception):
     pass
 
 
+class RunQueueUnavailableError(Exception):
+    """The run was created but could not be handed to the job queue."""
+
+
 def pending_runs(db: Database) -> int:
     with db.session() as s:
         return int(
@@ -80,9 +84,16 @@ def admit_visitor_run(
     visitor: str,
     defer: Callable[[uuid.UUID], None],
 ) -> tuple[uuid.UUID, int]:
-    """Check quota and queue capacity, create the run and hand it to the job queue."""
+    """Check queue capacity and quota, create the run and hand it to the job queue.
+
+    Capacity is checked before the quota is consumed, so a full queue does not cost the
+    visitor one of their runs.
+    """
     if scenario not in SCENARIOS:
         raise UnknownScenarioError(scenario)
+    pending = pending_runs(db)
+    if pending >= settings.max_pending_runs:
+        raise RunQueueFullError
     with db.session() as s:
         quota = consume_quota(
             s,
@@ -92,11 +103,23 @@ def admit_visitor_run(
         )
     if not quota.allowed:
         raise RunQuotaExceededError(quota.retry_after_seconds)
-    pending = pending_runs(db)
-    if pending >= settings.max_pending_runs:
-        raise RunQueueFullError
     run_id = create_run(db, scenario=scenario, trigger="visitor", visitor_key=visitor)
-    defer(run_id)
+    try:
+        defer(run_id)
+    except Exception as exc:
+        # Never leave a run that nothing will execute in the "queued" state.
+        with db.session() as s:
+            s.execute(
+                update(PipelineRun)
+                .where(PipelineRun.id == run_id)
+                .values(
+                    status="failed",
+                    failure_step="queue",
+                    finished_at=func.now(),
+                    error_message="The job queue was unavailable, so the run was not started.",
+                )
+            )
+        raise RunQueueUnavailableError from exc
     return run_id, pending + 1
 
 
@@ -214,6 +237,15 @@ def run_detail(db: Database, run_id: uuid.UUID) -> RunDetailOut | None:
         )
     validate_step = next((x for x in step_list if x.name == "validate"), None)
     if validate_step and validate_step.detail:
+        # The validate step records the true counts; stored quarantine rows are a capped
+        # sample (see PipelineSettings.quarantine_store_limit), so they are not used for totals.
+        rejected = {k: int(v) for k, v in validate_step.detail.get("rejected", {}).items()}
+        if deduplicated := int(validate_step.detail.get("deduplicated", 0)):
+            rejected["duplicate_line"] = deduplicated
+        if rejected:
+            detail.reasons = [
+                _reason(code, n) for code, n in sorted(rejected.items(), key=lambda kv: -kv[1])
+            ]
         warn = validate_step.detail.get("warnings", {})
         detail.warnings = [
             _reason(code, int(n)) for code, n in sorted(warn.items(), key=lambda kv: -int(kv[1]))

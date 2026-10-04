@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
-from reluai_api.contact import ContactMessage
+from reluai_api.contact import RETENTION_DAYS, ContactMessage, purge_old_messages
 from reluai_api.main import create_app
 from reluai_core.db import Database
 from reluai_core.settings import CoreSettings
@@ -69,3 +70,22 @@ def test_rate_limited_per_visitor(client: TestClient, clean_db: Database) -> Non
     assert stored(clean_db) == 3
     other = client.post("/api/contact", json=VALID, headers={"X-Real-IP": "192.0.2.78"})
     assert other.status_code == 202
+
+
+def test_old_messages_are_purged(clean_db: Database) -> None:
+    now = datetime(2026, 10, 4, tzinfo=UTC)
+    with clean_db.session() as s:
+        for age_days in (RETENTION_DAYS + 1, RETENTION_DAYS - 1):
+            s.add(
+                ContactMessage(
+                    received_at=now - timedelta(days=age_days),
+                    name="n",
+                    email="a@example.com",
+                    topic="other",
+                    message="x" * 20,
+                    visitor_key="0" * 16,
+                )
+            )
+    with clean_db.session() as s:
+        assert purge_old_messages(s, now=now) == 1
+    assert stored(clean_db) == 1

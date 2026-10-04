@@ -266,8 +266,8 @@ class RunExecutor:
     def quality_gate(self, v: ValidationResult) -> None:
         with self.rec.step("quality_gate") as st:
             self.state.checks.extend(batch_checks(v, self.settings))
-            failed = [c.name for c in self.state.checks if c.severity == "gate" and not c.passed]
-            st.detail = {"checks": len(self.state.checks), "failed_gates": failed}
+            failed = [c for c in self.state.checks if c.severity == "gate" and not c.passed]
+            st.detail = {"checks": len(self.state.checks), "failed_gates": [c.name for c in failed]}
             for chk in self.state.checks:
                 self.rec.log(
                     "info" if chk.passed else "warning",
@@ -434,9 +434,10 @@ class RunExecutor:
         )
 
 
-def _raise_if_gates_failed(failed: list[str]) -> None:
+def _raise_if_gates_failed(failed: list[CheckResult]) -> None:
     if failed:
-        raise QualityGateError("quality gate failed: " + ", ".join(failed))
+        reasons = "; ".join(f"{c.detail} (limit {c.threshold})" for c in failed)
+        raise QualityGateError(f"Nothing was published: {reasons}")
 
 
 def _raise_if_reconciliation_failed(checks: list[CheckResult]) -> None:
@@ -463,6 +464,18 @@ def execute_run(
     return RunExecutor(db, settings, run_id, scenario, client_factory).execute()
 
 
+def quarantine_sample(quarantine: pd.DataFrame, limit: int) -> pd.DataFrame:
+    """At most ``limit`` rows, shared evenly across reasons so every reason keeps examples.
+
+    A drop with tens of thousands of duplicates must not crowd out the 12 malformed rows
+    someone actually wants to inspect.
+    """
+    if len(quarantine) <= limit:
+        return quarantine
+    per_reason = max(1, limit // max(1, quarantine["reason_code"].nunique()))
+    return quarantine.groupby("reason_code", sort=False).head(per_reason)
+
+
 def persist_results(
     db: Database,
     settings: PipelineSettings,
@@ -474,7 +487,7 @@ def persist_results(
 ) -> None:
     with db.session() as s:
         if drop_key is not None and len(quarantine):
-            rows = quarantine.head(settings.quarantine_store_limit)
+            rows = quarantine_sample(quarantine, settings.quarantine_store_limit)
             s.execute(
                 insert(QuarantinedRow),
                 [

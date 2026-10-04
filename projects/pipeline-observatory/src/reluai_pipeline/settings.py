@@ -31,6 +31,7 @@ class PipelineSettings(BaseSettings):
     visitor_runs_per_hour: int = Field(default=3, ge=1)
     max_pending_runs: int = Field(default=4, ge=1)
     schedule_cron: str = "17 */6 * * *"
+    # Rows kept per run for inspection, split evenly across reasons; totals are always exact.
     quarantine_store_limit: int = Field(default=20_000, ge=100)
 
 

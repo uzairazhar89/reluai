@@ -3,13 +3,14 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import httpx
+import pandas as pd
 import pytest
 from sqlalchemy import func, select, text
 
 from reluai_core.db import Database
 from reluai_pipeline import service
 from reluai_pipeline.models import DqResult, PipelineRun, QuarantinedRow, RunLog, RunStep
-from reluai_pipeline.runner import create_run, execute_run
+from reluai_pipeline.runner import create_run, execute_run, quarantine_sample
 from reluai_pipeline.settings import PipelineSettings
 
 pytestmark = pytest.mark.db
@@ -142,6 +143,9 @@ def test_summary_and_detail_read_models(
     detail = service.run_detail(clean_db, ok.id)
     assert detail is not None
     assert {r.code for r in detail.reasons} >= {"stock_adjustment", "duplicate_line"}
+    by_code = {r.code: r.count for r in detail.reasons}
+    assert by_code["duplicate_line"] == detail.run.rows_deduplicated
+    assert sum(n for c, n in by_code.items() if c != "duplicate_line") == detail.run.rows_rejected
     assert {w.code for w in detail.warnings} >= {"missing_customer_id"}
     page = service.quarantine_page(clean_db, ok.id, reason="duplicate_line", limit=10, offset=0)
     assert page.total == 1
@@ -163,3 +167,14 @@ def test_results_aggregate_latest_successful_run_per_drop(
     assert (res.runs_succeeded, res.runs_failed) == (3, 1)
     assert res.duration.median_ms is not None
     assert res.environment is not None
+
+
+def test_quarantine_sample_keeps_every_reason() -> None:
+    q = pd.DataFrame(
+        {"reason_code": ["duplicate_line"] * 50 + ["malformed_row"] * 3, "line_number": range(53)}
+    )
+    sample = quarantine_sample(q, limit=10)
+    assert len(sample) <= 10
+    assert set(sample["reason_code"]) == {"duplicate_line", "malformed_row"}
+    assert (sample["reason_code"] == "malformed_row").sum() == 3
+    assert quarantine_sample(q.head(5), limit=10).equals(q.head(5))

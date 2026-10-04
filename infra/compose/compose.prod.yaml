@@ -1,0 +1,62 @@
+# Production on the VPS: prebuilt images from GHCR (built and scanned in CI), HTTPS.
+#   IMAGE_TAG=<git sha> docker compose -f compose.yaml -f compose.prod.yaml up -d
+
+services:
+  nginx:
+    image: ghcr.io/${GHCR_OWNER:-uzairazhar89}/reluai-nginx:${IMAGE_TAG:?set IMAGE_TAG}
+    ports: !override
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-reluai.cloud}
+    volumes:
+      - ../nginx/templates/https.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot:ro
+
+  web:
+    image: ghcr.io/${GHCR_OWNER:-uzairazhar89}/reluai-web:${IMAGE_TAG:?set IMAGE_TAG}
+
+  api:
+    image: ghcr.io/${GHCR_OWNER:-uzairazhar89}/reluai-api:${IMAGE_TAG:?set IMAGE_TAG}
+    environment:
+      RELUAI_ENVIRONMENT: prod
+
+  worker:
+    image: ghcr.io/${GHCR_OWNER:-uzairazhar89}/reluai-worker:${IMAGE_TAG:?set IMAGE_TAG}
+    environment:
+      RELUAI_ENVIRONMENT: prod
+
+  migrate:
+    image: ghcr.io/${GHCR_OWNER:-uzairazhar89}/reluai-api:${IMAGE_TAG:?set IMAGE_TAG}
+    environment:
+      RELUAI_ENVIRONMENT: prod
+
+  # Obtains the certificate on first run, then renews twice a day. nginx reloads every 6 h.
+  certbot:
+    image: certbot/certbot:v3.1.0
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        trap exit TERM;
+        while :; do
+          if [ ! -f /etc/letsencrypt/renewal/${DOMAIN:-reluai.cloud}.conf ]; then
+            rm -rf /etc/letsencrypt/live/${DOMAIN:-reluai.cloud};
+            certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
+              -m ${ACME_EMAIL:?set ACME_EMAIL} -d ${DOMAIN:-reluai.cloud} -d www.${DOMAIN:-reluai.cloud};
+          else
+            certbot renew --webroot -w /var/www/certbot --quiet;
+          fi;
+          sleep 12h & wait $${!};
+        done
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    networks: [edge]
+    mem_limit: 128m
+    cpus: 0.25
+
+volumes:
+  letsencrypt: {}
+  certbot-webroot: {}

@@ -1,0 +1,11 @@
+[Unit]
+Description=reluai.cloud PostgreSQL backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User={{ deploy_user }}
+Environment=COMPOSE_DIR={{ app_root }}/infra/compose
+Environment=BACKUP_DIR={{ backup_dir }}
+ExecStart={{ app_root }}/infra/backup/backup.sh

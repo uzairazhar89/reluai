@@ -1,0 +1,70 @@
+name: release
+
+# Builds the four production images after CI passes on main, scans them, publishes SBOMs
+# and pushes to GHCR tagged with the commit SHA. The VPS only ever pulls these images.
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+jobs:
+  images:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { name: api, file: infra/docker/python.Dockerfile, target: api, context: . }
+          - { name: worker, file: infra/docker/python.Dockerfile, target: worker, context: . }
+          - { name: web, file: infra/docker/web.Dockerfile, target: "", context: . }
+          - { name: nginx, file: infra/nginx/Dockerfile, target: "", context: infra/nginx }
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/reluai-${{ matrix.name }}
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SHA }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push (with SBOM and provenance attestations)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
+          push: true
+          sbom: true
+          provenance: mode=max
+          build-args: VERSION=${{ env.SHA }}
+          tags: |
+            ${{ env.IMAGE }}:${{ env.SHA }}
+            ${{ env.IMAGE }}:main
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,scope=${{ matrix.name }},mode=max
+      - name: Vulnerability scan (fails on fixable critical issues)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ env.SHA }}
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: sarif
+          output: trivy-${{ matrix.name }}.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-${{ matrix.name }}.sarif
+          category: trivy-${{ matrix.name }}

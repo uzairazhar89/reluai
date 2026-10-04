@@ -1,0 +1,99 @@
+- name: Update apt cache and upgrade packages
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: safe
+    cache_valid_time: 3600
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: [ufw, fail2ban, unattended-upgrades, curl, git, ca-certificates, htop, jq]
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: Enable unattended security upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    mode: "0644"
+
+- name: Harden SSH (keys only, no root login)
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/10-reluai.conf
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      X11Forwarding no
+      MaxAuthTries 3
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart ssh
+
+- name: Firewall default - deny incoming
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Firewall default - allow outgoing
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow SSH, HTTP and HTTPS
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: ["{{ admin_ssh_port }}", "80", "443"]
+
+- name: Enable firewall
+  community.general.ufw:
+    state: enabled
+
+- name: Configure fail2ban for SSH
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    content: |
+      [sshd]
+      enabled = true
+      maxretry = 5
+      bantime = 1h
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Check for swap file
+  ansible.builtin.stat:
+    path: /swapfile
+  register: base_swapfile
+
+- name: Create swap file (headroom for memory spikes on an 8 GB host)
+  when: not base_swapfile.stat.exists
+  block:
+    - name: Allocate swap
+      ansible.builtin.command: fallocate -l {{ swap_size_mb }}M /swapfile
+      changed_when: true
+    - name: Secure swap file
+      ansible.builtin.file:
+        path: /swapfile
+        mode: "0600"
+    - name: Format swap
+      ansible.builtin.command: mkswap /swapfile
+      changed_when: true
+    - name: Enable swap
+      ansible.builtin.command: swapon /swapfile
+      changed_when: true
+
+- name: Persist swap
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: /swapfile none swap sw 0 0
+
+- name: Prefer RAM over swap
+  ansible.posix.sysctl:
+    name: vm.swappiness
+    value: "10"

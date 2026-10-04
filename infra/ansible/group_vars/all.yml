@@ -1,0 +1,10 @@
+app_root: /opt/reluai
+app_repo: https://github.com/uzairazhar89/reluai.git
+app_repo_version: main
+deploy_user: deploy
+# Public keys allowed to log in as the deploy user (CI deploy key + your own).
+deploy_authorized_keys: []
+admin_ssh_port: 22
+swap_size_mb: 2048
+backup_dir: /var/backups/reluai
+timezone: UTC

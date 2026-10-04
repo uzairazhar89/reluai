@@ -1,0 +1,17 @@
+[Unit]
+Description=reluai.cloud (Docker Compose stack)
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+User={{ deploy_user }}
+WorkingDirectory={{ app_root }}/infra/compose
+ExecStart=/bin/sh -c 'IMAGE_TAG=$(cat {{ app_root }}/.deployed-tag) docker compose -f compose.yaml -f compose.prod.yaml up -d'
+ExecStop=/bin/sh -c 'IMAGE_TAG=$(cat {{ app_root }}/.deployed-tag) docker compose -f compose.yaml -f compose.prod.yaml stop'
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

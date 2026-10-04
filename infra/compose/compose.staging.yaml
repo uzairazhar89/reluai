@@ -1,0 +1,46 @@
+# Staging on a Windows/Linux laptop (8 GB RAM): builds from source, plain HTTP on :8080.
+#   docker compose -f compose.yaml -f compose.staging.yaml up -d --build
+services:
+  nginx:
+    build: ../nginx
+    ports: !override
+      - "8080:80"
+    volumes:
+      - ../nginx/templates/http.conf.template:/etc/nginx/templates/default.conf.template:ro
+
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/web.Dockerfile
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/python.Dockerfile
+      target: api
+    environment:
+      RELUAI_ENVIRONMENT: staging
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: infra/docker/python.Dockerfile
+      target: worker
+    environment:
+      RELUAI_ENVIRONMENT: staging
+    mem_limit: 1g
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: infra/docker/python.Dockerfile
+      target: api
+
+  postgres:
+    command:
+      - postgres
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - max_connections=60
+    mem_limit: 512m

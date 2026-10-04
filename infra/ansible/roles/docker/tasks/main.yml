@@ -1,0 +1,35 @@
+- name: Docker apt repository (deb822, key fetched and pinned to this repository)
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: https://download.docker.com/linux/ubuntu
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [stable]
+    architectures: [amd64]
+    signed_by: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Install Docker Engine and Compose plugin
+  ansible.builtin.apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin]
+    state: present
+    update_cache: true
+
+- name: Docker daemon settings (log rotation, no userland proxy)
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {"max-size": "10m", "max-file": "3"},
+        "userland-proxy": false,
+        "live-restore": true
+      }
+    mode: "0644"
+  notify: Restart docker
+
+- name: Docker running and enabled
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

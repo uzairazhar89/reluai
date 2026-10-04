@@ -1,0 +1,21 @@
+- name: Backup directory
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    mode: "0700"
+
+- name: Backup service and timer
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop: [reluai-backup.service, reluai-backup.timer]
+  notify: Reload systemd for backup
+
+- name: Enable nightly backups
+  ansible.builtin.systemd:
+    name: reluai-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

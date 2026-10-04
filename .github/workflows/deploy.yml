@@ -1,0 +1,52 @@
+name: deploy
+
+# Deploys a released image tag to the VPS. The `production` environment requires your
+# approval in GitHub before this job runs (Settings → Environments → production →
+# Required reviewers). The server pulls images, migrates, restarts and health-checks;
+# a failed health check rolls back to the previous tag automatically.
+on:
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Image tag (full git SHA) to deploy
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    environment:
+      name: production
+      url: https://reluai.cloud
+    env:
+      SHA: ${{ github.event.inputs.sha || github.event.workflow_run.head_sha }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      DEPLOY_TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+    steps:
+      - name: Validate tag
+        run: '[[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "invalid SHA: $SHA"; exit 1; }'
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Deploy
+        run: |
+          ssh -o BatchMode=yes "$DEPLOY_TARGET" \
+            "cd /opt/reluai && git fetch --quiet origin && git checkout --quiet $SHA && infra/scripts/deploy.sh $SHA"
+      - name: Public smoke test
+        run: |
+          curl -fsS https://reluai.cloud/api/status | tee status.json
+          grep -q '"status":"operational"' status.json || grep -q '"status":"degraded"' status.json

@@ -1,0 +1,12 @@
+# Provision an Ubuntu 24.04 VPS for reluai.cloud from scratch (idempotent).
+#   ansible-playbook -i inventory.ini site.yml
+# Run once for a new host and again after changing these roles. Application releases are
+# deployed by CI (infra/scripts/deploy.sh), not by this playbook.
+- name: Provision reluai.cloud host
+  hosts: reluai
+  become: true
+  roles:
+    - base
+    - docker
+    - app
+    - backup

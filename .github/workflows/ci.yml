@@ -1,0 +1,157 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 1"  # weekly: re-verify datasets against their canonical sources
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python — lint, types, tests
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: reluai
+          POSTGRES_PASSWORD: reluai
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U reluai" --health-interval 5s --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://reluai:reluai@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Denylist (retired brand must never reappear)
+        run: uv run python scripts/check_denylist.py
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - name: Block outbound network (demos must work without external APIs)
+        run: |
+          sudo iptables -A OUTPUT -o lo -j ACCEPT
+          sudo iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
+          sudo iptables -A OUTPUT -d 172.16.0.0/12 -j ACCEPT
+          sudo iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+          sudo iptables -P OUTPUT DROP
+          if curl -s --max-time 5 https://api.groq.com >/dev/null; then
+            echo "network still reachable" && exit 1
+          fi
+      - name: Tests (offline)
+        run: uv run pytest -m "not slow and not network" --cov --cov-report=term --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage.xml
+
+  datasets:
+    name: Datasets — verify canonical sources, real-data regression
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: reluai
+          POSTGRES_PASSWORD: reluai
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U reluai" --health-interval 5s --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://reluai:reluai@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Fetch from the canonical source and verify the content fingerprint
+        run: uv run reluai-data fetch online-retail-ii --prefer canonical --out data/canonical
+      - name: Source checksum (pin it in artifacts/manifest.yaml)
+        run: sha256sum data/canonical/*.zip || true
+      - run: uv run pytest -m slow
+
+  web:
+    name: Web — lint, types, unit and browser tests, build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: Denylist on the built site
+        run: python3 ../../scripts/check_denylist.py .next/server .next/static
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+
+  infra:
+    name: Infra — compose, nginx, shell, ansible, workflows
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Compose files
+        working-directory: infra/compose
+        run: |
+          cp .env.example .env && sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=0000000/' .env
+          docker compose -f compose.yaml -f compose.staging.yaml config --quiet
+          docker compose -f compose.yaml -f compose.prod.yaml config --quiet
+      - name: nginx configuration (both templates, real nginx image)
+        run: |
+          for mode in http https; do
+            docker run --rm -e DOMAIN=reluai.cloud \
+              -v "$PWD/infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+              -v "$PWD/infra/nginx/snippets:/etc/nginx/snippets:ro" \
+              -v "$PWD/infra/nginx/docker-entrypoint.d/30-tls-bootstrap.sh:/docker-entrypoint.d/30-tls-bootstrap.sh:ro" \
+              -v "$PWD/infra/nginx/templates/$mode.conf.template:/etc/nginx/templates/default.conf.template:ro" \
+              --add-host api:127.0.0.1 --add-host web:127.0.0.1 \
+              nginx:1.27-alpine sh -c 'apk add -q openssl && /docker-entrypoint.sh nginx -t'
+          done
+      - name: Shell scripts
+        run: shellcheck -S warning infra/*/*.sh infra/nginx/docker-entrypoint.d/*.sh
+      - name: Ansible
+        run: |
+          pipx install ansible-lint && pipx inject ansible-lint ansible
+          cd infra/ansible && ansible-lint --offline -q site.yml
+      - name: Workflows
+        run: |
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
+          ./actionlint -color

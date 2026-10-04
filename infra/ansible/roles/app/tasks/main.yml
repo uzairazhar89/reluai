@@ -1,0 +1,54 @@
+- name: Deploy user (runs releases; member of the docker group)
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    shell: /bin/bash
+    groups: docker
+    append: true
+
+- name: Deploy user's authorised SSH keys
+  ansible.posix.authorized_key:
+    user: "{{ deploy_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ deploy_authorized_keys }}"
+
+- name: Application checkout (compose files, nginx templates, scripts)
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_root }}"
+    version: "{{ app_repo_version }}"
+    update: true
+  become_user: "{{ deploy_user }}"
+  become: true
+
+- name: Secrets file must be created by hand from .env.example
+  ansible.builtin.stat:
+    path: "{{ app_root }}/infra/compose/.env"
+  register: app_envfile
+
+- name: Remind about the secrets file
+  ansible.builtin.debug:
+    msg: >-
+      {{ app_root }}/infra/compose/.env is missing. Copy .env.example, fill in the secrets
+      (chmod 600, owner {{ deploy_user }}), then run the first deploy.
+  when: not app_envfile.stat.exists
+
+- name: Restrict secrets file permissions
+  ansible.builtin.file:
+    path: "{{ app_root }}/infra/compose/.env"
+    owner: "{{ deploy_user }}"
+    mode: "0600"
+  when: app_envfile.stat.exists
+
+- name: Start the stack on boot
+  ansible.builtin.template:
+    src: reluai.service.j2
+    dest: /etc/systemd/system/reluai.service
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable the stack unit
+  ansible.builtin.systemd:
+    name: reluai
+    enabled: true
+    daemon_reload: true

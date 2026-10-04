@@ -1,0 +1,8 @@
+# Staging / local: plain HTTP on port 80 (no TLS). Rendered by the nginx image's envsubst.
+server {
+    listen 80 default_server;
+    server_name _;
+
+    include /etc/nginx/snippets/security-headers.conf;
+    include /etc/nginx/snippets/app-locations.conf;
+}

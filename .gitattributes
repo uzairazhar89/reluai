@@ -1,0 +1,16 @@
+# Normalise line endings so scripts written on Windows run on Linux servers.
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff2 binary
+*.gz binary
+*.parquet binary

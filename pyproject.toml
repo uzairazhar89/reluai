@@ -1,0 +1,109 @@
+[project]
+name = "reluai-workspace"
+version = "0.1.0"
+description = "reluai.cloud monorepo — workspace root (not a distributable package)"
+requires-python = ">=3.12"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+  "reluai-api",
+  "reluai-core",
+  "reluai-datasets",
+  "reluai-inference",
+  "reluai-pipeline",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=2.4",
+  "pandas-stubs>=3.0",
+  "pre-commit>=4",
+  "pytest>=9.1",
+  "pytest-asyncio>=1.4",
+  "pytest-cov>=7",
+  "ruff>=0.16",
+  "types-pyyaml>=6.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["apps/api", "packages/*", "projects/*"]
+
+[tool.uv.sources]
+reluai-api = { workspace = true }
+reluai-core = { workspace = true }
+reluai-datasets = { workspace = true }
+reluai-inference = { workspace = true }
+reluai-pipeline = { workspace = true }
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["apps/*/src", "packages/*/src", "projects/*/src"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F", "I", "N", "UP", "B", "S", "C4", "DTZ", "SIM", "PT", "RUF",
+  "ASYNC", "PERF", "PL", "TRY", "LOG", "G",
+]
+ignore = [
+  "PLR0913",  # many-argument functions are fine for explicit config objects
+  "PLR2004",  # magic values in comparisons are clearer inline for thresholds
+  "TRY003",   # long exception messages are intentional (user-facing problem details)
+  "PLC0415",  # local imports used deliberately to keep worker/API start-up light
+  "RUF001", "RUF002", "RUF003",  # ×, ≤, ≥ are intentional in user-facing text
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "S105", "S106", "S311", "PLR2004", "PLR0915", "SLF001", "PT018", "DTZ001"]
+"conftest.py" = ["S101"]
+"**/reluai_pipeline/testing.py" = ["E501"]
+"**/migrations/**" = ["N999", "E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["reluai_api", "reluai_core", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src"]
+explicit_package_bases = true
+files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src"]
+exclude = ["(^|/)migrations/", "(^|/)node_modules/"]
+
+[[tool.mypy.overrides]]
+module = ["procrastinate.*", "pyreadr.*", "openpyxl.*", "tenacity.*"]
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = "-ra --strict-markers --strict-config --import-mode=importlib"
+testpaths = ["apps/api/tests", "packages", "projects"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+markers = [
+  "db: needs PostgreSQL (TEST_DATABASE_URL); skipped when unset",
+  "slow: long-running test (full dataset)",
+  "network: needs outbound network (excluded from the offline CI job)",
+]
+filterwarnings = ["error::DeprecationWarning:reluai_.*"]
+
+[tool.coverage.run]
+branch = true
+source = ["reluai_api", "reluai_core", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

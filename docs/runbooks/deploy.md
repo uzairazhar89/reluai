@@ -37,6 +37,19 @@ Do this once, after the old site has been removed ([decommission](decommission.m
    This hardens SSH (keys only), enables the firewall (22, 80, 443) and fail2ban, adds
    swap, installs Docker, creates the `deploy` user, checks out the repository into
    `/opt/reluai`, and installs the boot unit and the nightly backup timer.
+
+   **Without a Linux or WSL machine** (for example from Windows), run the same playbook on
+   the server itself:
+
+   ```bash
+   sudo apt-get update && sudo apt-get install -y ansible git
+   git clone https://github.com/uzairazhar89/reluai.git ~/reluai-setup && cd ~/reluai-setup
+   sudo ansible-playbook -i infra/ansible/inventory.local.example.ini infra/ansible/site.yml \
+     -e '{"deploy_authorized_keys": ["ssh-ed25519 AAAA... ci-deploy", "ssh-ed25519 AAAA... you"]}'
+   ```
+
+   Either way, **log in with an SSH key before running it**: the playbook turns off password
+   login, and it stops with an error if no SSH key is installed on the server.
 3. **Create the secrets file** on the server:
 
    ```bash

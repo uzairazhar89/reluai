@@ -5,6 +5,9 @@ deploy_user: deploy
 # Public keys allowed to log in as the deploy user (CI deploy key + your own).
 deploy_authorized_keys: []
 admin_ssh_port: 22
+# "prohibit-password" keeps key-based root login (many VPS images only have root);
+# set to "no" once you log in as a sudo user.
+ssh_permit_root_login: prohibit-password
 swap_size_mb: 2048
 backup_dir: /var/backups/reluai
 timezone: UTC

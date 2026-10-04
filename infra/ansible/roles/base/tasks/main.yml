@@ -1,3 +1,23 @@
+# Password login is switched off below. Refuse to continue unless at least one SSH key is
+# installed for root or a user, so provisioning can never lock the administrator out.
+- name: Count installed SSH public keys
+  ansible.builtin.shell: |
+    set -o pipefail
+    cat /root/.ssh/authorized_keys /home/*/.ssh/authorized_keys 2>/dev/null \
+      | grep -cE '^(ssh-(ed25519|rsa)|ecdsa-sha2-|sk-)' || true
+  args:
+    executable: /bin/bash
+  register: base_ssh_keys
+  changed_when: false
+
+- name: Stop if no SSH key is installed
+  ansible.builtin.assert:
+    that: base_ssh_keys.stdout | int > 0
+    fail_msg: >-
+      No SSH public key is installed on this server. Add yours first (ssh-copy-id, or paste
+      it into ~/.ssh/authorized_keys) and check that key login works, otherwise disabling
+      password login would lock you out.
+
 - name: Update apt cache and upgrade packages
   ansible.builtin.apt:
     update_cache: true
@@ -25,7 +45,7 @@
   ansible.builtin.copy:
     dest: /etc/ssh/sshd_config.d/10-reluai.conf
     content: |
-      PermitRootLogin no
+      PermitRootLogin {{ ssh_permit_root_login }}
       PasswordAuthentication no
       KbdInteractiveAuthentication no
       X11Forwarding no

@@ -1,5 +1,5 @@
 # Edge proxy image. Build context: infra/nginx
-FROM nginx:1.27-alpine
+FROM nginx:1.31-alpine
 RUN apk add --no-cache openssl \
  && rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf

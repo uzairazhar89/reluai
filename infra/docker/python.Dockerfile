@@ -2,10 +2,8 @@
 # One image, two roles: the API (`api` target) and the background worker (`worker` target).
 # Build context: repository root.  docker build -f infra/docker/python.Dockerfile --target api .
 
-ARG PYTHON_IMAGE=python:3.13-slim-bookworm
-
 # ---------------------------------------------------------------- dependencies + app
-FROM ${PYTHON_IMAGE} AS build
+FROM python:3.13-slim-bookworm AS build
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -44,7 +42,7 @@ RUN reluai-data fetch online-retail-ii --out /data/canonical \
  && rm -f /data/canonical/*.zip /data/canonical/*.rda
 
 # ---------------------------------------------------------------- runtime base
-FROM ${PYTHON_IMAGE} AS runtime
+FROM python:3.13-slim-bookworm AS runtime
 ARG VERSION=0.0.0-dev
 LABEL org.opencontainers.image.source="https://github.com/uzairazhar89/reluai" \
       org.opencontainers.image.licenses="MIT" \

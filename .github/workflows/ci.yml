@@ -34,7 +34,7 @@ jobs:
       TEST_DATABASE_URL: postgresql://reluai:reluai@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.13"
           enable-cache: true
@@ -81,7 +81,7 @@ jobs:
       TEST_DATABASE_URL: postgresql://reluai:reluai@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.13"
           enable-cache: true
@@ -103,7 +103,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 10
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -148,7 +148,7 @@ jobs:
               -v "$PWD/infra/nginx/docker-entrypoint.d/30-tls-bootstrap.sh:/docker-entrypoint.d/30-tls-bootstrap.sh:ro" \
               -v "$PWD/infra/nginx/templates/$mode.conf.template:/etc/nginx/templates/default.conf.template:ro" \
               --add-host api:127.0.0.1 --add-host web:127.0.0.1 \
-              nginx:1.27-alpine sh -c 'apk add -q openssl && /docker-entrypoint.sh nginx -t'
+              nginx:1.31-alpine sh -c 'apk add -q openssl && /docker-entrypoint.sh nginx -t'
           done
       - name: Shell scripts
         run: shellcheck -S warning infra/*/*.sh infra/nginx/docker-entrypoint.d/*.sh

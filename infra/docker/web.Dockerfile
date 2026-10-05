@@ -2,10 +2,8 @@
 # The website: Next.js standalone server, non-root, read-only root filesystem at runtime.
 # Build context: repository root.  docker build -f infra/docker/web.Dockerfile .
 
-ARG NODE_IMAGE=node:22-alpine
-
 # ---- dependencies (cached until the lockfile changes) ------------------------------------
-FROM ${NODE_IMAGE} AS deps
+FROM node:22-alpine AS deps
 WORKDIR /repo/apps/web
 RUN corepack enable
 COPY apps/web/package.json apps/web/pnpm-lock.yaml apps/web/pnpm-workspace.yaml ./
@@ -27,7 +25,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 RUN pnpm build
 
 # ---- runtime -------------------------------------------------------------------------------
-FROM ${NODE_IMAGE} AS runtime
+FROM node:22-alpine AS runtime
 ARG VERSION=dev
 LABEL org.opencontainers.image.title="reluai-web" \
       org.opencontainers.image.source="https://github.com/uzairazhar89/reluai" \

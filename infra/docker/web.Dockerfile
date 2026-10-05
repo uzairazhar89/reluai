@@ -3,7 +3,7 @@
 # Build context: repository root.  docker build -f infra/docker/web.Dockerfile .
 
 # ---- dependencies (cached until the lockfile changes) ------------------------------------
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /repo/apps/web
 RUN corepack enable
 COPY apps/web/package.json apps/web/pnpm-lock.yaml apps/web/pnpm-workspace.yaml ./
@@ -25,7 +25,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 RUN pnpm build
 
 # ---- runtime -------------------------------------------------------------------------------
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 ARG VERSION=dev
 LABEL org.opencontainers.image.title="reluai-web" \
       org.opencontainers.image.source="https://github.com/uzairazhar89/reluai" \

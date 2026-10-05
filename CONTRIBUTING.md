@@ -30,6 +30,9 @@ below is how every change is made.
 
 ## Adding a project
 
+The full checklist, with file paths and code patterns, is in
+[docs/guides/adding-a-project.md](docs/guides/adding-a-project.md). In short:
+
 1. Create `projects/<name>` as a uv workspace member with its own package, `tests/` and
    `README.md` (problem, architecture, run instructions, results, limitations).
 2. Expose a FastAPI router and, if it does heavy work, Procrastinate tasks that take the CPU

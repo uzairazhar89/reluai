@@ -96,6 +96,8 @@ health gate, automatic rollback. See [docs/runbooks/deploy.md](docs/runbooks/dep
 
 - [Architecture overview](docs/architecture/overview.md) and [resource budget](docs/architecture/resources.md)
 - [Decision records](docs/adr)
+- Guides: [how GitHub Actions work here](docs/guides/github-actions.md),
+  [adding a project to the site](docs/guides/adding-a-project.md)
 - Runbooks: [deploy](docs/runbooks/deploy.md), [rollback](docs/runbooks/rollback.md),
   [backup and restore](docs/runbooks/backup-restore.md),
   [decommission the old site](docs/runbooks/decommission.md), [local LLM](docs/runbooks/local-llm.md)

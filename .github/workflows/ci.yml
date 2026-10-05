@@ -48,18 +48,14 @@ jobs:
         run: |
           uv run reluai openapi --out apps/web/openapi.json
           git diff --exit-code -- apps/web/openapi.json
-      - name: Block outbound network (demos must work without external APIs)
-        run: |
-          sudo iptables -A OUTPUT -o lo -j ACCEPT
-          sudo iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
-          sudo iptables -A OUTPUT -d 172.16.0.0/12 -j ACCEPT
-          sudo iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-          sudo iptables -P OUTPUT DROP
-          if curl -s --max-time 5 https://api.groq.com >/dev/null; then
-            echo "network still reachable" && exit 1
-          fi
+      # Demos must work with every external API unavailable. pytest-socket refuses any
+      # connection from the test process except to this machine (PostgreSQL runs here).
+      # Blocking the whole runner with a firewall would also cut the runner off from GitHub.
       - name: Tests (offline)
-        run: uv run pytest -m "not slow and not network" --cov --cov-report=term --cov-report=xml
+        run: >-
+          uv run pytest -m "not slow and not network"
+          --disable-socket --allow-hosts=127.0.0.1,::1,localhost
+          --cov --cov-report=term --cov-report=xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -92,8 +88,8 @@ jobs:
       - run: uv sync --frozen
       - name: Fetch from the canonical source and verify the content fingerprint
         run: uv run reluai-data fetch online-retail-ii --prefer canonical --out data/canonical
-      - name: Source checksum (pin it in artifacts/manifest.yaml)
-        run: sha256sum data/canonical/*.zip || true
+      - name: Which source passed verification (canonical, or the pinned mirror as fallback)
+        run: cat data/canonical/*.provenance.json
       - run: uv run pytest -m slow
 
   web:

@@ -74,7 +74,7 @@ cd apps/web && pnpm install && pnpm dev           # website on :3000, proxies /a
 
 ```bash
 uv run ruff check . && uv run ruff format --check . && uv run mypy
-TEST_DATABASE_URL=postgresql://user:pass@127.0.0.1:5432/postgres uv run pytest
+TEST_DATABASE_URL=postgresql://user:pass@127.0.0.1:5432/postgres uv run pytest --disable-socket --allow-hosts=127.0.0.1,::1,localhost
 uv run python scripts/check_denylist.py
 
 cd apps/web

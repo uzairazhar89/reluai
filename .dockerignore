@@ -1,0 +1,20 @@
+# Keep the build context small and free of local state; images fetch their own data and
+# install their own dependencies.
+.git
+**/.venv
+**/node_modules
+**/.next
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/*.egg-info
+**/test-results
+**/playwright-report
+**/coverage
+**/tsconfig.tsbuildinfo
+data/
+build/
+**/.env
+**/.env.*
+!**/.env.example

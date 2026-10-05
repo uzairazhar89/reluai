@@ -36,8 +36,8 @@ To run Playwright with a system Chromium: `PW_CHROMIUM_PATH=/path/to/chromium pn
 
 ## Environment
 
-| Variable | Where | Purpose |
-| --- | --- | --- |
-| `API_INTERNAL_URL` | runtime | API origin for server-side reads (`http://api:8000` in Compose) |
-| `NEXT_PUBLIC_SITE_URL` | build | canonical origin for metadata, sitemap and robots; non-production origins are not indexed |
-| `LOCAL_API_PROXY` | build | `1` keeps the `/api` proxy in a production build (local testing only) |
+| Variable               | Where   | Purpose                                                                                   |
+| ---------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `API_INTERNAL_URL`     | runtime | API origin for server-side reads (`http://api:8000` in Compose)                           |
+| `NEXT_PUBLIC_SITE_URL` | build   | canonical origin for metadata, sitemap and robots; non-production origins are not indexed |
+| `LOCAL_API_PROXY`      | build   | `1` keeps the `/api` proxy in a production build (local testing only)                     |

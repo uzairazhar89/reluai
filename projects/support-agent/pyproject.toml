@@ -1,0 +1,28 @@
+[project]
+name = "reluai-support-agent"
+version = "0.1.0"
+description = "Customer Support Agent: a hand-written tool-calling agent over real retailer invoices, with policy retrieval, deterministic refund rules, human approval and full traces"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "duckdb>=1.4",
+  "fastapi>=0.142",
+  "reluai-core",
+  "reluai-inference",
+  "reluai-retrieval",
+]
+
+[project.scripts]
+reluai-support = "reluai_support.cli:main"
+
+[tool.uv.sources]
+reluai-core = { workspace = true }
+reluai-inference = { workspace = true }
+reluai-retrieval = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reluai_support"]

@@ -45,6 +45,12 @@ MIRRORS = (
         title="AI CSV Analyst",
         packages=("platform-core", "inference", "datasets"),
     ),
+    Mirror(
+        project="support-agent",
+        repo="reluai-support-agent",
+        title="Customer Support Agent",
+        packages=("platform-core", "inference", "retrieval", "datasets"),
+    ),
 )
 
 ALWAYS = ("LICENSE", "artifacts/manifest.yaml", ".gitattributes", ".editorconfig")

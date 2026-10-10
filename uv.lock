@@ -22,6 +22,7 @@ members = [
     "reluai-inference",
     "reluai-pipeline",
     "reluai-retrieval",
+    "reluai-support-agent",
     "reluai-workspace",
 ]
 
@@ -1516,6 +1517,7 @@ dependencies = [
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
     { name = "reluai-retrieval" },
+    { name = "reluai-support-agent" },
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -1529,6 +1531,7 @@ requires-dist = [
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
     { name = "reluai-retrieval", editable = "packages/retrieval" },
+    { name = "reluai-support-agent", editable = "projects/support-agent" },
     { name = "typer", specifier = ">=0.17" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54" },
 ]
@@ -1664,6 +1667,27 @@ dependencies = [
 requires-dist = [{ name = "reluai-core", editable = "packages/platform-core" }]
 
 [[package]]
+name = "reluai-support-agent"
+version = "0.1.0"
+source = { editable = "projects/support-agent" }
+dependencies = [
+    { name = "duckdb" },
+    { name = "fastapi" },
+    { name = "reluai-core" },
+    { name = "reluai-inference" },
+    { name = "reluai-retrieval" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "duckdb", specifier = ">=1.4" },
+    { name = "fastapi", specifier = ">=0.142" },
+    { name = "reluai-core", editable = "packages/platform-core" },
+    { name = "reluai-inference", editable = "packages/inference" },
+    { name = "reluai-retrieval", editable = "packages/retrieval" },
+]
+
+[[package]]
 name = "reluai-workspace"
 version = "0.1.0"
 source = { virtual = "." }
@@ -1675,6 +1699,7 @@ dependencies = [
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
     { name = "reluai-retrieval" },
+    { name = "reluai-support-agent" },
 ]
 
 [package.dev-dependencies]
@@ -1699,6 +1724,7 @@ requires-dist = [
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
     { name = "reluai-retrieval", editable = "packages/retrieval" },
+    { name = "reluai-support-agent", editable = "projects/support-agent" },
 ]
 
 [package.metadata.requires-dev]

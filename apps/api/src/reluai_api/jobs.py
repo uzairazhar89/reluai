@@ -13,6 +13,7 @@ from reluai_core.settings import CoreSettings
 from reluai_csv.tasks import blueprint as csv_blueprint
 from reluai_pipeline.tasks import EXECUTE_TASK
 from reluai_pipeline.tasks import blueprint as pipeline_blueprint
+from reluai_support.tasks import blueprint as support_blueprint
 
 platform_blueprint = Blueprint()
 log = get_logger(__name__)
@@ -36,7 +37,12 @@ def housekeeping(timestamp: int) -> None:
 def build_job_app(settings: CoreSettings) -> App:
     return create_job_app(
         settings,
-        {"platform": platform_blueprint, "pipeline": pipeline_blueprint, "csv": csv_blueprint},
+        {
+            "platform": platform_blueprint,
+            "pipeline": pipeline_blueprint,
+            "csv": csv_blueprint,
+            "support": support_blueprint,
+        },
     )
 
 

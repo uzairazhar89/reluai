@@ -94,6 +94,7 @@ def clean_db(db: Database) -> Database:
                 "retail.customer, retail.product, platform.rate_counter, platform.llm_usage, "
                 "platform.contact_message, csv.query_log, csv.evaluation_run, "
                 "retrieval.document, retrieval.chunk, "
+                "support.conversation, support.evaluation_run, "
                 "public.procrastinate_jobs "
                 "RESTART IDENTITY CASCADE"
             )

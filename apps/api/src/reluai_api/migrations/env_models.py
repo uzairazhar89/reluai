@@ -11,5 +11,6 @@ import reluai_csv.models  # noqa: F401 - registers csv.*
 import reluai_inference.ledger  # noqa: F401 - registers platform.llm_usage
 import reluai_pipeline.models  # noqa: F401 - registers pipeline.* and retail.*
 import reluai_retrieval.models  # noqa: F401 - registers retrieval.*
+import reluai_support.models  # noqa: F401 - registers support.*
 
-SCHEMAS = {"platform", "pipeline", "retail", "csv", "retrieval"}
+SCHEMAS = {"platform", "pipeline", "retail", "csv", "retrieval", "support"}

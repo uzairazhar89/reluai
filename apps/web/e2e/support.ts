@@ -22,6 +22,15 @@ export const quarantine = fixture<Json>("quarantine");
 
 export const NEW_RUN_ID = "00000000-0000-4000-8000-000000000001";
 
+export const csvRetail = fixture<Json>("csv-retail");
+export const csvUpload = fixture<Json & { id: string }>("csv-upload");
+const csvAnswers: Record<string, Json> = {
+  "Top 5 countries by revenue in 2011, excluding the UK": fixture<Json>("csv-ask-top"),
+  "Revenue per month": fixture<Json>("csv-ask-month"),
+  "Units by region": fixture<Json>("csv-ask-upload"),
+};
+const csvDeclined = fixture<Json>("csv-ask-declined");
+
 function emptyDetail(run: RunJson): Json {
   return {
     run,
@@ -52,6 +61,8 @@ export interface ApiOptions {
   postRun?: { status: number; body: Json; headers?: Record<string, string> };
   /** Fail every pipeline read with this status (simulates the API being down). */
   failReadsWith?: number;
+  /** Response for POST /api/csv/ask instead of the recorded answers. */
+  csvAsk?: { status: number; body: Json; headers?: Record<string, string> };
 }
 
 export async function mockApi(page: Page, options: ApiOptions = {}) {
@@ -78,6 +89,20 @@ export async function mockApi(page: Page, options: ApiOptions = {}) {
       };
       return json(route, r.body, r.status, r.headers);
     }
+    if (req.method() === "POST" && p === "/api/csv/ask") {
+      const body = req.postDataJSON() as Json & { question: string };
+      posted.push(body);
+      if (options.csvAsk) {
+        return json(route, options.csvAsk.body, options.csvAsk.status, options.csvAsk.headers);
+      }
+      const answer = csvAnswers[body.question] ?? { ...csvDeclined, question: body.question };
+      return json(route, answer);
+    }
+    if (req.method() === "POST" && p === "/api/csv/uploads") {
+      return json(route, csvUpload, 201);
+    }
+    if (p === "/api/csv/datasets/retail") return json(route, csvRetail);
+    if (p === `/api/csv/uploads/${csvUpload.id}`) return json(route, csvUpload);
     if (req.method() === "POST" && p === "/api/contact") {
       posted.push(req.postDataJSON() as Json);
       return json(route, { received: true }, 202);

@@ -1,0 +1,63 @@
+{
+  "status": "answered",
+  "question": "Revenue per month",
+  "message": null,
+  "interpreter": {
+    "kind": "rules",
+    "pattern": "time_series",
+    "provider": null,
+    "model": null,
+    "retries": 0,
+    "tokens": 0,
+    "latency_ms": 0,
+    "attempts": []
+  },
+  "plan": {
+    "metrics": [{ "agg": "sum", "column": "revenue" }],
+    "group_by": [],
+    "time_bucket": { "column": "invoiced_at", "grain": "month" },
+    "filters": [],
+    "sort": "group_asc",
+    "limit": 100,
+    "chart": null
+  },
+  "summary": "Total revenue per month.",
+  "sql": "SELECT CAST(date_trunc('month', \"invoiced_at\") AS DATE) AS \"month\", sum(\"revenue\") AS \"sum_revenue\"\nFROM \"sales\"\nGROUP BY 1\nORDER BY \"month\" ASC NULLS LAST\nLIMIT 100",
+  "pandas": "import pandas as pd\n\ndf = ...  # the sales table as a DataFrame\ndf = df.assign(month=df['invoiced_at'].dt.to_period('M').dt.start_time)\nresult = (\n    df.groupby(['month'], as_index=False, dropna=False)\n    .agg(sum_revenue=('revenue', 'sum'))\n    .sort_values(['month'], ascending=True)\n    .head(100)\n)",
+  "columns": [
+    { "name": "month", "role": "time", "kind": "date", "label": "Month" },
+    { "name": "sum_revenue", "role": "metric", "kind": "number", "label": "Total revenue" }
+  ],
+  "rows": [
+    ["2009-12-01", 799847.11],
+    ["2010-01-01", 624032.892],
+    ["2010-02-01", 533091.426],
+    ["2010-03-01", 765848.761],
+    ["2010-04-01", 590580.432],
+    ["2010-05-01", 615322.83],
+    ["2010-06-01", 679786.61],
+    ["2010-07-01", 575236.36],
+    ["2010-08-01", 656776.34],
+    ["2010-09-01", 853650.431],
+    ["2010-10-01", 1045168.35],
+    ["2010-11-01", 1422654.642],
+    ["2010-12-01", 1126445.47],
+    ["2011-01-01", 560000.26],
+    ["2011-02-01", 498062.65],
+    ["2011-03-01", 683267.08],
+    ["2011-04-01", 493207.121],
+    ["2011-05-01", 723333.51],
+    ["2011-06-01", 691123.12],
+    ["2011-07-01", 681300.111],
+    ["2011-08-01", 682680.51],
+    ["2011-09-01", 1019687.622],
+    ["2011-10-01", 1070704.67],
+    ["2011-11-01", 1461756.25],
+    ["2011-12-01", 433686.01]
+  ],
+  "truncated": false,
+  "chart": "line",
+  "timings": { "interpret_ms": 0.9, "query_ms": 59.9, "total_ms": 61.1 },
+  "suggestions": [],
+  "issues": []
+}

@@ -39,13 +39,18 @@ export const projects: Project[] = [
   {
     slug: "ai-csv-analyst",
     title: "AI CSV Analyst",
-    status: "building",
+    status: "live",
     roles: ["AI and LLM apps", "Data engineering"],
     oneLiner: "Upload a CSV, get a quality report, ask questions in plain English, see the SQL.",
-    problem: "",
-    solution: "",
-    tech: ["DuckDB", "FastAPI", "function calling"],
+    problem:
+      "Chat-with-your-data tools write SQL nobody reads, answer confidently when the question " +
+      "does not fit the data, and say nothing about the duplicates and gaps that skew totals.",
+    solution:
+      "Profiles the table first, turns each question into a validated query plan (rules first, " +
+      "an optional LLM second), runs it in a locked-down DuckDB sandbox and shows the SQL.",
+    tech: ["DuckDB", "Python", "function calling", "FastAPI", "Next.js"],
     repoPath: "projects/csv-analyst",
+    dataNote: "Real data: UCI Online Retail II (CC BY 4.0)",
   },
   {
     slug: "document-intelligence",

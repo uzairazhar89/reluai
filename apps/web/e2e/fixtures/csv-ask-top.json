@@ -1,0 +1,46 @@
+{
+  "status": "answered",
+  "question": "Top 5 countries by revenue in 2011, excluding the UK",
+  "message": null,
+  "interpreter": {
+    "kind": "rules",
+    "pattern": "top_n+filters",
+    "provider": null,
+    "model": null,
+    "retries": 0,
+    "tokens": 0,
+    "latency_ms": 0,
+    "attempts": []
+  },
+  "plan": {
+    "metrics": [{ "agg": "sum", "column": "revenue" }],
+    "group_by": ["country"],
+    "time_bucket": null,
+    "filters": [
+      { "column": "country", "op": "ne", "value": "United Kingdom" },
+      { "column": "invoiced_at", "op": "between", "value": ["2011-01-01", "2011-12-31"] }
+    ],
+    "sort": "metric_desc",
+    "limit": 5,
+    "chart": null
+  },
+  "summary": "Total revenue by country, where country is not United Kingdom and invoice date from 1 Jan 2011 to 31 Dec 2011; highest 5 first.",
+  "sql": "SELECT \"country\", sum(\"revenue\") AS \"sum_revenue\"\nFROM \"sales\"\nWHERE \"country\" <> 'United Kingdom'\n  AND \"invoiced_at\" >= CAST('2011-01-01' AS DATE)\n  AND \"invoiced_at\" < CAST('2012-01-01' AS DATE)\nGROUP BY 1\nORDER BY \"sum_revenue\" DESC NULLS LAST, \"country\"\nLIMIT 5",
+  "pandas": "import pandas as pd\n\ndf = ...  # the sales table as a DataFrame\ndf = df[df['country'].notna() & (df['country'] != 'United Kingdom') & (df['invoiced_at'] >= '2011-01-01') & (df['invoiced_at'] < '2012-01-01')]\nresult = (\n    df.groupby(['country'], as_index=False, dropna=False)\n    .agg(sum_revenue=('revenue', 'sum'))\n    .sort_values('sum_revenue', ascending=False)\n    .head(5)\n)",
+  "columns": [
+    { "name": "country", "role": "group", "kind": "text", "label": "Country" },
+    { "name": "sum_revenue", "role": "metric", "kind": "number", "label": "Total revenue" }
+  ],
+  "rows": [
+    ["Netherlands", 275877.06],
+    ["EIRE", 254246.87],
+    ["Germany", 207135.37],
+    ["France", 187846.54],
+    ["Australia", 136072.17]
+  ],
+  "truncated": false,
+  "chart": "bar",
+  "timings": { "interpret_ms": 1.1, "query_ms": 15.7, "total_ms": 34.8 },
+  "suggestions": [],
+  "issues": []
+}

@@ -17,6 +17,7 @@ from reluai_core.http import BodySizeLimitMiddleware, RequestContextMiddleware
 from reluai_core.logging import configure_logging
 from reluai_core.runtime import Runtime, set_runtime
 from reluai_core.settings import CoreSettings, get_core_settings
+from reluai_csv import api as csv_api
 from reluai_pipeline import api as pipeline_api
 from reluai_pipeline.sources import crm
 
@@ -72,7 +73,13 @@ def create_app(
     app.add_middleware(
         BodySizeLimitMiddleware,
         default_limit=core.max_request_body_bytes,
-        prefix_limits={"/api/pipeline": 16 * 1024, "/api/contact": 16 * 1024},
+        prefix_limits={
+            "/api/pipeline": 16 * 1024,
+            "/api/contact": 16 * 1024,
+            "/api/csv": 16 * 1024,
+            # Multipart overhead on top of the 2 MB file limit.
+            "/api/csv/uploads": 2_200_000,
+        },
     )
     app.add_middleware(RequestContextMiddleware)
 
@@ -81,5 +88,6 @@ def create_app(
     app.include_router(status.router, prefix="/api")
     app.include_router(contact.router, prefix="/api")
     app.include_router(pipeline_api.router, prefix="/api/pipeline")
+    app.include_router(csv_api.router, prefix="/api/csv")
     app.include_router(crm.router, prefix="/internal/crm")
     return app

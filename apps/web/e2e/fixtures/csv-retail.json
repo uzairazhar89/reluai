@@ -1,0 +1,231 @@
+{
+  "id": "retail",
+  "kind": "bundled",
+  "title": "Online retailer invoice lines, December 2009 to December 2011",
+  "table": "sales",
+  "rows": 1067371,
+  "duplicate_rows": 34335,
+  "columns": [
+    {
+      "name": "invoice_no",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "Invoice number. A leading C marks a cancellation.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 53628,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "537434", "count": 1350 },
+        { "value": "538071", "count": 1304 },
+        { "value": "537638", "count": 1202 },
+        { "value": "537237", "count": 1194 },
+        { "value": "536876", "count": 1186 }
+      ]
+    },
+    {
+      "name": "invoiced_at",
+      "kind": "date",
+      "sql_type": "TIMESTAMP",
+      "description": "Date and time of the invoice (1 Dec 2009 to 9 Dec 2011).",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 47635,
+      "min": "2009-12-01 07:45",
+      "max": "2011-12-09 12:50",
+      "mean": null,
+      "top_values": []
+    },
+    {
+      "name": "stock_code",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "Product code.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 5304,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "85123A", "count": 5829 },
+        { "value": "22423", "count": 4424 },
+        { "value": "85099B", "count": 4216 },
+        { "value": "21212", "count": 3318 },
+        { "value": "20725", "count": 3259 }
+      ]
+    },
+    {
+      "name": "description",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "Product name as written on the invoice.",
+      "non_null": 1062989,
+      "nulls": 4382,
+      "distinct": 5655,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "WHITE HANGING HEART T-LIGHT HOLDER", "count": 5918 },
+        { "value": "REGENCY CAKESTAND 3 TIER", "count": 4412 },
+        { "value": "JUMBO BAG RED RETROSPOT", "count": 3469 },
+        { "value": "ASSORTED COLOUR BIRD ORNAMENT", "count": 2958 },
+        { "value": "PARTY BUNTING", "count": 2765 }
+      ]
+    },
+    {
+      "name": "quantity",
+      "kind": "integer",
+      "sql_type": "INTEGER",
+      "description": "Units on the line; negative on cancellations.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 1057,
+      "min": "-80995",
+      "max": "80995",
+      "mean": 9.9389,
+      "top_values": []
+    },
+    {
+      "name": "unit_price",
+      "kind": "number",
+      "sql_type": "DECIMAL(12,3)",
+      "description": "Price per unit, in pounds sterling.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 2807,
+      "min": "-53594.36",
+      "max": "38970",
+      "mean": 4.6494,
+      "top_values": []
+    },
+    {
+      "name": "revenue",
+      "kind": "number",
+      "sql_type": "DECIMAL(14,3)",
+      "description": "Quantity × unit price, in pounds sterling. Net: cancellations are negative.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 8548,
+      "min": "-168469.6",
+      "max": "168469.6",
+      "mean": 18.0699,
+      "top_values": []
+    },
+    {
+      "name": "customer_id",
+      "kind": "integer",
+      "sql_type": "BIGINT",
+      "description": "Anonymised customer number; missing on some lines.",
+      "non_null": 824364,
+      "nulls": 243007,
+      "distinct": 5942,
+      "min": "12346",
+      "max": "18287",
+      "mean": null,
+      "top_values": []
+    },
+    {
+      "name": "country",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "The customer's country.",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 43,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "United Kingdom", "count": 981330 },
+        { "value": "EIRE", "count": 17866 },
+        { "value": "Germany", "count": 17624 },
+        { "value": "France", "count": 14330 },
+        { "value": "Netherlands", "count": 5140 }
+      ]
+    },
+    {
+      "name": "is_cancellation",
+      "kind": "boolean",
+      "sql_type": "BOOLEAN",
+      "description": "True on cancellation lines (invoice number starts with C).",
+      "non_null": 1067371,
+      "nulls": 0,
+      "distinct": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "False", "count": 1047877 },
+        { "value": "True", "count": 19494 }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "duplicate_rows",
+      "message": "34,335 rows (3.2%) are exact copies of another row.",
+      "column": null,
+      "count": 34335
+    },
+    {
+      "severity": "warning",
+      "code": "numbers_stored_as_text",
+      "message": "'invoice_no' looks numeric but 19,500 values are not numbers, so it was read as text.",
+      "column": "invoice_no",
+      "count": 19500
+    },
+    {
+      "severity": "info",
+      "code": "missing_values",
+      "message": "'description' is missing in 4,382 rows (0.4%).",
+      "column": "description",
+      "count": 4382
+    },
+    {
+      "severity": "info",
+      "code": "negative_values",
+      "message": "22,950 rows have a negative quantity.",
+      "column": "quantity",
+      "count": 22950
+    },
+    {
+      "severity": "info",
+      "code": "negative_values",
+      "message": "5 rows have a negative unit_price.",
+      "column": "unit_price",
+      "count": 5
+    },
+    {
+      "severity": "info",
+      "code": "negative_values",
+      "message": "19,498 rows have a negative revenue.",
+      "column": "revenue",
+      "count": 19498
+    },
+    {
+      "severity": "warning",
+      "code": "mostly_missing",
+      "message": "'customer_id' is missing in 243,007 rows (22.8%).",
+      "column": "customer_id",
+      "count": 243007
+    }
+  ],
+  "provenance": "Real data: UCI Online Retail II (CC BY 4.0)",
+  "examples": [
+    "Top 10 products by revenue",
+    "Revenue per month",
+    "How many customers are in Germany?",
+    "Average unit price by country",
+    "Most common countries",
+    "Revenue by country in 2011, excluding the UK",
+    "How many cancelled invoices were there in 2010?",
+    "Lines with quantity over 1000"
+  ],
+  "expires_at": null,
+  "llm_available": false
+}

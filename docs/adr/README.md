@@ -11,3 +11,4 @@ A decision is changed by adding a new record that supersedes the old one.
 | [0004](0004-licence-cleared-artifacts.md) | Only licence-cleared, checksummed third-party artifacts; no AGPL by default | Accepted |
 | [0005](0005-llm-provider-chain.md) | LLM provider chain with a token budget and a deterministic last resort | Accepted |
 | [0006](0006-data-provenance-labelling.md) | Every figure and dataset is labelled with its provenance | Accepted |
+| [0007](0007-query-plans-not-generated-sql.md) | Questions become validated query plans, never generated SQL | Accepted |

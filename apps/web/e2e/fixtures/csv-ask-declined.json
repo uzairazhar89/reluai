@@ -1,0 +1,42 @@
+{
+  "status": "not_understood",
+  "question": "Why did customers stop ordering?",
+  "message": "The rule-based interpreter could not read this question, and no language model is available on this server right now. Try rephrasing it, or one of the suggestions.",
+  "interpreter": {
+    "kind": "none",
+    "pattern": null,
+    "provider": null,
+    "model": null,
+    "retries": 0,
+    "tokens": 0,
+    "latency_ms": 0,
+    "attempts": [
+      {
+        "provider": "groq",
+        "model": "openai/gpt-oss-20b",
+        "outcome": "not_configured",
+        "latency_ms": 0
+      }
+    ]
+  },
+  "plan": null,
+  "summary": null,
+  "sql": null,
+  "pandas": null,
+  "columns": [],
+  "rows": [],
+  "truncated": false,
+  "chart": null,
+  "timings": { "interpret_ms": 69.5, "query_ms": 0.0, "total_ms": 70.0 },
+  "suggestions": [
+    "Top 10 products by revenue",
+    "Revenue per month",
+    "How many customers are in Germany?",
+    "Average unit price by country",
+    "Most common countries",
+    "Revenue by country in 2011, excluding the UK",
+    "How many cancelled invoices were there in 2010?",
+    "Lines with quantity over 1000"
+  ],
+  "issues": []
+}

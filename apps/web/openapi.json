@@ -407,10 +407,498 @@
           }
         }
       }
+    },
+    "/api/csv/datasets/retail": {
+      "get": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Get Bundled",
+        "description": "The bundled real retailer table: columns, profile and data-quality findings.",
+        "operationId": "get_bundled_api_csv_datasets_retail_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/csv/uploads": {
+      "post": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Post Upload",
+        "description": "Profile an uploaded CSV. It is stored for one hour and its contents are never logged.",
+        "operationId": "post_upload_api_csv_uploads_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_upload_api_csv_uploads_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/csv/uploads/{upload_id}": {
+      "get": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Get Upload",
+        "operationId": "get_upload_api_csv_uploads__upload_id__get",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/csv/ask": {
+      "post": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Post Ask",
+        "description": "Interpret a question (rules first, then an optional LLM tool call) and answer it.",
+        "operationId": "post_ask_api_csv_ask_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/csv/evaluation": {
+      "get": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Get Evaluation",
+        "description": "The latest run of the fixed question sets (development and held-out).",
+        "operationId": "get_evaluation_api_csv_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/csv/usage": {
+      "get": {
+        "tags": [
+          "csv"
+        ],
+        "summary": "Get Usage",
+        "description": "How visitors' questions were handled over the last 30 days (no question text kept).",
+        "operationId": "get_usage_api_csv_usage_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageOut"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AskRequest": {
+        "properties": {
+          "dataset": {
+            "type": "string",
+            "pattern": "^(retail|[0-9a-f]{32})$",
+            "title": "Dataset",
+            "description": "'retail' or an upload id"
+          },
+          "question": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Question"
+          },
+          "allow_llm": {
+            "type": "boolean",
+            "title": "Allow Llm",
+            "description": "Uploads only: allow sending the column names and types (never the rows) to an LLM provider if the rules cannot interpret the question.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dataset",
+          "question"
+        ],
+        "title": "AskRequest"
+      },
+      "AskResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "answered",
+              "not_understood",
+              "refused",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "interpreter": {
+            "$ref": "#/components/schemas/InterpreterOut"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QueryPlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "sql": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sql"
+          },
+          "pandas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pandas"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/ResultColumn"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "rows": {
+            "items": {
+              "items": {},
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated",
+            "default": false
+          },
+          "chart": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "number",
+                  "bar",
+                  "line",
+                  "table"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chart"
+          },
+          "timings": {
+            "$ref": "#/components/schemas/Timings"
+          },
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issues"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "question",
+          "interpreter",
+          "timings"
+        ],
+        "title": "AskResponse"
+      },
+      "AttemptOut": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "model",
+          "outcome",
+          "latency_ms"
+        ],
+        "title": "AttemptOut"
+      },
+      "Body_post_upload_api_csv_uploads_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "CSV file, up to 2 MB and 50,000 rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_post_upload_api_csv_uploads_post"
+      },
+      "ColumnOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "sql_type": {
+            "type": "string",
+            "title": "Sql Type"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "non_null": {
+            "type": "integer",
+            "title": "Non Null"
+          },
+          "nulls": {
+            "type": "integer",
+            "title": "Nulls"
+          },
+          "distinct": {
+            "type": "integer",
+            "title": "Distinct"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "top_values": {
+            "items": {
+              "$ref": "#/components/schemas/ValueCount"
+            },
+            "type": "array",
+            "title": "Top Values"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "sql_type",
+          "description",
+          "non_null",
+          "nulls",
+          "distinct",
+          "min",
+          "max",
+          "mean",
+          "top_values"
+        ],
+        "title": "ColumnOut"
+      },
       "ComponentStatus": {
         "properties": {
           "name": {
@@ -510,6 +998,95 @@
           "message"
         ],
         "title": "ContactIn"
+      },
+      "DatasetOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bundled",
+              "upload"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "table": {
+            "type": "string",
+            "title": "Table"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "duplicate_rows": {
+            "type": "integer",
+            "title": "Duplicate Rows"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnOut"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/FindingOut"
+            },
+            "type": "array",
+            "title": "Findings"
+          },
+          "provenance": {
+            "type": "string",
+            "title": "Provenance"
+          },
+          "examples": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Examples"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "llm_available": {
+            "type": "boolean",
+            "title": "Llm Available",
+            "description": "Whether a language model is configured to read questions the rules cannot",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "table",
+          "rows",
+          "duplicate_rows",
+          "columns",
+          "findings",
+          "provenance",
+          "examples"
+        ],
+        "title": "DatasetOut"
       },
       "DqOut": {
         "properties": {
@@ -732,6 +1309,295 @@
         ],
         "title": "DurationStats"
       },
+      "EvaluationItem": {
+        "properties": {
+          "set": {
+            "type": "string",
+            "enum": [
+              "development",
+              "held_out"
+            ],
+            "title": "Set"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "expected": {
+            "type": "string",
+            "enum": [
+              "answer",
+              "decline"
+            ],
+            "title": "Expected"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "correct",
+              "wrong",
+              "declined",
+              "answered_unexpectedly",
+              "declined_correctly"
+            ],
+            "title": "Outcome"
+          },
+          "pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "query_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "set",
+          "question",
+          "expected",
+          "outcome",
+          "pattern",
+          "summary",
+          "query_ms"
+        ],
+        "title": "EvaluationItem"
+      },
+      "EvaluationOut": {
+        "properties": {
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "development": {
+            "$ref": "#/components/schemas/EvaluationSet"
+          },
+          "held_out": {
+            "$ref": "#/components/schemas/EvaluationSet"
+          },
+          "query_p50_ms": {
+            "type": "number",
+            "title": "Query P50 Ms"
+          },
+          "query_p95_ms": {
+            "type": "number",
+            "title": "Query P95 Ms"
+          },
+          "environment": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Environment"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ran_at",
+          "development",
+          "held_out",
+          "query_p50_ms",
+          "query_p95_ms",
+          "environment",
+          "items"
+        ],
+        "title": "EvaluationOut"
+      },
+      "EvaluationSet": {
+        "properties": {
+          "questions": {
+            "type": "integer",
+            "title": "Questions"
+          },
+          "correct": {
+            "type": "integer",
+            "title": "Correct"
+          },
+          "wrong": {
+            "type": "integer",
+            "title": "Wrong"
+          },
+          "declined_expected": {
+            "type": "integer",
+            "title": "Declined Expected"
+          },
+          "declined_unexpected": {
+            "type": "integer",
+            "title": "Declined Unexpected"
+          },
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy",
+            "description": "Correct plans among questions the rules should answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "questions",
+          "correct",
+          "wrong",
+          "declined_expected",
+          "declined_unexpected",
+          "accuracy"
+        ],
+        "title": "EvaluationSet"
+      },
+      "Filter": {
+        "properties": {
+          "column": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Column"
+          },
+          "op": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "ne",
+              "gt",
+              "gte",
+              "lt",
+              "lte",
+              "in",
+              "not_in",
+              "contains",
+              "between",
+              "is_null",
+              "not_null"
+            ],
+            "title": "Op"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Comparison value. A list for 'in'/'not_in', [low, high] for 'between' (dates as 'YYYY-MM-DD'), omitted for 'is_null'/'not_null'."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "column",
+          "op"
+        ],
+        "title": "Filter"
+      },
+      "FindingOut": {
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "info"
+            ],
+            "title": "Severity"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "severity",
+          "code",
+          "message",
+          "column",
+          "count"
+        ],
+        "title": "FindingOut"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -744,6 +1610,79 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InterpreterOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "rules",
+              "llm",
+              "none"
+            ],
+            "title": "Kind"
+          },
+          "pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "retries": {
+            "type": "integer",
+            "title": "Retries",
+            "default": 0
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens",
+            "default": 0
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms",
+            "default": 0
+          },
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/AttemptOut"
+            },
+            "type": "array",
+            "title": "Attempts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "InterpreterOut"
       },
       "LogOut": {
         "properties": {
@@ -774,6 +1713,42 @@
           "fields"
         ],
         "title": "LogOut"
+      },
+      "Metric": {
+        "properties": {
+          "agg": {
+            "type": "string",
+            "enum": [
+              "count",
+              "count_distinct",
+              "sum",
+              "avg",
+              "min",
+              "max"
+            ],
+            "title": "Agg",
+            "description": "Aggregation to compute"
+          },
+          "column": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column",
+            "description": "Column to aggregate. Omit only for agg='count' (count of rows)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "agg"
+        ],
+        "title": "Metric"
       },
       "QuarantinePage": {
         "properties": {
@@ -825,6 +1800,97 @@
         ],
         "title": "QuarantineRowOut"
       },
+      "QueryPlan": {
+        "properties": {
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Metrics"
+          },
+          "group_by": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "title": "Group By",
+            "description": "Columns to group by (not dates)"
+          },
+          "time_bucket": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeBucket"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Group a date column by day/week/month/quarter/year"
+          },
+          "filters": {
+            "items": {
+              "$ref": "#/components/schemas/Filter"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Filters"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "metric_desc",
+                  "metric_asc",
+                  "group_asc",
+                  "group_desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort",
+            "description": "metric_* orders by the first metric; group_* by the groups/time"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 20
+          },
+          "chart": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "number",
+                  "bar",
+                  "line",
+                  "table"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chart",
+            "description": "Suggested visualisation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metrics"
+        ],
+        "title": "QueryPlan",
+        "description": "Aggregate query over one table: metrics, optionally grouped and filtered."
+      },
       "ReasonCount": {
         "properties": {
           "code": {
@@ -857,6 +1923,40 @@
           "count"
         ],
         "title": "ReasonCount"
+      },
+      "ResultColumn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "time",
+              "group",
+              "metric"
+            ],
+            "title": "Role"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Heading for the column, e.g. 'Total revenue'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "role",
+          "kind",
+          "label"
+        ],
+        "title": "ResultColumn"
       },
       "ResultsOut": {
         "properties": {
@@ -1474,6 +2574,57 @@
         ],
         "title": "SummaryOut"
       },
+      "TimeBucket": {
+        "properties": {
+          "column": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Column",
+            "description": "A date or timestamp column"
+          },
+          "grain": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ],
+            "title": "Grain"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "column",
+          "grain"
+        ],
+        "title": "TimeBucket"
+      },
+      "Timings": {
+        "properties": {
+          "interpret_ms": {
+            "type": "number",
+            "title": "Interpret Ms"
+          },
+          "query_ms": {
+            "type": "number",
+            "title": "Query Ms"
+          },
+          "total_ms": {
+            "type": "number",
+            "title": "Total Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "interpret_ms",
+          "query_ms",
+          "total_ms"
+        ],
+        "title": "Timings"
+      },
       "TrendPoint": {
         "properties": {
           "id": {
@@ -1557,6 +2708,45 @@
         ],
         "title": "TrendPoint"
       },
+      "UsageOut": {
+        "properties": {
+          "questions": {
+            "type": "integer",
+            "title": "Questions"
+          },
+          "answered_by_rules": {
+            "type": "integer",
+            "title": "Answered By Rules"
+          },
+          "answered_by_llm": {
+            "type": "integer",
+            "title": "Answered By Llm"
+          },
+          "not_understood": {
+            "type": "integer",
+            "title": "Not Understood"
+          },
+          "refused": {
+            "type": "integer",
+            "title": "Refused"
+          },
+          "llm_retries": {
+            "type": "integer",
+            "title": "Llm Retries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "questions",
+          "answered_by_rules",
+          "answered_by_llm",
+          "not_understood",
+          "refused",
+          "llm_retries"
+        ],
+        "title": "UsageOut",
+        "description": "Last 30 days of visitor questions, from the outcome log."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -1596,6 +2786,24 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ValueCount": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "count"
+        ],
+        "title": "ValueCount"
       },
       "WarehouseStats": {
         "properties": {

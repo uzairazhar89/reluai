@@ -1,0 +1,114 @@
+{
+  "id": "f741f58b624e35b69efe24ffe837650b",
+  "kind": "upload",
+  "title": "orders.csv",
+  "table": "uploaded",
+  "rows": 4,
+  "duplicate_rows": 0,
+  "columns": [
+    {
+      "name": "region",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "",
+      "non_null": 4,
+      "nulls": 0,
+      "distinct": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "North", "count": 2 },
+        { "value": "East", "count": 1 },
+        { "value": "South", "count": 1 }
+      ]
+    },
+    {
+      "name": "product",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "",
+      "non_null": 4,
+      "nulls": 0,
+      "distinct": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "Gadget", "count": 2 },
+        { "value": "=cmd|calc", "count": 1 },
+        { "value": "Widget", "count": 1 }
+      ]
+    },
+    {
+      "name": "units",
+      "kind": "integer",
+      "sql_type": "BIGINT",
+      "description": "",
+      "non_null": 4,
+      "nulls": 0,
+      "distinct": 4,
+      "min": "1",
+      "max": "10",
+      "mean": 5.5,
+      "top_values": []
+    },
+    {
+      "name": "price",
+      "kind": "text",
+      "sql_type": "VARCHAR",
+      "description": "",
+      "non_null": 4,
+      "nulls": 0,
+      "distinct": 4,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "top_values": [
+        { "value": "1", "count": 1 },
+        { "value": "1,200", "count": 1 },
+        { "value": "2.5", "count": 1 },
+        { "value": "3.0", "count": 1 }
+      ]
+    },
+    {
+      "name": "order_date",
+      "kind": "date",
+      "sql_type": "DATE",
+      "description": "",
+      "non_null": 4,
+      "nulls": 0,
+      "distinct": 4,
+      "min": "2024-01-03",
+      "max": "2024-03-01",
+      "mean": null,
+      "top_values": []
+    }
+  ],
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "formula_like_text",
+      "message": "1 value in 'product' starts with =, +, - or @ and would run as formulas in a spreadsheet. Downloads from this page neutralise them.",
+      "column": "product",
+      "count": 1
+    },
+    {
+      "severity": "warning",
+      "code": "numbers_stored_as_text",
+      "message": "Every value in 'price' is a number, but 1 value is written with thousands separators (1,200), so the column was read as text and cannot be summed or averaged.",
+      "column": "price",
+      "count": 1
+    }
+  ],
+  "provenance": "Your upload: kept in memory-backed storage and deleted after one hour",
+  "examples": [
+    "How many rows?",
+    "Total units",
+    "Units by region",
+    "Most common region",
+    "Units per month"
+  ],
+  "expires_at": "2026-10-10T19:36:32.466539Z",
+  "llm_available": false
+}

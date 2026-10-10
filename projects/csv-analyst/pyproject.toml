@@ -1,0 +1,27 @@
+[project]
+name = "reluai-csv-analyst"
+version = "0.1.0"
+description = "AI CSV Analyst: plain-English questions over CSV data, answered by a validated query plan compiled to parameterised SQL in a DuckDB sandbox"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "duckdb>=1.4",
+  "fastapi>=0.142",
+  "python-multipart>=0.0.20",
+  "reluai-core",
+  "reluai-inference",
+]
+
+[project.scripts]
+reluai-csv = "reluai_csv.cli:main"
+
+[tool.uv.sources]
+reluai-core = { workspace = true }
+reluai-inference = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reluai_csv"]

@@ -31,8 +31,16 @@ const sections = [
     "Messages you send (name, email, optional company, topic and message) are stored in this site's database so I can reply. They are not shared with anyone, and are deleted automatically after 12 months; database backups that may contain them are kept for at most 5 weeks after that. Ask me to delete yours sooner and I will.",
   ],
   [
-    "AI demos",
-    "None of the live demos send your input to an AI provider. Before any demo does, this page will say which provider receives what, and the demo will say so where you type.",
+    "CSV analyst: uploads",
+    "A file you upload to the AI CSV Analyst is stored only on this server, in temporary storage inside the application, and deleted one hour after upload (or when the service restarts, if sooner). Its contents are never logged and never shown to anyone else; only you have its random link.",
+  ],
+  [
+    "CSV analyst: questions",
+    "Questions are answered on this server. For each one, only the outcome is recorded (answered or not, by rules or a model, timings and row count) so the page can show usage figures; the question text is not stored.",
+  ],
+  [
+    "AI providers",
+    "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. The page says when no provider is configured. Providers' own terms govern what they keep.",
   ],
 ] as const;
 

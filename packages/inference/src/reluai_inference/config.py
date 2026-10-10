@@ -50,6 +50,18 @@ def get_inference_settings() -> InferenceSettings:
     return InferenceSettings()
 
 
+def configured_providers(s: InferenceSettings) -> list[str]:
+    """Model providers this server can call: a key is set, or the local model is enabled."""
+    names: list[str] = []
+    if s.groq_api_key and s.groq_api_key.get_secret_value():
+        names.append("groq")
+    if s.cerebras_api_key and s.cerebras_api_key.get_secret_value():
+        names.append("cerebras")
+    if s.local_enabled:
+        names.append("local")
+    return names
+
+
 def budget_policy(s: InferenceSettings) -> BudgetPolicy:
     return BudgetPolicy(
         daily_tokens={

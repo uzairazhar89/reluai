@@ -39,6 +39,12 @@ MIRRORS = (
         title="Data Pipeline Observatory",
         packages=("platform-core", "datasets"),
     ),
+    Mirror(
+        project="csv-analyst",
+        repo="reluai-csv-analyst",
+        title="AI CSV Analyst",
+        packages=("platform-core", "inference", "datasets"),
+    ),
 )
 
 ALWAYS = ("LICENSE", "artifacts/manifest.yaml", ".gitattributes", ".editorconfig")

@@ -70,7 +70,9 @@ services:
         condition: service_completed_successfully
     networks: [edge, backend]
     read_only: true
-    tmpfs: ["/tmp"]
+    # CSV analyst uploads live here (deleted after an hour, at most 50 kept); tmpfs pages
+    # count against the memory limit, so the size is capped.
+    tmpfs: ["/tmp:size=256m"]
     mem_limit: 1g
     cpus: 1.0
     pids_limit: 256

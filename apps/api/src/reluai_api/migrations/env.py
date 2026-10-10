@@ -1,4 +1,4 @@
-"""Alembic environment: one metadata for every module, schemas platform/pipeline/retail."""
+"""Alembic environment: one metadata for every module and every schema it owns."""
 
 from __future__ import annotations
 
@@ -7,12 +7,13 @@ from sqlalchemy import create_engine, pool
 
 import reluai_api.contact  # noqa: F401 - registers platform.contact_message
 import reluai_core.ratelimit  # noqa: F401 - registers platform.rate_counter
+import reluai_csv.models  # noqa: F401 - registers csv.*
 import reluai_inference.ledger  # noqa: F401 - registers platform.llm_usage
 import reluai_pipeline.models  # noqa: F401 - registers pipeline.* and retail.*
 from reluai_core.db import Base
 from reluai_core.settings import CoreSettings
 
-SCHEMAS = {"platform", "pipeline", "retail"}
+SCHEMAS = {"platform", "pipeline", "retail", "csv"}
 config = context.config
 target_metadata = Base.metadata
 

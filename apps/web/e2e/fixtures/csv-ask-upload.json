@@ -1,0 +1,41 @@
+{
+  "status": "answered",
+  "question": "Units by region",
+  "message": null,
+  "interpreter": {
+    "kind": "rules",
+    "pattern": "breakdown",
+    "provider": null,
+    "model": null,
+    "retries": 0,
+    "tokens": 0,
+    "latency_ms": 0,
+    "attempts": []
+  },
+  "plan": {
+    "metrics": [{ "agg": "sum", "column": "units" }],
+    "group_by": ["region"],
+    "time_bucket": null,
+    "filters": [],
+    "sort": "metric_desc",
+    "limit": 20,
+    "chart": null
+  },
+  "summary": "Total units by region; highest 20 first.",
+  "sql": "SELECT \"region\", sum(\"units\") AS \"sum_units\"\nFROM \"uploaded\"\nGROUP BY 1\nORDER BY \"sum_units\" DESC NULLS LAST, \"region\"\nLIMIT 20",
+  "pandas": "import pandas as pd\n\ndf = ...  # the uploaded table as a DataFrame\nresult = (\n    df.groupby(['region'], as_index=False, dropna=False)\n    .agg(sum_units=('units', 'sum'))\n    .sort_values('sum_units', ascending=False)\n    .head(20)\n)",
+  "columns": [
+    { "name": "region", "role": "group", "kind": "text", "label": "Region" },
+    { "name": "sum_units", "role": "metric", "kind": "number", "label": "Total units" }
+  ],
+  "rows": [
+    ["North", 17],
+    ["South", 4],
+    ["East", 1]
+  ],
+  "truncated": false,
+  "chart": "bar",
+  "timings": { "interpret_ms": 0.3, "query_ms": 2.8, "total_ms": 15.2 },
+  "suggestions": [],
+  "issues": []
+}

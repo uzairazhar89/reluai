@@ -142,3 +142,16 @@ def test_structured_output_requested_as_json_schema() -> None:
     provider(handler).chat(req)
     assert seen["response_format"]["type"] == "json_schema"
     assert "tools" not in seen
+
+
+def test_configured_providers_lists_only_usable_ones() -> None:
+    from reluai_inference.config import InferenceSettings, configured_providers
+
+    assert configured_providers(InferenceSettings(_env_file=None)) == []  # type: ignore[call-arg]
+    s = InferenceSettings(
+        _env_file=None,  # type: ignore[call-arg]
+        groq_api_key=SecretStr("k"),
+        cerebras_api_key=SecretStr(""),
+        local_enabled=True,
+    )
+    assert configured_providers(s) == ["groq", "local"]

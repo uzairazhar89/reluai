@@ -190,10 +190,223 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/csv/datasets/retail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Bundled
+         * @description The bundled real retailer table: columns, profile and data-quality findings.
+         */
+        get: operations["get_bundled_api_csv_datasets_retail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/csv/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Upload
+         * @description Profile an uploaded CSV. It is stored for one hour and its contents are never logged.
+         */
+        post: operations["post_upload_api_csv_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/csv/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Upload */
+        get: operations["get_upload_api_csv_uploads__upload_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/csv/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Ask
+         * @description Interpret a question (rules first, then an optional LLM tool call) and answer it.
+         */
+        post: operations["post_ask_api_csv_ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/csv/evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation
+         * @description The latest run of the fixed question sets (development and held-out).
+         */
+        get: operations["get_evaluation_api_csv_evaluation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/csv/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Usage
+         * @description How visitors' questions were handled over the last 30 days (no question text kept).
+         */
+        get: operations["get_usage_api_csv_usage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AskRequest */
+        AskRequest: {
+            /**
+             * Dataset
+             * @description 'retail' or an upload id
+             */
+            dataset: string;
+            /** Question */
+            question: string;
+            /**
+             * Allow Llm
+             * @description Uploads only: allow sending the column names and types (never the rows) to an LLM provider if the rules cannot interpret the question.
+             * @default false
+             */
+            allow_llm: boolean;
+        };
+        /** AskResponse */
+        AskResponse: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "answered" | "not_understood" | "refused" | "failed";
+            /** Question */
+            question: string;
+            /** Message */
+            message?: string | null;
+            interpreter: components["schemas"]["InterpreterOut"];
+            plan?: components["schemas"]["QueryPlan"] | null;
+            /** Summary */
+            summary?: string | null;
+            /** Sql */
+            sql?: string | null;
+            /** Pandas */
+            pandas?: string | null;
+            /** Columns */
+            columns?: components["schemas"]["ResultColumn"][];
+            /** Rows */
+            rows?: unknown[][];
+            /**
+             * Truncated
+             * @default false
+             */
+            truncated: boolean;
+            /** Chart */
+            chart?: ("number" | "bar" | "line" | "table") | null;
+            timings: components["schemas"]["Timings"];
+            /** Suggestions */
+            suggestions?: string[];
+            /** Issues */
+            issues?: string[];
+        };
+        /** AttemptOut */
+        AttemptOut: {
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+            /** Outcome */
+            outcome: string;
+            /** Latency Ms */
+            latency_ms: number;
+        };
+        /** Body_post_upload_api_csv_uploads_post */
+        Body_post_upload_api_csv_uploads_post: {
+            /**
+             * File
+             * @description CSV file, up to 2 MB and 50,000 rows
+             */
+            file: string;
+        };
+        /** ColumnOut */
+        ColumnOut: {
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Sql Type */
+            sql_type: string;
+            /** Description */
+            description: string;
+            /** Non Null */
+            non_null: number;
+            /** Nulls */
+            nulls: number;
+            /** Distinct */
+            distinct: number;
+            /** Min */
+            min: string | null;
+            /** Max */
+            max: string | null;
+            /** Mean */
+            mean: number | null;
+            /** Top Values */
+            top_values: components["schemas"]["ValueCount"][];
+        };
         /** ComponentStatus */
         ComponentStatus: {
             /** Name */
@@ -234,6 +447,40 @@ export interface components {
              * @description Leave empty
              */
             website?: string | null;
+        };
+        /** DatasetOut */
+        DatasetOut: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bundled" | "upload";
+            /** Title */
+            title: string;
+            /** Table */
+            table: string;
+            /** Rows */
+            rows: number;
+            /** Duplicate Rows */
+            duplicate_rows: number;
+            /** Columns */
+            columns: components["schemas"]["ColumnOut"][];
+            /** Findings */
+            findings: components["schemas"]["FindingOut"][];
+            /** Provenance */
+            provenance: string;
+            /** Examples */
+            examples: string[];
+            /** Expires At */
+            expires_at?: string | null;
+            /**
+             * Llm Available
+             * @description Whether a language model is configured to read questions the rules cannot
+             * @default false
+             */
+            llm_available: boolean;
         };
         /** DqOut */
         DqOut: {
@@ -302,10 +549,136 @@ export interface components {
             /** Max Ms */
             max_ms: number | null;
         };
+        /** EvaluationItem */
+        EvaluationItem: {
+            /**
+             * Set
+             * @enum {string}
+             */
+            set: "development" | "held_out";
+            /** Question */
+            question: string;
+            /**
+             * Expected
+             * @enum {string}
+             */
+            expected: "answer" | "decline";
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "correct" | "wrong" | "declined" | "answered_unexpectedly" | "declined_correctly";
+            /** Pattern */
+            pattern: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Query Ms */
+            query_ms: number | null;
+        };
+        /** EvaluationOut */
+        EvaluationOut: {
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            development: components["schemas"]["EvaluationSet"];
+            held_out: components["schemas"]["EvaluationSet"];
+            /** Query P50 Ms */
+            query_p50_ms: number;
+            /** Query P95 Ms */
+            query_p95_ms: number;
+            /** Environment */
+            environment: {
+                [key: string]: unknown;
+            };
+            /** Items */
+            items: components["schemas"]["EvaluationItem"][];
+        };
+        /** EvaluationSet */
+        EvaluationSet: {
+            /** Questions */
+            questions: number;
+            /** Correct */
+            correct: number;
+            /** Wrong */
+            wrong: number;
+            /** Declined Expected */
+            declined_expected: number;
+            /** Declined Unexpected */
+            declined_unexpected: number;
+            /**
+             * Accuracy
+             * @description Correct plans among questions the rules should answer
+             */
+            accuracy: number;
+        };
+        /** Filter */
+        Filter: {
+            /** Column */
+            column: string;
+            /**
+             * Op
+             * @enum {string}
+             */
+            op: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "not_in" | "contains" | "between" | "is_null" | "not_null";
+            /**
+             * Value
+             * @description Comparison value. A list for 'in'/'not_in', [low, high] for 'between' (dates as 'YYYY-MM-DD'), omitted for 'is_null'/'not_null'.
+             */
+            value?: string | boolean | number | (string | boolean | number)[] | null;
+        };
+        /** FindingOut */
+        FindingOut: {
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "warning" | "info";
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /** Column */
+            column: string | null;
+            /** Count */
+            count: number | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** InterpreterOut */
+        InterpreterOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "rules" | "llm" | "none";
+            /** Pattern */
+            pattern?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Model */
+            model?: string | null;
+            /**
+             * Retries
+             * @default 0
+             */
+            retries: number;
+            /**
+             * Tokens
+             * @default 0
+             */
+            tokens: number;
+            /**
+             * Latency Ms
+             * @default 0
+             */
+            latency_ms: number;
+            /** Attempts */
+            attempts?: components["schemas"]["AttemptOut"][];
         };
         /** LogOut */
         LogOut: {
@@ -322,6 +695,20 @@ export interface components {
             fields: {
                 [key: string]: unknown;
             };
+        };
+        /** Metric */
+        Metric: {
+            /**
+             * Agg
+             * @description Aggregation to compute
+             * @enum {string}
+             */
+            agg: "count" | "count_distinct" | "sum" | "avg" | "min" | "max";
+            /**
+             * Column
+             * @description Column to aggregate. Omit only for agg='count' (count of rows).
+             */
+            column?: string | null;
         };
         /** QuarantinePage */
         QuarantinePage: {
@@ -343,6 +730,38 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /**
+         * QueryPlan
+         * @description Aggregate query over one table: metrics, optionally grouped and filtered.
+         */
+        QueryPlan: {
+            /** Metrics */
+            metrics: components["schemas"]["Metric"][];
+            /**
+             * Group By
+             * @description Columns to group by (not dates)
+             */
+            group_by?: string[];
+            /** @description Group a date column by day/week/month/quarter/year */
+            time_bucket?: components["schemas"]["TimeBucket"] | null;
+            /** Filters */
+            filters?: components["schemas"]["Filter"][];
+            /**
+             * Sort
+             * @description metric_* orders by the first metric; group_* by the groups/time
+             */
+            sort?: ("metric_desc" | "metric_asc" | "group_asc" | "group_desc") | null;
+            /**
+             * Limit
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Chart
+             * @description Suggested visualisation
+             */
+            chart?: ("number" | "bar" | "line" | "table") | null;
+        };
         /** ReasonCount */
         ReasonCount: {
             /** Code */
@@ -355,6 +774,23 @@ export interface components {
             explanation: string;
             /** Count */
             count: number;
+        };
+        /** ResultColumn */
+        ResultColumn: {
+            /** Name */
+            name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "time" | "group" | "metric";
+            /** Kind */
+            kind: string;
+            /**
+             * Label
+             * @description Heading for the column, e.g. 'Total revenue'
+             */
+            label: string;
         };
         /**
          * ResultsOut
@@ -563,6 +999,28 @@ export interface components {
             /** Trend */
             trend: components["schemas"]["TrendPoint"][];
         };
+        /** TimeBucket */
+        TimeBucket: {
+            /**
+             * Column
+             * @description A date or timestamp column
+             */
+            column: string;
+            /**
+             * Grain
+             * @enum {string}
+             */
+            grain: "day" | "week" | "month" | "quarter" | "year";
+        };
+        /** Timings */
+        Timings: {
+            /** Interpret Ms */
+            interpret_ms: number;
+            /** Query Ms */
+            query_ms: number;
+            /** Total Ms */
+            total_ms: number;
+        };
         /** TrendPoint */
         TrendPoint: {
             /**
@@ -587,6 +1045,24 @@ export interface components {
             /** Rows Rejected */
             rows_rejected: number;
         };
+        /**
+         * UsageOut
+         * @description Last 30 days of visitor questions, from the outcome log.
+         */
+        UsageOut: {
+            /** Questions */
+            questions: number;
+            /** Answered By Rules */
+            answered_by_rules: number;
+            /** Answered By Llm */
+            answered_by_llm: number;
+            /** Not Understood */
+            not_understood: number;
+            /** Refused */
+            refused: number;
+            /** Llm Retries */
+            llm_retries: number;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -599,6 +1075,13 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** ValueCount */
+        ValueCount: {
+            /** Value */
+            value: string;
+            /** Count */
+            count: number;
         };
         /** WarehouseStats */
         WarehouseStats: {
@@ -903,6 +1386,163 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     }[];
+                };
+            };
+        };
+    };
+    get_bundled_api_csv_datasets_retail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetOut"];
+                };
+            };
+        };
+    };
+    post_upload_api_csv_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_post_upload_api_csv_uploads_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_upload_api_csv_uploads__upload_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_ask_api_csv_ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AskRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_api_csv_evaluation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationOut"];
+                };
+            };
+        };
+    };
+    get_usage_api_csv_usage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageOut"];
                 };
             };
         };

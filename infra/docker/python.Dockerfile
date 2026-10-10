@@ -18,6 +18,7 @@ COPY packages/platform-core/pyproject.toml packages/platform-core/
 COPY packages/datasets/pyproject.toml packages/datasets/
 COPY packages/inference/pyproject.toml packages/inference/
 COPY projects/pipeline-observatory/pyproject.toml projects/pipeline-observatory/
+COPY projects/csv-analyst/pyproject.toml projects/csv-analyst/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-workspace --package reluai-api
 
@@ -39,6 +40,7 @@ ENV RELUAI_MANIFEST=/src/artifacts/manifest.yaml \
     PATH=/opt/venv/bin:$PATH
 RUN reluai-data fetch online-retail-ii --out /data/canonical \
  && reluai-pipeline build-sources \
+ && reluai-csv build-dataset --canonical-dir /data/canonical --out /data/csv \
  && rm -f /data/canonical/*.zip /data/canonical/*.rda
 
 # ---------------------------------------------------------------- runtime base

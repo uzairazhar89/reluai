@@ -8,6 +8,7 @@ license = "MIT"
 dependencies = [
   "reluai-api",
   "reluai-core",
+  "reluai-csv-analyst",
   "reluai-datasets",
   "reluai-inference",
   "reluai-pipeline",
@@ -35,6 +36,7 @@ members = ["apps/api", "packages/*", "projects/*"]
 [tool.uv.sources]
 reluai-api = { workspace = true }
 reluai-core = { workspace = true }
+reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
@@ -65,7 +67,7 @@ ignore = [
 "**/migrations/**" = ["N999", "E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["reluai_api", "reluai_core", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
+known-first-party = ["reluai_api", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
 
 # ---------------------------------------------------------------- mypy
 [tool.mypy]
@@ -73,9 +75,9 @@ python_version = "3.12"
 strict = true
 warn_unreachable = true
 plugins = ["pydantic.mypy"]
-mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src"]
+mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src"]
 explicit_package_bases = true
-files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src"]
+files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src"]
 exclude = ["(^|/)migrations/", "(^|/)node_modules/"]
 
 [[tool.mypy.overrides]]
@@ -103,7 +105,7 @@ filterwarnings = ["error::DeprecationWarning:reluai_.*"]
 
 [tool.coverage.run]
 branch = true
-source = ["reluai_api", "reluai_core", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
+source = ["reluai_api", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_inference", "reluai_pipeline"]
 
 [tool.coverage.report]
 show_missing = true

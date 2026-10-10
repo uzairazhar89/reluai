@@ -3,7 +3,7 @@
 # Build context: repository root.  docker build -f infra/docker/python.Dockerfile --target api .
 
 # ---------------------------------------------------------------- dependencies + app
-FROM python:3.13-slim-bookworm AS build
+FROM python:3.13-slim-trixie AS build
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -42,12 +42,18 @@ RUN reluai-data fetch online-retail-ii --out /data/canonical \
  && rm -f /data/canonical/*.zip /data/canonical/*.rda
 
 # ---------------------------------------------------------------- runtime base
-FROM python:3.13-slim-bookworm AS runtime
+# Debian stable (trixie). Security fixes published since the base image was built are
+# applied here, and pip is removed: the app runs from /opt/venv and never installs packages.
+FROM python:3.13-slim-trixie AS runtime
 ARG VERSION=0.0.0-dev
 LABEL org.opencontainers.image.source="https://github.com/uzairazhar89/reluai" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${VERSION}"
-RUN groupadd --system --gid 10001 reluai \
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* \
+ && python -m pip uninstall -y pip \
+ && groupadd --system --gid 10001 reluai \
  && useradd --system --uid 10001 --gid reluai --home-dir /nonexistent --shell /usr/sbin/nologin reluai
 ENV PATH=/opt/venv/bin:$PATH \
     PYTHONUNBUFFERED=1 \

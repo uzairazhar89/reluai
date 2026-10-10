@@ -19,6 +19,8 @@ repository. Out of scope: the third-party services the site links to.
 
 - Only SSH (keys only), HTTP and HTTPS are reachable. Databases and internal services sit on
   an internal Docker network with no published ports.
+- The CI deploy key can run exactly one thing on the server: a gate that deploys a commit
+  already on `main`. No shell, no other commands, no forwarding.
 - nginx applies TLS, a strict Content Security Policy and other security headers, per-IP
   request and connection limits, and blocks internal paths.
 - Every API input is validated against a schema with size limits. No user input is ever

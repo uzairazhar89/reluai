@@ -1,0 +1,8 @@
+# Managed by Ansible (infra/ansible/roles/app). Manual edits are overwritten.
+{% if deploy_ci_public_key %}
+# GitHub Actions deploy key: may only run "deploy <commit sha on main>" through the gate.
+command="/usr/local/bin/reluai-deploy-gate",restrict {{ deploy_ci_public_key | trim }}
+{% endif %}
+{% for key in deploy_admin_keys %}
+{{ key | trim }}
+{% endfor %}

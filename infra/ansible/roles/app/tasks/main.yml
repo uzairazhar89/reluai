@@ -4,13 +4,40 @@
     shell: /bin/bash
     groups: docker
     append: true
+  register: app_deploy_account
 
-- name: Deploy user's authorised SSH keys
-  ansible.posix.authorized_key:
-    user: "{{ deploy_user }}"
-    key: "{{ item }}"
-    state: present
-  loop: "{{ deploy_authorized_keys }}"
+- name: Deploy gate (the only command the CI deploy key may run)
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../scripts/deploy-gate.sh"
+    dest: /usr/local/bin/reluai-deploy-gate
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy user's SSH directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_account.home }}/.ssh"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0700"
+
+# The whole file is managed: a key not listed in the variables is removed, so no key can be
+# left behind with more rights than intended. Owned by root, read only by sshd.
+- name: Deploy user's authorised SSH keys (CI key restricted to the deploy gate)
+  ansible.builtin.template:
+    src: authorized_keys.j2
+    dest: "{{ app_deploy_account.home }}/.ssh/authorized_keys"
+    owner: root
+    group: "{{ deploy_user }}"
+    mode: "0644"
+
+- name: Remind about the CI deploy key
+  ansible.builtin.debug:
+    msg: >-
+      deploy_ci_public_key is empty, so GitHub Actions cannot deploy yet. Re-run with
+      -e 'deploy_ci_public_key="ssh-ed25519 AAAA... reluai-ci-deploy"'.
+  when: not deploy_ci_public_key
 
 - name: Application checkout (compose files, nginx templates, scripts)
   ansible.builtin.git:

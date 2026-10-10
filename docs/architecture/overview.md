@@ -76,6 +76,9 @@ Details, failure handling and measured results: the project page and
 ## Security boundaries
 
 - Only 22 (SSH, key-only), 80 and 443 are open on the host.
+- The GitHub Actions deploy key is bound to a forced command (`infra/scripts/deploy-gate.sh`)
+  that accepts only `deploy <sha>` for a commit on `main`; it cannot open a shell or forward
+  ports.
 - Every container runs with `no-new-privileges`. The web, API and worker containers also run
   as non-root users, drop all Linux capabilities and have read-only root filesystems.
 - The application connects as `reluai_app`, which can read and write data but not change the

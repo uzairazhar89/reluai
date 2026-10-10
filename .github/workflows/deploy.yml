@@ -42,10 +42,10 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      # On the server this key is bound to a forced command (infra/scripts/deploy-gate.sh):
+      # the only request it accepts is "deploy <sha>" for a commit already on main.
       - name: Deploy
-        run: |
-          ssh -o BatchMode=yes "$DEPLOY_TARGET" \
-            "cd /opt/reluai && git fetch --quiet origin && git checkout --quiet $SHA && infra/scripts/deploy.sh $SHA"
+        run: ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 "$DEPLOY_TARGET" "deploy $SHA"
       - name: Public smoke test
         run: |
           curl -fsS https://reluai.cloud/api/status | tee status.json

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Deploy an image tag on the VPS with a health gate and automatic rollback.
 #   infra/scripts/deploy.sh <git-sha>
-# Called by the GitHub Actions deploy job over SSH (as the restricted `deploy` user), or by
-# hand. Images are pulled from GHCR; nothing is built on the server.
+# Called by the GitHub Actions deploy job through the SSH deploy gate (deploy-gate.sh), or by
+# hand as the deploy user. Images are pulled from GHCR; nothing is built on the server.
 set -euo pipefail
 
 tag="${1:?usage: deploy.sh <image tag>}"

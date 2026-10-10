@@ -2,8 +2,13 @@ app_root: /opt/reluai
 app_repo: https://github.com/uzairazhar89/reluai.git
 app_repo_version: main
 deploy_user: deploy
-# Public keys allowed to log in as the deploy user (CI deploy key + your own).
-deploy_authorized_keys: []
+# Public half of the GitHub Actions deploy key ("ssh-ed25519 AAAA... reluai-ci-deploy").
+# It is installed with a forced command: it can only run /usr/local/bin/reluai-deploy-gate,
+# which accepts nothing but "deploy <commit sha on main>". See docs/runbooks/deploy.md.
+deploy_ci_public_key: ""
+# Optional unrestricted keys for the deploy user. Usually leave empty: log in as your admin
+# user and run `sudo -iu deploy` instead.
+deploy_admin_keys: []
 admin_ssh_port: 22
 # "prohibit-password" keeps key-based root login (many VPS images only have root);
 # set to "no" once you log in as a sudo user.

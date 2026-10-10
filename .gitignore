@@ -29,6 +29,12 @@ test-results/
 !.env.example
 *.pem
 *.key
+# SSH key pairs (a key saved into the working folder must never be committed)
+id_rsa*
+id_ecdsa*
+id_ed25519*
+*.ppk
+reluai-ci-deploy*
 infra/nginx/certs/
 
 # --- Data & artifacts (fetched/built, never committed; see artifacts/manifest.yaml) ---

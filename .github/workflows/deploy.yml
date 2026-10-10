@@ -40,8 +40,20 @@ jobs:
       - name: Configure SSH
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          # Secrets pasted on Windows can carry CRLF line endings, which OpenSSH rejects.
+          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
+          if ! ssh-keygen -y -P '' -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub 2> keycheck.err; then
+            echo "::error::DEPLOY_SSH_KEY is not a usable private key ($(tr '\n' ' ' < keycheck.err)). Paste the whole private key file reluai-ci-deploy (not the .pub), from the BEGIN line to the END line; the key must have no passphrase."
+            exit 1
+          fi
+          # Not secret: compare with `ssh-keygen -lf /home/deploy/.ssh/authorized_keys` on the server.
+          echo "Deploy key fingerprint: $(ssh-keygen -lf ~/.ssh/id_ed25519.pub)"
+          if ! grep -qE '^[^ ]+ (ssh-ed25519|ecdsa-sha2-nistp256|ssh-rsa) ' ~/.ssh/known_hosts; then
+            echo "::error::DEPLOY_KNOWN_HOSTS must be one line: '<server IP> ssh-ed25519 AAAA...' (the server's host key, not your own key)."
+            exit 1
+          fi
       # On the server this key is bound to a forced command (infra/scripts/deploy-gate.sh):
       # the only request it accepts is "deploy <sha>" for a commit already on main.
       - name: Deploy

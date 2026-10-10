@@ -80,10 +80,10 @@ Do this once, after the old site has been removed ([decommission](decommission.m
      secrets). Alternatively keep them private and log the server in once:
      `sudo -u deploy docker login ghcr.io` with a token that can only read packages.
 6. **First deploy**: approve the waiting `deploy` run, or run the `deploy` workflow manually
-   with the latest released SHA. nginx starts with a temporary self-signed certificate and
-   the `certbot` service obtains the real one through the webroot. nginx reloads
-   certificates every 6 hours; to switch at once:
-   `sudo -u deploy /opt/reluai/infra/scripts/compose.sh exec nginx nginx -s reload`.
+   with the latest released SHA. nginx starts with a temporary self-signed certificate; the
+   `certbot` service obtains the real one through the webroot (retrying every 20 minutes
+   while DNS is not ready) and nginx switches to it within a minute. Watch it with
+   `sudo -u deploy /opt/reluai/infra/scripts/compose.sh logs -f certbot nginx`.
 7. **Load the pipeline history** (once):
    `sudo -u deploy /opt/reluai/infra/scripts/compose.sh exec worker reluai-pipeline backfill --drops 12`.
 8. **Check**: `https://reluai.cloud/status` shows all components operational; the first

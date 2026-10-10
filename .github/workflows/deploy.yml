@@ -46,7 +46,17 @@ jobs:
       # the only request it accepts is "deploy <sha>" for a commit already on main.
       - name: Deploy
         run: ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 "$DEPLOY_TARGET" "deploy $SHA"
+      # On a first deploy the real certificate arrives a minute or two after the stack starts.
       - name: Public smoke test
         run: |
-          curl -fsS https://reluai.cloud/api/status | tee status.json
-          grep -q '"status":"operational"' status.json || grep -q '"status":"degraded"' status.json
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 10 -o status.json https://reluai.cloud/api/status \
+              && grep -Eq '"status":"(operational|degraded)"' status.json; then
+              cat status.json
+              exit 0
+            fi
+            echo "attempt ${attempt}/30: not answering correctly yet; retrying in 10 s"
+            sleep 10
+          done
+          echo "https://reluai.cloud/api/status did not answer correctly within 5 minutes" >&2
+          exit 1

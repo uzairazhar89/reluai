@@ -32,25 +32,17 @@ services:
     environment:
       RELUAI_ENVIRONMENT: prod
 
-  # Obtains the certificate on first run, then renews twice a day. nginx reloads every 6 h.
+  # Obtains the certificate on first run (retrying every 20 minutes until DNS points here),
+  # then renews twice a day. nginx reloads within a minute of the files changing.
   certbot:
     image: certbot/certbot:v3.1.0
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - >-
-        trap exit TERM;
-        while :; do
-          if [ ! -f /etc/letsencrypt/renewal/${DOMAIN:-reluai.cloud}.conf ]; then
-            rm -rf /etc/letsencrypt/live/${DOMAIN:-reluai.cloud};
-            certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
-              -m ${ACME_EMAIL:?set ACME_EMAIL} -d ${DOMAIN:-reluai.cloud} -d www.${DOMAIN:-reluai.cloud};
-          else
-            certbot renew --webroot -w /var/www/certbot --quiet;
-          fi;
-          sleep 12h & wait $${!};
-        done
+    entrypoint: ["/bin/sh", "/usr/local/bin/certbot-loop.sh"]
+    environment:
+      DOMAIN: ${DOMAIN:-reluai.cloud}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
     volumes:
+      - ../certbot/certbot-loop.sh:/usr/local/bin/certbot-loop.sh:ro
       - letsencrypt:/etc/letsencrypt
       - certbot-webroot:/var/www/certbot
     networks: [edge]

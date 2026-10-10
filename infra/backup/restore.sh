@@ -16,32 +16,32 @@ dump="$1"; shift
 target_db="$2"; shift 2
 confirm="${1:-}"
 
-COMPOSE_DIR="${COMPOSE_DIR:-/opt/reluai/infra/compose}"
+ROOT="${ROOT:-/opt/reluai}"
 [ -f "${dump}" ] || { echo "no such file: ${dump}" >&2; exit 1; }
 [[ "${target_db}" =~ ^[a-z_][a-z0-9_]*$ ]] || { echo "invalid database name" >&2; exit 1; }
-cd "${COMPOSE_DIR}"
-
-psql_admin() { docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U reluai -d postgres "$@"; }
+# Same Compose files and image tag as the running release.
+compose() { "${ROOT}/infra/scripts/compose.sh" "$@"; }
+psql_admin() { compose exec -T postgres psql -v ON_ERROR_STOP=1 -U reluai -d postgres "$@"; }
 
 if [ "${target_db}" = "reluai" ]; then
   [ "${confirm}" = "--yes-replace-production" ] || {
     echo "refusing to replace production without --yes-replace-production" >&2; exit 1; }
-  docker compose stop api worker
+  compose stop api worker
   psql_admin -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'reluai' AND pid <> pg_backend_pid();"
 fi
 
 psql_admin -c "DROP DATABASE IF EXISTS ${target_db};"
 psql_admin -c "CREATE DATABASE ${target_db} OWNER reluai;"
-docker compose exec -T postgres pg_restore -U reluai -d "${target_db}" --no-owner --role=reluai \
+compose exec -T postgres pg_restore -U reluai -d "${target_db}" --no-owner --role=reluai \
   --exit-on-error < "${dump}"
 
 echo "restored ${dump} into ${target_db}; row counts:"
-docker compose exec -T postgres psql -U reluai -d "${target_db}" -At -c "
+compose exec -T postgres psql -U reluai -d "${target_db}" -At -c "
   SELECT 'pipeline.run', count(*) FROM pipeline.run
   UNION ALL SELECT 'retail.invoice_line', count(*) FROM retail.invoice_line
   UNION ALL SELECT 'alembic_version', count(*) FROM alembic_version;"
 
 if [ "${target_db}" = "reluai" ]; then
-  docker compose start api worker
+  compose start api worker
   echo "production restored and app restarted"
 fi

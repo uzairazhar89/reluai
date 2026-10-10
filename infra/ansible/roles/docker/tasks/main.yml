@@ -1,3 +1,15 @@
+# A server that ran Docker before may have Ubuntu's own packages or an older apt source for
+# Docker; either makes the Docker CE install below fail. Removing them keeps /var/lib/docker.
+- name: Remove distribution Docker packages that conflict with Docker CE
+  ansible.builtin.apt:
+    name: [docker.io, docker-doc, docker-compose, docker-compose-v2, podman-docker, containerd, runc]
+    state: absent
+
+- name: Remove an older Docker apt source (replaced by the deb822 file below)
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
+
 - name: Docker apt repository (deb822, key fetched and pinned to this repository)
   ansible.builtin.deb822_repository:
     name: docker

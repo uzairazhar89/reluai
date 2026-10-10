@@ -32,18 +32,18 @@ RELUAI_LLM_LOCAL_ENABLED=true
 Start it with the profile and restart the API and worker so they pick up the setting:
 
 ```bash
-docker compose -f compose.yaml -f compose.prod.yaml --profile llm up -d llm
-docker compose -f compose.yaml -f compose.prod.yaml up -d api worker
+/opt/reluai/infra/scripts/compose.sh --profile llm up -d llm
+/opt/reluai/infra/scripts/compose.sh up -d api worker
 ```
 
 ## Check
 
 ```bash
-docker compose exec api python -c "import urllib.request; print(urllib.request.urlopen('http://llm:8080/health').read())"
+/opt/reluai/infra/scripts/compose.sh exec api python -c "import urllib.request; print(urllib.request.urlopen('http://llm:8080/health').read())"
 ```
 
 ## Disable
 
 Set `RELUAI_LLM_LOCAL_ENABLED=false`, restart api and worker, then
-`docker compose --profile llm stop llm`. The chain falls through to the deterministic
+`/opt/reluai/infra/scripts/compose.sh --profile llm stop llm`. The chain falls through to the deterministic
 provider when no model is available.

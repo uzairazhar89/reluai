@@ -4,7 +4,7 @@
 # Keeps 7 daily and 4 weekly (Sunday) dumps. Custom format: restore with infra/backup/restore.sh.
 set -euo pipefail
 
-COMPOSE_DIR="${COMPOSE_DIR:-/opt/reluai/infra/compose}"
+ROOT="${ROOT:-/opt/reluai}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/reluai}"
 KEEP_DAILY="${KEEP_DAILY:-7}"
 KEEP_WEEKLY="${KEEP_WEEKLY:-4}"
@@ -13,14 +13,16 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "${BACKUP_DIR}/daily" "${BACKUP_DIR}/weekly"
 target="${BACKUP_DIR}/daily/reluai-${stamp}.dump"
 
-cd "${COMPOSE_DIR}"
+# Same Compose files and image tag as the running release.
+compose() { "${ROOT}/infra/scripts/compose.sh" "$@"; }
+
 # pg_dump runs inside the database container as the schema owner; output streams to the host.
-docker compose exec -T postgres pg_dump -U reluai -d reluai --format=custom --compress=6 \
+compose exec -T postgres pg_dump -U reluai -d reluai --format=custom --compress=6 \
   > "${target}.partial"
 mv "${target}.partial" "${target}"
 
 # Sanity check: the archive must list its contents.
-docker compose exec -T postgres pg_restore --list < "${target}" > /dev/null
+compose exec -T postgres pg_restore --list < "${target}" > /dev/null
 
 if [ "$(date -u +%u)" = "7" ]; then
   cp "${target}" "${BACKUP_DIR}/weekly/"

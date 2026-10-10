@@ -26,7 +26,9 @@
 
 - name: Install base packages
   ansible.builtin.apt:
-    name: [ufw, fail2ban, unattended-upgrades, curl, git, ca-certificates, htop, jq]
+    # acl: lets Ansible hand temporary files to the deploy user; python3-debian: needed by
+    # the deb822_repository module in the docker role.
+    name: [ufw, fail2ban, unattended-upgrades, curl, git, ca-certificates, htop, jq, acl, python3-debian]
     state: present
 
 - name: Set timezone

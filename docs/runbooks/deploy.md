@@ -62,24 +62,36 @@ Do this once, after the old site has been removed ([decommission](decommission.m
    sudo chmod 600 /opt/reluai/infra/compose/.env
    ```
 
-   Generate each secret with `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`.
-   Set `RELUAI_ENVIRONMENT=production`, `DOMAIN`, `ACME_EMAIL` and `GHCR_OWNER`.
-4. **Point DNS** for `reluai.cloud` (A/AAAA) at the server.
+   Generate each secret with `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`
+   (new values, not the ones from your laptop). Set `DOMAIN`, `ACME_EMAIL` and `GHCR_OWNER`;
+   leave `IMAGE_TAG` empty (the deploy script sets it). Keep a copy of the file in your
+   password manager.
+4. **Point DNS** at the server: `A` records for `reluai.cloud` and `www.reluai.cloud` (the
+   certificate covers both, so both must resolve). Remove any `AAAA` record that does not
+   point at this server, because Let's Encrypt checks IPv6 first when one exists.
 5. **GitHub settings** for the repository:
    - Environment `production` with you as required reviewer.
    - Secrets: `DEPLOY_SSH_KEY` (the private CI deploy key, the whole file including the
      `BEGIN`/`END` lines),
      `DEPLOY_KNOWN_HOSTS` (`ssh-keyscan -t ed25519 <host>`), `DEPLOY_USER` (`deploy`),
      `DEPLOY_HOST` (the server address).
-   - If the GHCR packages are private, log the server in once:
-     `sudo -u deploy docker login ghcr.io` with a read-only token.
-6. **First deploy**: run the `deploy` workflow manually with the latest released SHA.
-   nginx starts with a temporary self-signed certificate and the `certbot` service obtains
-   the real one through the webroot. nginx reloads certificates every 6 hours; to switch at
-   once, run `docker compose -f compose.yaml -f compose.prod.yaml exec nginx nginx -s reload`
-   in `/opt/reluai/infra/compose`.
-7. **Check**: `https://reluai.cloud/status` shows all components operational; the first
+   - Container images: GitHub → your profile → Packages → each `reluai-*` package →
+     Package settings → Change visibility → Public (the code is public; the images hold no
+     secrets). Alternatively keep them private and log the server in once:
+     `sudo -u deploy docker login ghcr.io` with a token that can only read packages.
+6. **First deploy**: approve the waiting `deploy` run, or run the `deploy` workflow manually
+   with the latest released SHA. nginx starts with a temporary self-signed certificate and
+   the `certbot` service obtains the real one through the webroot. nginx reloads
+   certificates every 6 hours; to switch at once:
+   `sudo -u deploy /opt/reluai/infra/scripts/compose.sh exec nginx nginx -s reload`.
+7. **Load the pipeline history** (once):
+   `sudo -u deploy /opt/reluai/infra/scripts/compose.sh exec worker reluai-pipeline backfill --drops 12`.
+8. **Check**: `https://reluai.cloud/status` shows all components operational; the first
    scheduled pipeline run happens within 6 hours, or start one from the project page.
+
+For any other Compose command on the server use `/opt/reluai/infra/scripts/compose.sh`
+(`ps`, `logs -f api`, `restart worker`): it adds the production file and the deployed image
+tag, which plain `docker compose` would miss.
 
 ## The CI deploy key
 

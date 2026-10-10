@@ -14,11 +14,10 @@ When a release passes the health gate but is wrong (a broken page, bad copy):
    `cat /opt/reluai/.deployed-tag` before the bad deploy.
 2. Actions → deploy → Run workflow → paste that SHA → approve.
 
-Equivalent on the server, as `deploy`:
+Equivalent on the server, through the same deploy gate CI uses:
 
 ```bash
-cd /opt/reluai && git fetch --quiet origin && git checkout <good-sha>
-infra/scripts/deploy.sh <good-sha>
+sudo -u deploy SSH_ORIGINAL_COMMAND="deploy <full good sha>" /usr/local/bin/reluai-deploy-gate
 ```
 
 ## Database migrations

@@ -6,6 +6,6 @@ After=docker.service
 [Service]
 Type=oneshot
 User={{ deploy_user }}
-Environment=COMPOSE_DIR={{ app_root }}/infra/compose
+Environment=ROOT={{ app_root }}
 Environment=BACKUP_DIR={{ backup_dir }}
 ExecStart={{ app_root }}/infra/backup/backup.sh

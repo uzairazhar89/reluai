@@ -39,6 +39,15 @@
       -e 'deploy_ci_public_key="ssh-ed25519 AAAA... reluai-ci-deploy"'.
   when: not deploy_ci_public_key
 
+# /opt belongs to root, so the deploy user cannot create its own checkout directory there.
+- name: Application directory (owned by the deploy user)
+  ansible.builtin.file:
+    path: "{{ app_root }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0755"
+
 - name: Application checkout (compose files, nginx templates, scripts)
   ansible.builtin.git:
     repo: "{{ app_repo }}"

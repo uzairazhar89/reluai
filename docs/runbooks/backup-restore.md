@@ -33,7 +33,7 @@ This restores into a scratch database next to production and prints row counts f
 main tables. Compare them with the live site, then drop the scratch database:
 
 ```bash
-cd infra/compose && docker compose exec -T postgres psql -U reluai -d postgres \
+/opt/reluai/infra/scripts/compose.sh exec -T postgres psql -U reluai -d postgres \
   -c "DROP DATABASE reluai_restore"
 ```
 

@@ -599,10 +599,343 @@
           }
         }
       }
+    },
+    "/api/support/catalogue": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Get Catalogue",
+        "description": "Scenarios, sample customers and the desk's settings.",
+        "operationId": "get_catalogue_api_support_catalogue_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogueOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/policy": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Get Policy",
+        "description": "The customer service policy the agent searches (written for this demo).",
+        "operationId": "get_policy_api_support_policy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicySectionOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Policy Api Support Policy Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/conversations": {
+      "post": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Post Conversation",
+        "description": "Start a conversation from a scenario or a customer and message; runs the first turn.",
+        "operationId": "post_conversation_api_support_conversations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/conversations/{conversation_id}": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Get Conversation",
+        "operationId": "get_conversation_api_support_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/conversations/{conversation_id}/messages": {
+      "post": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Post Message",
+        "description": "The customer's next message.",
+        "operationId": "post_message_api_support_conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/conversations/{conversation_id}/approval": {
+      "post": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Post Approval",
+        "description": "The supervisor's decision on a pending refund (the visitor plays the supervisor).",
+        "operationId": "post_approval_api_support_conversations__conversation_id__approval_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/evaluation": {
+      "get": {
+        "tags": [
+          "support"
+        ],
+        "summary": "Get Evaluation",
+        "description": "The latest scenario-suite run for each provider label (empty until one has run).",
+        "operationId": "get_evaluation_api_support_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EvaluationRunOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Evaluation Api Support Evaluation Get"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ApprovalOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "amount_gbp": {
+            "type": "number",
+            "title": "Amount Gbp"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "decided_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "agent",
+                  "supervisor"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "invoice_no",
+          "reason",
+          "amount_gbp",
+          "status",
+          "decided_by",
+          "note"
+        ],
+        "title": "ApprovalOut"
+      },
       "AskRequest": {
         "properties": {
           "dataset": {
@@ -812,6 +1145,46 @@
         ],
         "title": "Body_post_upload_api_csv_uploads_post"
       },
+      "CatalogueOut": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "title": "As Of"
+          },
+          "auto_approve_limit_gbp": {
+            "type": "number",
+            "title": "Auto Approve Limit Gbp"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/SupportScenarioOut"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          },
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerOut"
+            },
+            "type": "array",
+            "title": "Customers"
+          },
+          "llm_available": {
+            "type": "boolean",
+            "title": "Llm Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "as_of",
+          "auto_approve_limit_gbp",
+          "scenarios",
+          "customers",
+          "llm_available"
+        ],
+        "title": "CatalogueOut"
+      },
       "ColumnOut": {
         "properties": {
           "name": {
@@ -999,6 +1372,161 @@
         ],
         "title": "ContactIn"
       },
+      "ConversationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "customer_id": {
+            "type": "integer",
+            "title": "Customer Id"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "awaiting_approval",
+              "closed"
+            ],
+            "title": "Status"
+          },
+          "turn": {
+            "type": "integer",
+            "title": "Turn"
+          },
+          "can_reply": {
+            "type": "boolean",
+            "title": "Can Reply"
+          },
+          "transcript": {
+            "items": {
+              "$ref": "#/components/schemas/TranscriptOut"
+            },
+            "type": "array",
+            "title": "Transcript"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/TraceStepOut"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceOut"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalOut"
+            },
+            "type": "array",
+            "title": "Approvals"
+          },
+          "refunds": {
+            "items": {
+              "$ref": "#/components/schemas/RefundOut"
+            },
+            "type": "array",
+            "title": "Refunds"
+          },
+          "tickets": {
+            "items": {
+              "$ref": "#/components/schemas/TicketOut"
+            },
+            "type": "array",
+            "title": "Tickets"
+          },
+          "providers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "customer_id",
+          "scenario_id",
+          "status",
+          "turn",
+          "can_reply",
+          "transcript",
+          "steps",
+          "sources",
+          "approvals",
+          "refunds",
+          "tickets",
+          "providers",
+          "tokens"
+        ],
+        "title": "ConversationOut"
+      },
+      "CustomerOut": {
+        "properties": {
+          "customer_id": {
+            "type": "integer",
+            "title": "Customer Id"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices"
+          },
+          "first_order": {
+            "type": "string",
+            "format": "date",
+            "title": "First Order"
+          },
+          "last_order": {
+            "type": "string",
+            "format": "date",
+            "title": "Last Order"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceSummary"
+            },
+            "type": "array",
+            "title": "Recent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id",
+          "country",
+          "invoices",
+          "first_order",
+          "last_order",
+          "recent"
+        ],
+        "title": "CustomerOut"
+      },
       "DatasetOut": {
         "properties": {
           "id": {
@@ -1087,6 +1615,36 @@
           "examples"
         ],
         "title": "DatasetOut"
+      },
+      "DecisionRequest": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "title": "Decision"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision"
+        ],
+        "title": "DecisionRequest"
       },
       "DqOut": {
         "properties": {
@@ -1434,6 +1992,144 @@
         ],
         "title": "EvaluationOut"
       },
+      "EvaluationResultOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "failures": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failures"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps"
+          },
+          "tool_calls": {
+            "type": "integer",
+            "title": "Tool Calls"
+          },
+          "tool_errors": {
+            "type": "integer",
+            "title": "Tool Errors"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "category",
+          "passed",
+          "failures",
+          "steps",
+          "tool_calls",
+          "tool_errors",
+          "tokens",
+          "latency_ms"
+        ],
+        "title": "EvaluationResultOut"
+      },
+      "EvaluationRunOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "scenarios": {
+            "type": "integer",
+            "title": "Scenarios"
+          },
+          "passed": {
+            "type": "integer",
+            "title": "Passed"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          },
+          "median_latency_ms": {
+            "type": "integer",
+            "title": "Median Latency Ms"
+          },
+          "p95_latency_ms": {
+            "type": "integer",
+            "title": "P95 Latency Ms"
+          },
+          "providers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers"
+          },
+          "by_category": {
+            "additionalProperties": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "By Category"
+          },
+          "environment": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Environment"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "ran_at",
+          "scenarios",
+          "passed",
+          "tokens",
+          "median_latency_ms",
+          "p95_latency_ms",
+          "providers",
+          "by_category",
+          "environment",
+          "results"
+        ],
+        "title": "EvaluationRunOut"
+      },
       "EvaluationSet": {
         "properties": {
           "questions": {
@@ -1684,6 +2380,35 @@
         ],
         "title": "InterpreterOut"
       },
+      "InvoiceSummary": {
+        "properties": {
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "total_gbp": {
+            "type": "number",
+            "title": "Total Gbp"
+          },
+          "is_credit_note": {
+            "type": "boolean",
+            "title": "Is Credit Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_no",
+          "date",
+          "total_gbp",
+          "is_credit_note"
+        ],
+        "title": "InvoiceSummary"
+      },
       "LogOut": {
         "properties": {
           "ts": {
@@ -1713,6 +2438,22 @@
           "fields"
         ],
         "title": "LogOut"
+      },
+      "MessageRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageRequest"
       },
       "Metric": {
         "properties": {
@@ -1749,6 +2490,24 @@
           "agg"
         ],
         "title": "Metric"
+      },
+      "PolicySectionOut": {
+        "properties": {
+          "heading": {
+            "type": "string",
+            "title": "Heading"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "heading",
+          "text"
+        ],
+        "title": "PolicySectionOut"
       },
       "QuarantinePage": {
         "properties": {
@@ -1923,6 +2682,38 @@
           "count"
         ],
         "title": "ReasonCount"
+      },
+      "RefundOut": {
+        "properties": {
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "amount_gbp": {
+            "type": "number",
+            "title": "Amount Gbp"
+          },
+          "approved_by": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "supervisor"
+            ],
+            "title": "Approved By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_no",
+          "reason",
+          "amount_gbp",
+          "approved_by"
+        ],
+        "title": "RefundOut"
       },
       "ResultColumn": {
         "properties": {
@@ -2365,6 +3156,73 @@
         ],
         "title": "ScenarioOut"
       },
+      "SourceOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "heading": {
+            "type": "string",
+            "title": "Heading"
+          },
+          "quote": {
+            "type": "string",
+            "title": "Quote"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "heading",
+          "quote"
+        ],
+        "title": "SourceOut"
+      },
+      "StartRequest": {
+        "properties": {
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 600,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "StartRequest"
+      },
       "StatusOut": {
         "properties": {
           "status": {
@@ -2574,6 +3432,85 @@
         ],
         "title": "SummaryOut"
       },
+      "SupportScenarioOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "customer_id": {
+            "type": "integer",
+            "title": "Customer Id"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "needs_supervisor": {
+            "type": "boolean",
+            "title": "Needs Supervisor",
+            "description": "Whether the scenario involves a supervisor decision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "category",
+          "customer_id",
+          "message",
+          "needs_supervisor"
+        ],
+        "title": "SupportScenarioOut"
+      },
+      "TicketOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "invoice_no": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice No"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "priority",
+          "invoice_no",
+          "summary"
+        ],
+        "title": "TicketOut"
+      },
       "TimeBucket": {
         "properties": {
           "column": {
@@ -2624,6 +3561,149 @@
           "total_ms"
         ],
         "title": "Timings"
+      },
+      "TraceStepOut": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "title": "Seq"
+          },
+          "turn": {
+            "type": "integer",
+            "title": "Turn"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "model",
+              "tool",
+              "approval"
+            ],
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "arguments": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arguments"
+          },
+          "result": {
+            "title": "Result"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "title": "Prompt Tokens"
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "title": "Completion Tokens"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "seq",
+          "turn",
+          "kind",
+          "name",
+          "provider",
+          "model",
+          "arguments",
+          "result",
+          "ok",
+          "prompt_tokens",
+          "completion_tokens",
+          "latency_ms",
+          "note"
+        ],
+        "title": "TraceStepOut"
+      },
+      "TranscriptOut": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "agent",
+              "supervisor"
+            ],
+            "title": "Role"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "citations": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Citations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "text",
+          "at",
+          "citations"
+        ],
+        "title": "TranscriptOut"
       },
       "TrendPoint": {
         "properties": {

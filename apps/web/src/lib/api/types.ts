@@ -30,6 +30,15 @@ export type CsvEvaluationSet = S["EvaluationSet"];
 export type CsvEvaluationItem = S["EvaluationItem"];
 export type CsvUsage = S["UsageOut"];
 
+export type SupportCatalogue = S["CatalogueOut"];
+export type SupportScenario = S["SupportScenarioOut"];
+export type SupportCustomer = S["CustomerOut"];
+export type Conversation = S["ConversationOut"];
+export type ConversationStep = S["TraceStepOut"];
+export type TranscriptEntry = S["TranscriptOut"];
+export type SupportEvaluationRun = S["EvaluationRunOut"];
+export type PolicySection = S["PolicySectionOut"];
+
 /** RFC 9457 problem details returned by the API on errors. */
 export interface Problem {
   status: number;

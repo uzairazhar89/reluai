@@ -1,0 +1,54 @@
+[
+  {
+    "heading": "About this policy",
+    "text": "This policy covers orders from the online gift shop. It was written for a portfolio\ndemonstration; it is not the policy of any real business. All amounts are in pounds\nsterling and include VAT."
+  },
+  {
+    "heading": "Refunds",
+    "text": "Refunds are paid to the original payment method within 5 working days of being approved.\nA refund can never exceed what was paid for the affected items on that invoice. Refunds up\nto £50 per request are approved by the support agent. Refunds above £50 must be approved\nby a supervisor before they are issued."
+  },
+  {
+    "heading": "Refunds › Damaged or faulty items",
+    "text": "Report damaged or faulty items within 14 days of delivery. We refund the price paid for the\ndamaged quantity. Items costing under £15 per line do not need to be returned; for other\nitems we arrange a free collection. Reports made more than 14 days after delivery are\noutside this policy, but the customer can still ask for a goodwill review."
+  },
+  {
+    "heading": "Refunds › Missing items",
+    "text": "If a delivered parcel is missing items, report it within 14 days of delivery. We refund\nthe price paid for the missing quantity. If the whole parcel is missing, see Lost parcels."
+  },
+  {
+    "heading": "Delivery",
+    "text": "UK orders are dispatched the next working day (orders after 3 pm, the working day after)\nand normally arrive within 2 to 3 working days of dispatch. European orders take 3 to 6\ndays and other international orders 6 to 11 days. Tracking is included with every order."
+  },
+  {
+    "heading": "Delivery › Late deliveries",
+    "text": "A delivery is late if it arrives more than 3 days after the estimated delivery date. For a\nlate delivery we refund the shipping charge on the invoice. If the invoice has no shipping\ncharge, we credit 5% of the value of the goods, up to £10."
+  },
+  {
+    "heading": "Delivery › Lost parcels",
+    "text": "A parcel is treated as lost when it has not been delivered 10 days after the estimated\ndelivery date. We open an investigation with the carrier and refund the price of the goods\non the invoice. Because this is usually above £50, a supervisor approves the refund."
+  },
+  {
+    "heading": "Delivery › Parcels in transit",
+    "text": "If the estimated delivery date has not passed, the parcel is still on its way. We share the\ntracking events and ask the customer to wait until the estimated date before reporting it\nmissing."
+  },
+  {
+    "heading": "Delivery › Returned to sender",
+    "text": "If a parcel comes back to us because it could not be delivered, we contact the customer to\nconfirm the address and send it again free of charge."
+  },
+  {
+    "heading": "Returns",
+    "text": "Unused items can be returned within 30 days of delivery for a refund of the item price. The\ncustomer pays for return postage unless the item was damaged or wrong. The refund is issued\nwhen the return arrives at our warehouse, so the support agent creates a return request\nrather than a refund."
+  },
+  {
+    "heading": "Cancellations and credit notes",
+    "text": "An order can be cancelled until it is dispatched. Invoice numbers starting with C are credit\nnotes: they record cancellations or refunds that have already been processed, so no further\nrefund is due on them."
+  },
+  {
+    "heading": "Invoices and VAT",
+    "text": "Customers can ask for a copy of an invoice or a VAT invoice at any time. The support agent\ncan confirm invoice totals and contents; requests for formal VAT documents are passed to the\naccounts team with a ticket."
+  },
+  {
+    "heading": "How we handle requests",
+    "text": "We only discuss orders on the customer's own account. We never change a refund amount\nbecause a customer asks for more; amounts follow this policy. Requests outside the policy,\ncomplaints and anything the agent cannot resolve are passed to a person with a ticket."
+  }
+]

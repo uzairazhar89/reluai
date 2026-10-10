@@ -33,10 +33,10 @@ from reluai_support.schemas import (
     InvoiceSummary,
     PolicySectionOut,
     RefundOut,
-    ScenarioOut,
     SourceOut,
-    StepOut,
+    SupportScenarioOut,
     TicketOut,
+    TraceStepOut,
     TranscriptOut,
 )
 from reluai_support.settings import SupportSettings
@@ -124,7 +124,7 @@ def catalogue(settings: SupportSettings, *, llm_available: bool) -> CatalogueOut
         as_of=settings.as_of,
         auto_approve_limit_gbp=settings.auto_approve_limit_gbp,
         scenarios=[
-            ScenarioOut(
+            SupportScenarioOut(
                 id=s.id,
                 title=s.title,
                 category=s.category,
@@ -157,7 +157,7 @@ def _out(state: SessionState, settings: SupportSettings) -> ConversationOut:
         can_reply=state.status == "active"
         and sum(1 for t in state.transcript if t.role == "customer") < settings.max_customer_turns,
         transcript=[TranscriptOut(**t.model_dump()) for t in state.transcript],
-        steps=[StepOut(**s.model_dump()) for s in state.steps],
+        steps=[TraceStepOut(**s.model_dump()) for s in state.steps],
         sources=[
             SourceOut(number=i, heading=s.heading, quote=s.quote)
             for i, s in enumerate(state.sources, start=1)

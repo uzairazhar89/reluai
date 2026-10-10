@@ -35,6 +35,8 @@ deployment.
 | Database size after 14 drops and their run history | ≈ 160 MB |
 | API process after 8 CSV analyst questions on the 1.07M-row table (10 October 2026) | ≈ 250 MB RSS |
 | CSV analyst query time, the 65 answered evaluation questions | median 9 ms, 95th percentile 74 ms |
+| API process after support-agent conversations (scripted agent) | ≈ 230 MB RSS |
+| Support scenario suite, 44 scenarios, scripted agent (10 October 2026) | median 20 ms, 95th percentile 33 ms per scenario |
 
 ## Rules that keep it inside the budget
 

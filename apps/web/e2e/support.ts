@@ -31,6 +31,11 @@ const csvAnswers: Record<string, Json> = {
 };
 const csvDeclined = fixture<Json>("csv-ask-declined");
 
+export const supportCatalogue = fixture<Json>("support-catalogue");
+const supportPending = fixture<Json & { id: string }>("support-convo-pending");
+const supportApproved = fixture<Json>("support-convo-approved");
+const supportRefund = fixture<Json>("support-convo-refund");
+
 function emptyDetail(run: RunJson): Json {
   return {
     run,
@@ -63,6 +68,8 @@ export interface ApiOptions {
   failReadsWith?: number;
   /** Response for POST /api/csv/ask instead of the recorded answers. */
   csvAsk?: { status: number; body: Json; headers?: Record<string, string> };
+  /** Response for POST /api/support/conversations instead of the recorded ones. */
+  supportStart?: { status: number; body: Json; headers?: Record<string, string> };
 }
 
 export async function mockApi(page: Page, options: ApiOptions = {}) {
@@ -101,6 +108,20 @@ export async function mockApi(page: Page, options: ApiOptions = {}) {
     if (req.method() === "POST" && p === "/api/csv/uploads") {
       return json(route, csvUpload, 201);
     }
+    if (req.method() === "POST" && p === "/api/support/conversations") {
+      const body = req.postDataJSON() as Json & { scenario_id?: string };
+      posted.push(body);
+      if (options.supportStart) {
+        const r = options.supportStart;
+        return json(route, r.body, r.status, r.headers);
+      }
+      return json(route, body.scenario_id === "damaged-06" ? supportPending : supportRefund, 201);
+    }
+    if (req.method() === "POST" && p.endsWith("/approval")) {
+      posted.push(req.postDataJSON() as Json);
+      return json(route, supportApproved);
+    }
+    if (p === "/api/support/catalogue") return json(route, supportCatalogue);
     if (p === "/api/csv/datasets/retail") return json(route, csvRetail);
     if (p === `/api/csv/uploads/${csvUpload.id}`) return json(route, csvUpload);
     if (req.method() === "POST" && p === "/api/contact") {

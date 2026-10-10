@@ -159,3 +159,52 @@ def test_evaluation_is_recorded_and_served(
     runs = client.get("/api/support/evaluation").json()
     assert [(r["label"], r["passed"], r["scenarios"]) for r in runs] == [("scripted", 2, 2)]
     assert runs[0]["results"][0]["id"] == "fixture-lost"
+
+
+def test_daily_task_purges_and_records_the_baseline(
+    monkeypatch: pytest.MonkeyPatch,
+    core_settings: CoreSettings,
+    clean_db: Database,
+    settings: SupportSettings,
+    fixture_orders: Fixture,
+) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    from sqlalchemy import func, select, update
+
+    from reluai_core.runtime import Runtime, set_runtime
+    from reluai_support import evaluation, tasks
+    from reluai_support.models import Conversation, EvaluationRun
+
+    fixture_scenarios = (
+        Scenario(
+            "fixture-transit", "In transit", "In transit", CUSTOMER,
+            f"Where is my order {fixture_orders.invoices['transit']}?", Expect("no_refund"),
+        ),
+    )  # fmt: skip
+    real_run = evaluation.run_evaluation
+    monkeypatch.setattr(
+        evaluation,
+        "run_evaluation",
+        lambda rt, chain, *, label: real_run(rt, chain, label=label, scenarios=fixture_scenarios),
+    )
+    monkeypatch.setattr(tasks, "get_support_settings", lambda: settings)
+    service._indexed.clear()
+    convo = service.start(
+        clean_db, settings, visitor="v", chain_factory=scripted_chain,
+        scenario_id=None, customer_id=CUSTOMER, message="Hello there",
+    )  # fmt: skip
+    with clean_db.session() as s:
+        s.execute(
+            update(Conversation)
+            .where(Conversation.id == convo.id)
+            .values(updated_at=datetime.now(UTC) - timedelta(hours=25))
+        )
+    set_runtime(Runtime(settings=core_settings, db=clean_db))
+    try:
+        tasks.support_daily.func(timestamp=0)  # type: ignore[attr-defined]
+    finally:
+        set_runtime(None)
+    with clean_db.session() as s:
+        assert s.scalar(select(func.count()).select_from(Conversation)) == 0
+        assert s.scalars(select(EvaluationRun.passed)).all() == [1]

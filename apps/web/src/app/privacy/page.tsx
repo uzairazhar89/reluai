@@ -39,8 +39,12 @@ const sections = [
     "Questions are answered on this server. For each one, only the outcome is recorded (answered or not, by rules or a model, timings and row count) so the page can show usage figures; the question text is not stored.",
   ],
   [
+    "Support agent: conversations",
+    "Messages you type in the Customer Support Agent demo, the agent's steps and the simulated refunds and tickets are stored with the conversation for 24 hours so the page can show the trace, then deleted. The conversation keeps the daily usage code described above, so only you can continue it; nothing else about you is stored.",
+  ],
+  [
     "AI providers",
-    "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. The page says when no provider is configured. Providers' own terms govern what they keep.",
+    "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. In the support agent demo, when a provider is configured, the conversation (your messages, the anonymised invoice details the agent looks up and the demo's policy text) is sent to it to choose the next step. Each page says when no provider is configured. Providers' own terms govern what they keep.",
   ],
 ] as const;
 

@@ -29,3 +29,12 @@ def test_models_and_migrations_agree(database_url: str) -> None:
     finally:
         engine.dispose()
     assert diff == []
+
+
+def test_openapi_schema_names_are_unique() -> None:
+    """Two models with the same class name get module-qualified names in the OpenAPI
+    document, which breaks the website's type aliases; keep response models uniquely named."""
+    from reluai_api.main import create_app
+
+    names = create_app().openapi()["components"]["schemas"]
+    assert [n for n in names if "__" in n] == []

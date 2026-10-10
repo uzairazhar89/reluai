@@ -9,7 +9,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-class ScenarioOut(BaseModel):
+class SupportScenarioOut(BaseModel):
     id: str
     title: str
     category: str
@@ -39,7 +39,7 @@ class CustomerOut(BaseModel):
 class CatalogueOut(BaseModel):
     as_of: date
     auto_approve_limit_gbp: float
-    scenarios: list[ScenarioOut]
+    scenarios: list[SupportScenarioOut]
     customers: list[CustomerOut]
     llm_available: bool
 
@@ -78,7 +78,7 @@ class TranscriptOut(BaseModel):
     citations: list[int]
 
 
-class StepOut(BaseModel):
+class TraceStepOut(BaseModel):
     seq: int
     turn: int
     kind: Literal["model", "tool", "approval"]
@@ -133,7 +133,7 @@ class ConversationOut(BaseModel):
     turn: int
     can_reply: bool
     transcript: list[TranscriptOut]
-    steps: list[StepOut]
+    steps: list[TraceStepOut]
     sources: list[SourceOut]
     approvals: list[ApprovalOut]
     refunds: list[RefundOut]

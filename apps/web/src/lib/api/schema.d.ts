@@ -307,10 +307,167 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/support/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Catalogue
+         * @description Scenarios, sample customers and the desk's settings.
+         */
+        get: operations["get_catalogue_api_support_catalogue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Policy
+         * @description The customer service policy the agent searches (written for this demo).
+         */
+        get: operations["get_policy_api_support_policy_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Conversation
+         * @description Start a conversation from a scenario or a customer and message; runs the first turn.
+         */
+        post: operations["post_conversation_api_support_conversations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/conversations/{conversation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Conversation */
+        get: operations["get_conversation_api_support_conversations__conversation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Message
+         * @description The customer's next message.
+         */
+        post: operations["post_message_api_support_conversations__conversation_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/conversations/{conversation_id}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Approval
+         * @description The supervisor's decision on a pending refund (the visitor plays the supervisor).
+         */
+        post: operations["post_approval_api_support_conversations__conversation_id__approval_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation
+         * @description The latest scenario-suite run for each provider label (empty until one has run).
+         */
+        get: operations["get_evaluation_api_support_evaluation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApprovalOut */
+        ApprovalOut: {
+            /** Id */
+            id: string;
+            /** Invoice No */
+            invoice_no: string;
+            /** Reason */
+            reason: string;
+            /** Amount Gbp */
+            amount_gbp: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /** Decided By */
+            decided_by: ("agent" | "supervisor") | null;
+            /** Note */
+            note: string | null;
+        };
         /** AskRequest */
         AskRequest: {
             /**
@@ -382,6 +539,22 @@ export interface components {
              */
             file: string;
         };
+        /** CatalogueOut */
+        CatalogueOut: {
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Auto Approve Limit Gbp */
+            auto_approve_limit_gbp: number;
+            /** Scenarios */
+            scenarios: components["schemas"]["SupportScenarioOut"][];
+            /** Customers */
+            customers: components["schemas"]["CustomerOut"][];
+            /** Llm Available */
+            llm_available: boolean;
+        };
         /** ColumnOut */
         ColumnOut: {
             /** Name */
@@ -448,6 +621,64 @@ export interface components {
              */
             website?: string | null;
         };
+        /** ConversationOut */
+        ConversationOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Customer Id */
+            customer_id: number;
+            /** Scenario Id */
+            scenario_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "awaiting_approval" | "closed";
+            /** Turn */
+            turn: number;
+            /** Can Reply */
+            can_reply: boolean;
+            /** Transcript */
+            transcript: components["schemas"]["TranscriptOut"][];
+            /** Steps */
+            steps: components["schemas"]["TraceStepOut"][];
+            /** Sources */
+            sources: components["schemas"]["SourceOut"][];
+            /** Approvals */
+            approvals: components["schemas"]["ApprovalOut"][];
+            /** Refunds */
+            refunds: components["schemas"]["RefundOut"][];
+            /** Tickets */
+            tickets: components["schemas"]["TicketOut"][];
+            /** Providers */
+            providers: string[];
+            /** Tokens */
+            tokens: number;
+        };
+        /** CustomerOut */
+        CustomerOut: {
+            /** Customer Id */
+            customer_id: number;
+            /** Country */
+            country: string;
+            /** Invoices */
+            invoices: number;
+            /**
+             * First Order
+             * Format: date
+             */
+            first_order: string;
+            /**
+             * Last Order
+             * Format: date
+             */
+            last_order: string;
+            /** Recent */
+            recent: components["schemas"]["InvoiceSummary"][];
+        };
         /** DatasetOut */
         DatasetOut: {
             /** Id */
@@ -481,6 +712,16 @@ export interface components {
              * @default false
              */
             llm_available: boolean;
+        };
+        /** DecisionRequest */
+        DecisionRequest: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "reject";
+            /** Note */
+            note?: string | null;
         };
         /** DqOut */
         DqOut: {
@@ -595,6 +836,61 @@ export interface components {
             /** Items */
             items: components["schemas"]["EvaluationItem"][];
         };
+        /** EvaluationResultOut */
+        EvaluationResultOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Passed */
+            passed: boolean;
+            /** Failures */
+            failures: string[];
+            /** Steps */
+            steps: number;
+            /** Tool Calls */
+            tool_calls: number;
+            /** Tool Errors */
+            tool_errors: number;
+            /** Tokens */
+            tokens: number;
+            /** Latency Ms */
+            latency_ms: number;
+        };
+        /** EvaluationRunOut */
+        EvaluationRunOut: {
+            /** Label */
+            label: string;
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Scenarios */
+            scenarios: number;
+            /** Passed */
+            passed: number;
+            /** Tokens */
+            tokens: number;
+            /** Median Latency Ms */
+            median_latency_ms: number;
+            /** P95 Latency Ms */
+            p95_latency_ms: number;
+            /** Providers */
+            providers: string[];
+            /** By Category */
+            by_category: {
+                [key: string]: number[];
+            };
+            /** Environment */
+            environment: {
+                [key: string]: unknown;
+            };
+            /** Results */
+            results: components["schemas"]["EvaluationResultOut"][];
+        };
         /** EvaluationSet */
         EvaluationSet: {
             /** Questions */
@@ -680,6 +976,20 @@ export interface components {
             /** Attempts */
             attempts?: components["schemas"]["AttemptOut"][];
         };
+        /** InvoiceSummary */
+        InvoiceSummary: {
+            /** Invoice No */
+            invoice_no: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Total Gbp */
+            total_gbp: number;
+            /** Is Credit Note */
+            is_credit_note: boolean;
+        };
         /** LogOut */
         LogOut: {
             /**
@@ -696,6 +1006,11 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** MessageRequest */
+        MessageRequest: {
+            /** Message */
+            message: string;
+        };
         /** Metric */
         Metric: {
             /**
@@ -709,6 +1024,13 @@ export interface components {
              * @description Column to aggregate. Omit only for agg='count' (count of rows).
              */
             column?: string | null;
+        };
+        /** PolicySectionOut */
+        PolicySectionOut: {
+            /** Heading */
+            heading: string;
+            /** Text */
+            text: string;
         };
         /** QuarantinePage */
         QuarantinePage: {
@@ -774,6 +1096,20 @@ export interface components {
             explanation: string;
             /** Count */
             count: number;
+        };
+        /** RefundOut */
+        RefundOut: {
+            /** Invoice No */
+            invoice_no: string;
+            /** Reason */
+            reason: string;
+            /** Amount Gbp */
+            amount_gbp: number;
+            /**
+             * Approved By
+             * @enum {string}
+             */
+            approved_by: "agent" | "supervisor";
         };
         /** ResultColumn */
         ResultColumn: {
@@ -932,6 +1268,24 @@ export interface components {
             /** Expected */
             expected: string;
         };
+        /** SourceOut */
+        SourceOut: {
+            /** Number */
+            number: number;
+            /** Heading */
+            heading: string;
+            /** Quote */
+            quote: string;
+        };
+        /** StartRequest */
+        StartRequest: {
+            /** Scenario Id */
+            scenario_id?: string | null;
+            /** Customer Id */
+            customer_id?: number | null;
+            /** Message */
+            message?: string | null;
+        };
         /** StatusOut */
         StatusOut: {
             /**
@@ -999,6 +1353,37 @@ export interface components {
             /** Trend */
             trend: components["schemas"]["TrendPoint"][];
         };
+        /** SupportScenarioOut */
+        SupportScenarioOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Customer Id */
+            customer_id: number;
+            /** Message */
+            message: string;
+            /**
+             * Needs Supervisor
+             * @description Whether the scenario involves a supervisor decision
+             */
+            needs_supervisor: boolean;
+        };
+        /** TicketOut */
+        TicketOut: {
+            /** Id */
+            id: string;
+            /** Category */
+            category: string;
+            /** Priority */
+            priority: string;
+            /** Invoice No */
+            invoice_no: string | null;
+            /** Summary */
+            summary: string;
+        };
         /** TimeBucket */
         TimeBucket: {
             /**
@@ -1020,6 +1405,57 @@ export interface components {
             query_ms: number;
             /** Total Ms */
             total_ms: number;
+        };
+        /** TraceStepOut */
+        TraceStepOut: {
+            /** Seq */
+            seq: number;
+            /** Turn */
+            turn: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "model" | "tool" | "approval";
+            /** Name */
+            name: string;
+            /** Provider */
+            provider: string | null;
+            /** Model */
+            model: string | null;
+            /** Arguments */
+            arguments: {
+                [key: string]: unknown;
+            } | null;
+            /** Result */
+            result: unknown;
+            /** Ok */
+            ok: boolean;
+            /** Prompt Tokens */
+            prompt_tokens: number;
+            /** Completion Tokens */
+            completion_tokens: number;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Note */
+            note: string | null;
+        };
+        /** TranscriptOut */
+        TranscriptOut: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "customer" | "agent" | "supervisor";
+            /** Text */
+            text: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Citations */
+            citations: number[];
         };
         /** TrendPoint */
         TrendPoint: {
@@ -1543,6 +1979,200 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UsageOut"];
+                };
+            };
+        };
+    };
+    get_catalogue_api_support_catalogue_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueOut"];
+                };
+            };
+        };
+    };
+    get_policy_api_support_policy_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicySectionOut"][];
+                };
+            };
+        };
+    };
+    post_conversation_api_support_conversations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_conversation_api_support_conversations__conversation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_message_api_support_conversations__conversation_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_approval_api_support_conversations__conversation_id__approval_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_api_support_evaluation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunOut"][];
                 };
             };
         };

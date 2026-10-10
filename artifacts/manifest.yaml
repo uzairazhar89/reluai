@@ -24,6 +24,9 @@ datasets:
       - The CSV analyst loads the whole table into a read-only DuckDB file with renamed
         columns, a computed revenue column (quantity × price) and a cancellation flag.
         Values are not altered.
+      - The support agent uses the invoice lines of customers with an ID, with exact
+        duplicate lines removed. Shipments, the service policy, tickets and customer
+        messages around them are simulated and labelled as such.
     licence:
       name: CC BY 4.0
       url: https://creativecommons.org/licenses/by/4.0/
@@ -55,4 +58,4 @@ datasets:
       max_timestamp: 2011-12-09T12:50:00
       content_sha256: 56dbc9b75d5834fc0a3a451e126601b14cb4cbc3fed774161f864eacddf18e54
       fingerprint_version: 1
-    used_by: [pipeline-observatory, csv-analyst]
+    used_by: [pipeline-observatory, csv-analyst, support-agent]

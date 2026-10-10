@@ -12,3 +12,4 @@ A decision is changed by adding a new record that supersedes the old one.
 | [0005](0005-llm-provider-chain.md) | LLM provider chain with a token budget and a deterministic last resort | Accepted |
 | [0006](0006-data-provenance-labelling.md) | Every figure and dataset is labelled with its provenance | Accepted |
 | [0007](0007-query-plans-not-generated-sql.md) | Questions become validated query plans, never generated SQL | Accepted |
+| [0008](0008-agent-actions-bounded-by-rules.md) | Agents act through tools, with amounts from rules and a person above a limit | Accepted |

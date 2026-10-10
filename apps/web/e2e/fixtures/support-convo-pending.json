@@ -1,0 +1,321 @@
+{
+  "id": "05b70c4a-4258-43b4-846b-470d8a997d16",
+  "customer_id": 16079,
+  "scenario_id": "damaged-06",
+  "status": "awaiting_approval",
+  "turn": 1,
+  "can_reply": false,
+  "transcript": [
+    {
+      "role": "customer",
+      "text": "Invoice 578252 - the rabbit night lights don't work, every single one of them is faulty.",
+      "at": "2026-10-10T19:16:45.870407Z",
+      "citations": []
+    },
+    {
+      "role": "agent",
+      "text": "I'm sorry about the damaged items on invoice 578252. The policy covers a refund of £85.92 [1], and because it is over £50 a supervisor needs to approve it. I've sent it for approval and will confirm shortly.",
+      "at": "2026-10-10T19:16:45.947012Z",
+      "citations": [1]
+    }
+  ],
+  "steps": [
+    {
+      "seq": 1,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["get_invoice", "get_shipment_status"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 2,
+      "turn": 1,
+      "kind": "tool",
+      "name": "get_invoice",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578252" },
+      "result": {
+        "invoice_no": "578252",
+        "date": "2011-11-23 12:48",
+        "is_credit_note": false,
+        "goods_total_gbp": 530.16,
+        "shipping_gbp": 0.0,
+        "total_gbp": 530.16,
+        "products": [
+          {
+            "stock_code": "15058A",
+            "description": "BLUE POLKADOT GARDEN PARASOL",
+            "quantity": 2,
+            "unit_price_gbp": 7.95,
+            "line_total_gbp": 15.9
+          },
+          {
+            "stock_code": "22086",
+            "description": "PAPER CHAIN KIT 50'S CHRISTMAS",
+            "quantity": 160,
+            "unit_price_gbp": 2.55,
+            "line_total_gbp": 408.0
+          },
+          {
+            "stock_code": "22304",
+            "description": "COFFEE MUG BLUE PAISLEY DESIGN",
+            "quantity": 6,
+            "unit_price_gbp": 2.55,
+            "line_total_gbp": 15.3
+          },
+          {
+            "stock_code": "22421",
+            "description": "LIPSTICK PEN FUSCHIA",
+            "quantity": 12,
+            "unit_price_gbp": 0.42,
+            "line_total_gbp": 5.04
+          },
+          {
+            "stock_code": "23084",
+            "description": "RABBIT NIGHT LIGHT",
+            "quantity": 48,
+            "unit_price_gbp": 1.79,
+            "line_total_gbp": 85.92
+          }
+        ],
+        "more_products": 0,
+        "other_lines": []
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 3,
+      "turn": 1,
+      "kind": "tool",
+      "name": "get_shipment_status",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578252" },
+      "result": {
+        "invoice_no": "578252",
+        "synthetic": true,
+        "tracking_number": "DEMO-F45CF062E769",
+        "service": "Tracked UK 48",
+        "status": "delivered",
+        "dispatched_on": "2011-11-24",
+        "estimated_delivery": "2011-11-27",
+        "delivered_on": "2011-11-27",
+        "days_late": 0,
+        "events": [
+          { "at": "2011-11-23 12:48", "event": "Order received" },
+          { "at": "2011-11-24 17:00", "event": "Parcel handed to the carrier" },
+          { "at": "2011-11-25 06:30", "event": "In transit" },
+          { "at": "2011-11-27 14:00", "event": "Delivered" }
+        ]
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 4,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["search_policy"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 5,
+      "turn": 1,
+      "kind": "tool",
+      "name": "search_policy",
+      "provider": null,
+      "model": null,
+      "arguments": { "query": "damaged or faulty items refund" },
+      "result": {
+        "passages": [
+          {
+            "citation": 1,
+            "section": "Refunds › Damaged or faulty items",
+            "text": "Report damaged or faulty items within 14 days of delivery. We refund the price paid for the\ndamaged quantity. Items costing under £15 per line do not need to be returned; for other\nitems we arrange a free collection. Reports made more than 14 days after delivery are\noutside this policy, but the customer can still ask for a goodwill review."
+          },
+          {
+            "citation": 2,
+            "section": "Returns",
+            "text": "Unused items can be returned within 30 days of delivery for a refund of the item price. The\ncustomer pays for return postage unless the item was damaged or wrong. The refund is issued\nwhen the return arrives at our warehouse, so the support agent creates a return request\nrather than a refund."
+          }
+        ],
+        "note": "Cite passages as [n]. The policy was written for this demo (synthetic)."
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 6,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["calculate_refund"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 7,
+      "turn": 1,
+      "kind": "tool",
+      "name": "calculate_refund",
+      "provider": null,
+      "model": null,
+      "arguments": {
+        "invoice_no": "578252",
+        "reason": "damaged",
+        "items": [{ "stock_code": "23084" }]
+      },
+      "result": {
+        "invoice_no": "578252",
+        "reason": "damaged",
+        "eligible": true,
+        "amount_gbp": 85.92,
+        "approval_needed": "supervisor approval",
+        "refund_on_return": false,
+        "policy_section": "Refunds › Damaged or faulty items",
+        "explanation": "Delivered 13 days ago, within the 14-day reporting window.",
+        "lines": [
+          {
+            "stock_code": "23084",
+            "description": "RABBIT NIGHT LIGHT",
+            "quantity": 48,
+            "amount_gbp": 85.92,
+            "return_needed": true
+          }
+        ]
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 8,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["request_approval"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 9,
+      "turn": 1,
+      "kind": "tool",
+      "name": "request_approval",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578252", "reason": "damaged", "amount": 85.92 },
+      "result": {
+        "status": "pending_supervisor",
+        "approval_id": "A-F17909",
+        "note": "A supervisor must approve this refund. Tell the customer it is pending."
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 10,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["draft_reply"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 11,
+      "turn": 1,
+      "kind": "tool",
+      "name": "draft_reply",
+      "provider": null,
+      "model": null,
+      "arguments": {
+        "message": "I'm sorry about the damaged items on invoice 578252. The policy covers a refund of £85.92 [1], and because it is over £50 a supervisor needs to approve it. I've sent it for approval and will confirm shortly.",
+        "citations": [1]
+      },
+      "result": { "drafted": true, "note": "Saved as a draft. Nothing is sent automatically." },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    }
+  ],
+  "sources": [
+    {
+      "number": 1,
+      "heading": "Refunds › Damaged or faulty items",
+      "quote": "Report damaged or faulty items within 14 days of delivery. We refund the price paid for the damaged quantity. Items costing under £15 per line do not need to be returned; for other items we arrange a free collection. Reports made more than 14 days"
+    },
+    {
+      "number": 2,
+      "heading": "Returns",
+      "quote": "within 30 days of delivery for a refund of the item price. The customer pays for return postage unless the item was damaged or wrong. The refund is issued when the return arrives at our warehouse, so the support agent creates a return request rather"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "A-F17909",
+      "invoice_no": "578252",
+      "reason": "damaged",
+      "amount_gbp": 85.92,
+      "status": "pending",
+      "decided_by": null,
+      "note": null
+    }
+  ],
+  "refunds": [],
+  "tickets": [],
+  "providers": ["scripted"],
+  "tokens": 0
+}

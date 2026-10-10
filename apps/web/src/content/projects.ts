@@ -67,13 +67,18 @@ export const projects: Project[] = [
   {
     slug: "support-agent",
     title: "Customer Support Agent",
-    status: "planned",
+    status: "live",
     roles: ["AI and LLM apps"],
     oneLiner: "A tool-calling agent that resolves order questions, with approval before refunds.",
-    problem: "",
-    solution: "",
-    tech: ["function calling", "agent tracing"],
+    problem:
+      "Order questions are repetitive and costly to get wrong; prompt-only chatbots invent " +
+      "order details, promise refunds the policy does not allow and can be talked into things.",
+    solution:
+      "An agent loop over real invoices with validated tools, refund rules in code, cited " +
+      "policy passages, supervisor approval above £50 and a trace of every step.",
+    tech: ["function calling", "agent loop", "PostgreSQL full-text search", "FastAPI", "Next.js"],
     repoPath: "projects/support-agent",
+    dataNote: "Real invoices; simulated shipments and policy",
   },
   {
     slug: "edge-ai-benchmark-lab",

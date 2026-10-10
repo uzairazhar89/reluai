@@ -1,0 +1,344 @@
+{
+  "id": "7befecd2-af90-4a2a-8bfd-8518dc823dec",
+  "customer_id": 18249,
+  "scenario_id": "damaged-01",
+  "status": "active",
+  "turn": 1,
+  "can_reply": true,
+  "transcript": [
+    {
+      "role": "customer",
+      "text": "Hi, my order 578058 arrived and 2 of the fawn blue hot water bottles were cracked. Can I get a refund?",
+      "at": "2026-10-10T19:16:45.746709Z",
+      "citations": []
+    },
+    {
+      "role": "agent",
+      "text": "I'm sorry about the damaged items on invoice 578058. I've refunded £7.50 to your original payment method; it should arrive within 5 working days [1].",
+      "at": "2026-10-10T19:16:45.850873Z",
+      "citations": [1]
+    }
+  ],
+  "steps": [
+    {
+      "seq": 1,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["get_invoice", "get_shipment_status"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 2,
+      "turn": 1,
+      "kind": "tool",
+      "name": "get_invoice",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578058" },
+      "result": {
+        "invoice_no": "578058",
+        "date": "2011-11-22 15:07",
+        "is_credit_note": false,
+        "goods_total_gbp": 95.34,
+        "shipping_gbp": 0.0,
+        "total_gbp": 95.34,
+        "products": [
+          {
+            "stock_code": "21108",
+            "description": "FAIRY CAKE FLANNEL ASSORTED COLOUR",
+            "quantity": 18,
+            "unit_price_gbp": 0.79,
+            "line_total_gbp": 14.22
+          },
+          {
+            "stock_code": "21481",
+            "description": "FAWN BLUE HOT WATER BOTTLE",
+            "quantity": 4,
+            "unit_price_gbp": 3.75,
+            "line_total_gbp": 15.0
+          },
+          {
+            "stock_code": "22608",
+            "description": "PENS ASSORTED FUNKY JEWELED",
+            "quantity": 36,
+            "unit_price_gbp": 0.19,
+            "line_total_gbp": 6.84
+          },
+          {
+            "stock_code": "22609",
+            "description": "PENS ASSORTED SPACEBALL",
+            "quantity": 36,
+            "unit_price_gbp": 0.19,
+            "line_total_gbp": 6.84
+          },
+          {
+            "stock_code": "23084",
+            "description": "RABBIT NIGHT LIGHT",
+            "quantity": 6,
+            "unit_price_gbp": 2.08,
+            "line_total_gbp": 12.48
+          },
+          {
+            "stock_code": "23345",
+            "description": "DOLLY GIRL BEAKER",
+            "quantity": 12,
+            "unit_price_gbp": 1.25,
+            "line_total_gbp": 15.0
+          },
+          {
+            "stock_code": "23473",
+            "description": "WOODLAND SMALL RED FELT HEART",
+            "quantity": 12,
+            "unit_price_gbp": 0.83,
+            "line_total_gbp": 9.96
+          },
+          {
+            "stock_code": "23480",
+            "description": "MINI LIGHTS WOODLAND MUSHROOMS",
+            "quantity": 4,
+            "unit_price_gbp": 3.75,
+            "line_total_gbp": 15.0
+          }
+        ],
+        "more_products": 0,
+        "other_lines": []
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 3,
+      "turn": 1,
+      "kind": "tool",
+      "name": "get_shipment_status",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578058" },
+      "result": {
+        "invoice_no": "578058",
+        "synthetic": true,
+        "tracking_number": "DEMO-A5E4B69C0752",
+        "service": "Tracked UK 48",
+        "status": "delivered",
+        "dispatched_on": "2011-11-24",
+        "estimated_delivery": "2011-11-26",
+        "delivered_on": "2011-11-26",
+        "days_late": 0,
+        "events": [
+          { "at": "2011-11-22 15:07", "event": "Order received" },
+          { "at": "2011-11-24 17:00", "event": "Parcel handed to the carrier" },
+          { "at": "2011-11-25 06:30", "event": "In transit" },
+          { "at": "2011-11-26 15:00", "event": "Delivered" }
+        ]
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 4,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["search_policy"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 5,
+      "turn": 1,
+      "kind": "tool",
+      "name": "search_policy",
+      "provider": null,
+      "model": null,
+      "arguments": { "query": "damaged or faulty items refund" },
+      "result": {
+        "passages": [
+          {
+            "citation": 1,
+            "section": "Refunds › Damaged or faulty items",
+            "text": "Report damaged or faulty items within 14 days of delivery. We refund the price paid for the\ndamaged quantity. Items costing under £15 per line do not need to be returned; for other\nitems we arrange a free collection. Reports made more than 14 days after delivery are\noutside this policy, but the customer can still ask for a goodwill review."
+          },
+          {
+            "citation": 2,
+            "section": "Returns",
+            "text": "Unused items can be returned within 30 days of delivery for a refund of the item price. The\ncustomer pays for return postage unless the item was damaged or wrong. The refund is issued\nwhen the return arrives at our warehouse, so the support agent creates a return request\nrather than a refund."
+          }
+        ],
+        "note": "Cite passages as [n]. The policy was written for this demo (synthetic)."
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 6,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["calculate_refund"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 1,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 7,
+      "turn": 1,
+      "kind": "tool",
+      "name": "calculate_refund",
+      "provider": null,
+      "model": null,
+      "arguments": {
+        "invoice_no": "578058",
+        "reason": "damaged",
+        "items": [{ "stock_code": "21481", "quantity": 2 }]
+      },
+      "result": {
+        "invoice_no": "578058",
+        "reason": "damaged",
+        "eligible": true,
+        "amount_gbp": 7.5,
+        "approval_needed": "none: within the £50 agent limit",
+        "refund_on_return": false,
+        "policy_section": "Refunds › Damaged or faulty items",
+        "explanation": "Delivered 14 days ago, within the 14-day reporting window.",
+        "lines": [
+          {
+            "stock_code": "21481",
+            "description": "FAWN BLUE HOT WATER BOTTLE",
+            "quantity": 2,
+            "amount_gbp": 7.5,
+            "return_needed": true
+          }
+        ]
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 8,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["request_approval"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 9,
+      "turn": 1,
+      "kind": "tool",
+      "name": "request_approval",
+      "provider": null,
+      "model": null,
+      "arguments": { "invoice_no": "578058", "reason": "damaged", "amount": 7.5 },
+      "result": {
+        "status": "approved",
+        "approval_id": "A-96F70E",
+        "note": "Within the £50 agent limit: refund recorded (simulated; paid within 5 working days)."
+      },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    },
+    {
+      "seq": 10,
+      "turn": 1,
+      "kind": "model",
+      "name": "scripted-agent",
+      "provider": "scripted",
+      "model": "scripted-agent",
+      "arguments": null,
+      "result": { "tool_calls": ["draft_reply"], "text": null },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": "fell back after groq: not_configured"
+    },
+    {
+      "seq": 11,
+      "turn": 1,
+      "kind": "tool",
+      "name": "draft_reply",
+      "provider": null,
+      "model": null,
+      "arguments": {
+        "message": "I'm sorry about the damaged items on invoice 578058. I've refunded £7.50 to your original payment method; it should arrive within 5 working days [1].",
+        "citations": [1]
+      },
+      "result": { "drafted": true, "note": "Saved as a draft. Nothing is sent automatically." },
+      "ok": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "latency_ms": 0,
+      "note": null
+    }
+  ],
+  "sources": [
+    {
+      "number": 1,
+      "heading": "Refunds › Damaged or faulty items",
+      "quote": "Report damaged or faulty items within 14 days of delivery. We refund the price paid for the damaged quantity. Items costing under £15 per line do not need to be returned; for other items we arrange a free collection. Reports made more than 14 days"
+    },
+    {
+      "number": 2,
+      "heading": "Returns",
+      "quote": "within 30 days of delivery for a refund of the item price. The customer pays for return postage unless the item was damaged or wrong. The refund is issued when the return arrives at our warehouse, so the support agent creates a return request rather"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "A-96F70E",
+      "invoice_no": "578058",
+      "reason": "damaged",
+      "amount_gbp": 7.5,
+      "status": "approved",
+      "decided_by": "agent",
+      "note": null
+    }
+  ],
+  "refunds": [
+    { "invoice_no": "578058", "reason": "damaged", "amount_gbp": 7.5, "approved_by": "agent" }
+  ],
+  "tickets": [],
+  "providers": ["scripted"],
+  "tokens": 0
+}

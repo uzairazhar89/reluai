@@ -21,6 +21,7 @@ members = [
     "reluai-datasets",
     "reluai-inference",
     "reluai-pipeline",
+    "reluai-retrieval",
     "reluai-workspace",
 ]
 
@@ -1514,6 +1515,7 @@ dependencies = [
     { name = "reluai-datasets" },
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
+    { name = "reluai-retrieval" },
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -1526,6 +1528,7 @@ requires-dist = [
     { name = "reluai-datasets", editable = "packages/datasets" },
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
+    { name = "reluai-retrieval", editable = "packages/retrieval" },
     { name = "typer", specifier = ">=0.17" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54" },
 ]
@@ -1650,6 +1653,17 @@ requires-dist = [
 ]
 
 [[package]]
+name = "reluai-retrieval"
+version = "0.1.0"
+source = { editable = "packages/retrieval" }
+dependencies = [
+    { name = "reluai-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "reluai-core", editable = "packages/platform-core" }]
+
+[[package]]
 name = "reluai-workspace"
 version = "0.1.0"
 source = { virtual = "." }
@@ -1660,6 +1674,7 @@ dependencies = [
     { name = "reluai-datasets" },
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
+    { name = "reluai-retrieval" },
 ]
 
 [package.dev-dependencies]
@@ -1683,6 +1698,7 @@ requires-dist = [
     { name = "reluai-datasets", editable = "packages/datasets" },
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
+    { name = "reluai-retrieval", editable = "packages/retrieval" },
 ]
 
 [package.metadata.requires-dev]

@@ -43,7 +43,15 @@ def test_probes_and_metrics(client: TestClient) -> None:
     assert client.get("/healthz").json() == {"status": "ok"}
     ready = client.get("/readyz")
     assert ready.status_code == 200
-    assert ready.json()["checks"]["migrations"]["revision"] == "0004"
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    from reluai_api.cli import MIGRATIONS_DIR
+
+    cfg = Config()
+    cfg.set_main_option("script_location", str(MIGRATIONS_DIR))
+    head = ScriptDirectory.from_config(cfg).get_current_head()
+    assert ready.json()["checks"]["migrations"]["revision"] == head
     metrics = client.get("/metrics")
     assert metrics.status_code == 200
     assert "reluai_http_requests_total" in metrics.text

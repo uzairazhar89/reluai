@@ -11,6 +11,7 @@ dependencies = [
   "reluai-datasets",
   "reluai-inference",
   "reluai-pipeline",
+  "reluai-retrieval",
   "typer>=0.17",
   "uvicorn[standard]>=0.54",
 ]
@@ -24,6 +25,7 @@ reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
+reluai-retrieval = { workspace = true }
 
 [build-system]
 requires = ["hatchling>=1.27"]

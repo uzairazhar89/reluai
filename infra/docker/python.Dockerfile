@@ -17,6 +17,7 @@ COPY apps/api/pyproject.toml apps/api/
 COPY packages/platform-core/pyproject.toml packages/platform-core/
 COPY packages/datasets/pyproject.toml packages/datasets/
 COPY packages/inference/pyproject.toml packages/inference/
+COPY packages/retrieval/pyproject.toml packages/retrieval/
 COPY projects/pipeline-observatory/pyproject.toml projects/pipeline-observatory/
 COPY projects/csv-analyst/pyproject.toml projects/csv-analyst/
 RUN --mount=type=cache,target=/root/.cache/uv \

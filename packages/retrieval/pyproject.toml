@@ -1,0 +1,19 @@
+[project]
+name = "reluai-retrieval"
+version = "0.1.0"
+description = "Retrieval core: section-aware chunking, PostgreSQL full-text search with ranked, citable passages"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "reluai-core",
+]
+
+[tool.uv.sources]
+reluai-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reluai_retrieval"]

@@ -67,7 +67,8 @@ Platform services you get for free, all from `reluai_core`:
 
 ### 3. Database migration
 
-- `apps/api/src/reluai_api/migrations/env.py`: `import reluai_csv.models  # noqa: F401`.
+- `apps/api/src/reluai_api/migrations/env_models.py`: `import reluai_csv.models  # noqa: F401`
+  and add the schema to `SCHEMAS`.
 - New file in `migrations/versions/`, for example `20261020_0004_csv_analyst.py` with
   `down_revision = "0003"`. Create the schema, the tables, and grant the runtime role:
 
@@ -83,7 +84,7 @@ Platform services you get for free, all from `reluai_core`:
   END IF; END $$;""")
   ```
 - `conftest.py`: add the new tables to the `TRUNCATE` list in `clean_db`.
-- Update the expected revision in `apps/api/tests/test_api.py`.
+- `apps/api/tests/test_migrations.py` checks the new migration against the models.
 
 ### 4. Build and type-check configuration
 

@@ -119,7 +119,7 @@ filterwarnings = ["error::DeprecationWarning:reluai_.*"]
 
 [tool.coverage.run]
 branch = true
-source = ["reluai_api", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_inference", "reluai_pipeline", "reluai_retrieval", "reluai_support"]
+source = ["reluai_api", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_docs", "reluai_inference", "reluai_pipeline", "reluai_retrieval", "reluai_support"]
 
 [tool.coverage.report]
 show_missing = true

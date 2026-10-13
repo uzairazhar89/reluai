@@ -1,1 +1,121 @@
-{"question":"What does the framework say about cryptocurrency?","answer":"This document does not seem to answer that. The closest passages are listed below.","citations":[],"abstained":true,"method":"extractive","note":"best sentence matched 25% of the question's words, similarity 0.57","fallback_reason":"no model is configured on this server","quotes":[],"passages":[{"number":1,"heading":"Executive Summary","page_from":7,"page_to":7,"text":"The Framework is intended to be voluntary, rights-preserving, non-sector-specific, and use-case agnostic, providing flexibility to organizations of all sizes and in all sectors and throughout society to implement the approaches in the Framework.\n\nThe Framework is designed to equip organizations and individuals – referred to here as AI actors – with approaches that increase the trustworthiness of AI systems, and to help foster the responsible design, development, deployment, and use of AI systems over time. AI actors are defined by the Organisation for Economic Co-operation and Development (OECD) as “those who play an active role in the AI system lifecycle, including organizations and individuals that deploy or operate AI” [OECD (2019) Artificial Intelligence in Society—OECD iLibrary] (See Appendix A).","snippet":"Framework is intended to be voluntary, rights-preserving, non-sector-specific, and use-case agnostic, providing flexibility to organizations of all sizes and in all sectors and throughout society to implement the approaches in the Framework. The Framework is designed to equip organizations and individuals","highlights":[[0,9],[231,240],[246,255]],"keyword_rank":4,"vector_rank":1,"similarity":0.6599},{"number":2,"heading":"Executive Summary","page_from":8,"page_to":8,"text":"Engagement with the AI community during this Framework’s development\n\n– via responses to a formal Request for Information, three widely attended workshops, public comments on a concept paper and two drafts of the Framework, discussions at multiple public forums, and many small group meetings – has informed development of the AI RMF 1.0 as well as AI research and development and evaluation conducted by NIST and others. Priority research and additional guidance that will enhance this Framework will be captured in an associated AI Risk Management Framework Roadmap to which NIST and the broader community can contribute.","snippet":"Engagement with the AI community during this Framework’s development – via responses to a formal Request for Information, three widely attended workshops, public comments on a concept paper and two drafts of the Framework, discussions at multiple public forums, and many small group meetings … well as AI research and development and evaluation conducted by NIST and others. Priority research and additional guidance that will enhance this Framework will be captured in an associated AI Risk Management Framework Roadmap to which NIST and the broader community can contribute","highlights":[[45,54],[212,221],[440,449],[503,512]],"keyword_rank":2,"vector_rank":4,"similarity":0.6154},{"number":3,"heading":"Appendix B: How AI Risks Differ from Traditional Software Risks","page_from":44,"page_to":44,"text":"Privacy and cybersecurity risks are also considered as part of broader enterprise risk management considerations, which may incorporate AI risks. As part of the effort to address AI trustworthiness characteristics such as “Secure and Resilient” and “Privacy-Enhanced,” organizations may consider leveraging available standards and guidance that provide broad guidance to organizations to reduce security and privacy risks, such as, but not limited to, the NIST Cybersecurity Framework, the NIST Privacy Framework, the NIST Risk Management Framework, and the Secure Software Development Framework. These frameworks have some features in common with the AI RMF. Like most risk management approaches, they are outcome-based rather than prescriptive and are often structured around a Core set of functions, categories, and subcategories.","snippet":"guidance that provide broad guidance to organizations to reduce security and privacy risks, such as, but not limited to, the NIST Cybersecurity Framework, the NIST Privacy Framework, the NIST Risk Management Framework, and the Secure Software Development Framework. These frameworks have some features in common","highlights":[[144,153],[172,181],[208,217],[255,264],[272,282]],"keyword_rank":1,"vector_rank":7,"similarity":0.603},{"number":4,"heading":"Executive Summary","page_from":7,"page_to":8,"text":"NIST will continue to align the AI RMF and related guidance with applicable international standards, guidelines, and practices. As the AI RMF is put into use, additional lessons will be learned to inform future updates and additional resources.\n\nThe Framework is divided into two parts. Part 1 discusses how organizations can frame the risks related to AI and describes the intended audience. Next, AI risks and trustworthiness are analyzed, outlining the characteristics of trustworthy AI systems, which include valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy enhanced, and fair with their harmful biases managed.\n\nPart 2 comprises the “Core” of the Framework. It describes four specific functions to help organizations address the risks of AI systems in practice. These functions – GOVERN, MAP, MEASURE, and MANAGE – are broken down further into categories and subcategories.","snippet":"practices. As the AI RMF is put into use, additional lessons will be learned to inform future updates and additional resources. The Framework is divided into two parts. Part 1 discusses how organizations can frame the risks related to AI and describes the intended audience … accountable and transparent, explainable and interpretable, privacy enhanced, and fair with their harmful biases managed. Part 2 comprises the “Core” of the Framework. It describes four specific functions to help organizations address the risks of AI systems in practice. These functions – GOVERN, MAP, MEASURE","highlights":[[132,141],[433,442]],"keyword_rank":9,"vector_rank":2,"similarity":0.6496},{"number":5,"heading":"Part 1: Foundational Information › 2. Audience","page_from":14,"page_to":14,"text":"Identifying and managing AI risks and potential impacts – both positive and negative – requires a broad set of perspectives and actors across the AI lifecycle. Ideally, AI actors will represent a diversity of experience, expertise, and backgrounds and comprise demographically and disciplinarily diverse teams. The AI RMF is intended to be used by AI actors across the AI lifecycle and dimensions.\n\nThe OECD has developed a framework for classifying AI lifecycle activities according to five key socio-technical dimensions, each with properties relevant for AI policy and governance, including risk management [OECD (2022) OECD Framework for the Classification of AI systems — OECD Digital Economy Papers]. Figure 2 shows these dimensions, slightly modified by NIST for purposes of this framework. The NIST modification highlights the importance of test, evaluation, verification, and validation (TEVV) processes throughout an AI lifecycle and generalizes the operational context of an AI system.","snippet":"intended to be used by AI actors across the AI lifecycle and dimensions. The OECD has developed a framework for classifying AI lifecycle activities according to five key socio-technical dimensions, each with properties relevant for AI policy and governance, including risk management [OECD … OECD Framework for the Classification of AI systems — OECD Digital Economy Papers]. Figure 2 shows these dimensions, slightly modified by NIST for purposes of this framework. The NIST modification highlights the importance of test, evaluation, verification, and validation (TEVV) processes throughout an AI lifecycle","highlights":[[98,107],[297,306],[456,465]],"keyword_rank":5,"vector_rank":6,"similarity":0.6038},{"number":6,"heading":"Appendix B: How AI Risks Differ from Traditional Software Risks","page_from":44,"page_to":44,"text":"Like most risk management approaches, they are outcome-based rather than prescriptive and are often structured around a Core set of functions, categories, and subcategories. While there are significant differences between these frameworks based on the domain addressed – and because AI risk management calls for addressing many other types of risks – frameworks like those mentioned above may inform security and privacy considerations in the MAP, MEASURE, and MANAGE functions of the AI RMF.\n\nAt the same time, guidance available before publication of this AI RMF does not comprehensively address many AI system risks. For example, existing frameworks and guidance are unable to:\n\n• adequately manage the problem of harmful bias in AI systems;\n\n• confront the challenging risks related to generative AI;\n\n• comprehensively address security concerns related to evasion, model extraction, membership inference, availability, or other machine learning attacks;","snippet":"than prescriptive and are often structured around a Core set of functions, categories, and subcategories. While there are significant differences between these frameworks based on the domain addressed – and because AI risk management calls for addressing many other types of risks – frameworks like those mentioned … same time, guidance available before publication of this AI RMF does not comprehensively address many AI system risks. For example, existing frameworks and guidance are unable to: • adequately manage the problem of harmful bias in AI systems; • confront the challenging risks related to generative","highlights":[[160,170],[283,293],[458,468]],"keyword_rank":6,"vector_rank":5,"similarity":0.6152}],"search_mode":"hybrid","keyword_match":"any","provider":null,"model":null,"tokens":0,"retries":0,"attempts":[],"retrieval_ms":18,"answer_ms":256,"word_overlap":0.252,"similarity":0.5737}
+{
+  "question": "What does the framework say about cryptocurrency?",
+  "answer": "This document does not seem to answer that. The closest passages are listed below.",
+  "citations": [],
+  "abstained": true,
+  "method": "extractive",
+  "note": "best sentence matched 25% of the question's words, similarity 0.57",
+  "fallback_reason": "no model is configured on this server",
+  "quotes": [],
+  "passages": [
+    {
+      "number": 1,
+      "heading": "Executive Summary",
+      "page_from": 7,
+      "page_to": 7,
+      "text": "The Framework is intended to be voluntary, rights-preserving, non-sector-specific, and use-case agnostic, providing flexibility to organizations of all sizes and in all sectors and throughout society to implement the approaches in the Framework.\n\nThe Framework is designed to equip organizations and individuals – referred to here as AI actors – with approaches that increase the trustworthiness of AI systems, and to help foster the responsible design, development, deployment, and use of AI systems over time. AI actors are defined by the Organisation for Economic Co-operation and Development (OECD) as “those who play an active role in the AI system lifecycle, including organizations and individuals that deploy or operate AI” [OECD (2019) Artificial Intelligence in Society—OECD iLibrary] (See Appendix A).",
+      "snippet": "Framework is intended to be voluntary, rights-preserving, non-sector-specific, and use-case agnostic, providing flexibility to organizations of all sizes and in all sectors and throughout society to implement the approaches in the Framework. The Framework is designed to equip organizations and individuals",
+      "highlights": [
+        [0, 9],
+        [231, 240],
+        [246, 255]
+      ],
+      "keyword_rank": 4,
+      "vector_rank": 1,
+      "similarity": 0.6599
+    },
+    {
+      "number": 2,
+      "heading": "Executive Summary",
+      "page_from": 8,
+      "page_to": 8,
+      "text": "Engagement with the AI community during this Framework’s development\n\n– via responses to a formal Request for Information, three widely attended workshops, public comments on a concept paper and two drafts of the Framework, discussions at multiple public forums, and many small group meetings – has informed development of the AI RMF 1.0 as well as AI research and development and evaluation conducted by NIST and others. Priority research and additional guidance that will enhance this Framework will be captured in an associated AI Risk Management Framework Roadmap to which NIST and the broader community can contribute.",
+      "snippet": "Engagement with the AI community during this Framework’s development – via responses to a formal Request for Information, three widely attended workshops, public comments on a concept paper and two drafts of the Framework, discussions at multiple public forums, and many small group meetings … well as AI research and development and evaluation conducted by NIST and others. Priority research and additional guidance that will enhance this Framework will be captured in an associated AI Risk Management Framework Roadmap to which NIST and the broader community can contribute",
+      "highlights": [
+        [45, 54],
+        [212, 221],
+        [440, 449],
+        [503, 512]
+      ],
+      "keyword_rank": 2,
+      "vector_rank": 4,
+      "similarity": 0.6154
+    },
+    {
+      "number": 3,
+      "heading": "Appendix B: How AI Risks Differ from Traditional Software Risks",
+      "page_from": 44,
+      "page_to": 44,
+      "text": "Privacy and cybersecurity risks are also considered as part of broader enterprise risk management considerations, which may incorporate AI risks. As part of the effort to address AI trustworthiness characteristics such as “Secure and Resilient” and “Privacy-Enhanced,” organizations may consider leveraging available standards and guidance that provide broad guidance to organizations to reduce security and privacy risks, such as, but not limited to, the NIST Cybersecurity Framework, the NIST Privacy Framework, the NIST Risk Management Framework, and the Secure Software Development Framework. These frameworks have some features in common with the AI RMF. Like most risk management approaches, they are outcome-based rather than prescriptive and are often structured around a Core set of functions, categories, and subcategories.",
+      "snippet": "guidance that provide broad guidance to organizations to reduce security and privacy risks, such as, but not limited to, the NIST Cybersecurity Framework, the NIST Privacy Framework, the NIST Risk Management Framework, and the Secure Software Development Framework. These frameworks have some features in common",
+      "highlights": [
+        [144, 153],
+        [172, 181],
+        [208, 217],
+        [255, 264],
+        [272, 282]
+      ],
+      "keyword_rank": 1,
+      "vector_rank": 7,
+      "similarity": 0.603
+    },
+    {
+      "number": 4,
+      "heading": "Executive Summary",
+      "page_from": 7,
+      "page_to": 8,
+      "text": "NIST will continue to align the AI RMF and related guidance with applicable international standards, guidelines, and practices. As the AI RMF is put into use, additional lessons will be learned to inform future updates and additional resources.\n\nThe Framework is divided into two parts. Part 1 discusses how organizations can frame the risks related to AI and describes the intended audience. Next, AI risks and trustworthiness are analyzed, outlining the characteristics of trustworthy AI systems, which include valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy enhanced, and fair with their harmful biases managed.\n\nPart 2 comprises the “Core” of the Framework. It describes four specific functions to help organizations address the risks of AI systems in practice. These functions – GOVERN, MAP, MEASURE, and MANAGE – are broken down further into categories and subcategories.",
+      "snippet": "practices. As the AI RMF is put into use, additional lessons will be learned to inform future updates and additional resources. The Framework is divided into two parts. Part 1 discusses how organizations can frame the risks related to AI and describes the intended audience … accountable and transparent, explainable and interpretable, privacy enhanced, and fair with their harmful biases managed. Part 2 comprises the “Core” of the Framework. It describes four specific functions to help organizations address the risks of AI systems in practice. These functions – GOVERN, MAP, MEASURE",
+      "highlights": [
+        [132, 141],
+        [433, 442]
+      ],
+      "keyword_rank": 9,
+      "vector_rank": 2,
+      "similarity": 0.6496
+    },
+    {
+      "number": 5,
+      "heading": "Part 1: Foundational Information › 2. Audience",
+      "page_from": 14,
+      "page_to": 14,
+      "text": "Identifying and managing AI risks and potential impacts – both positive and negative – requires a broad set of perspectives and actors across the AI lifecycle. Ideally, AI actors will represent a diversity of experience, expertise, and backgrounds and comprise demographically and disciplinarily diverse teams. The AI RMF is intended to be used by AI actors across the AI lifecycle and dimensions.\n\nThe OECD has developed a framework for classifying AI lifecycle activities according to five key socio-technical dimensions, each with properties relevant for AI policy and governance, including risk management [OECD (2022) OECD Framework for the Classification of AI systems — OECD Digital Economy Papers]. Figure 2 shows these dimensions, slightly modified by NIST for purposes of this framework. The NIST modification highlights the importance of test, evaluation, verification, and validation (TEVV) processes throughout an AI lifecycle and generalizes the operational context of an AI system.",
+      "snippet": "intended to be used by AI actors across the AI lifecycle and dimensions. The OECD has developed a framework for classifying AI lifecycle activities according to five key socio-technical dimensions, each with properties relevant for AI policy and governance, including risk management [OECD … OECD Framework for the Classification of AI systems — OECD Digital Economy Papers]. Figure 2 shows these dimensions, slightly modified by NIST for purposes of this framework. The NIST modification highlights the importance of test, evaluation, verification, and validation (TEVV) processes throughout an AI lifecycle",
+      "highlights": [
+        [98, 107],
+        [297, 306],
+        [456, 465]
+      ],
+      "keyword_rank": 5,
+      "vector_rank": 6,
+      "similarity": 0.6038
+    },
+    {
+      "number": 6,
+      "heading": "Appendix B: How AI Risks Differ from Traditional Software Risks",
+      "page_from": 44,
+      "page_to": 44,
+      "text": "Like most risk management approaches, they are outcome-based rather than prescriptive and are often structured around a Core set of functions, categories, and subcategories. While there are significant differences between these frameworks based on the domain addressed – and because AI risk management calls for addressing many other types of risks – frameworks like those mentioned above may inform security and privacy considerations in the MAP, MEASURE, and MANAGE functions of the AI RMF.\n\nAt the same time, guidance available before publication of this AI RMF does not comprehensively address many AI system risks. For example, existing frameworks and guidance are unable to:\n\n• adequately manage the problem of harmful bias in AI systems;\n\n• confront the challenging risks related to generative AI;\n\n• comprehensively address security concerns related to evasion, model extraction, membership inference, availability, or other machine learning attacks;",
+      "snippet": "than prescriptive and are often structured around a Core set of functions, categories, and subcategories. While there are significant differences between these frameworks based on the domain addressed – and because AI risk management calls for addressing many other types of risks – frameworks like those mentioned … same time, guidance available before publication of this AI RMF does not comprehensively address many AI system risks. For example, existing frameworks and guidance are unable to: • adequately manage the problem of harmful bias in AI systems; • confront the challenging risks related to generative",
+      "highlights": [
+        [160, 170],
+        [283, 293],
+        [458, 468]
+      ],
+      "keyword_rank": 6,
+      "vector_rank": 5,
+      "similarity": 0.6152
+    }
+  ],
+  "search_mode": "hybrid",
+  "keyword_match": "any",
+  "provider": null,
+  "model": null,
+  "tokens": 0,
+  "retries": 0,
+  "attempts": [],
+  "retrieval_ms": 18,
+  "answer_ms": 256,
+  "word_overlap": 0.252,
+  "similarity": 0.5737
+}

@@ -54,15 +54,21 @@ export const projects: Project[] = [
   },
   {
     slug: "document-intelligence",
-    title: "Document Intelligence and RAG Lab",
-    status: "planned",
+    title: "Document Q&A",
+    status: "live",
     roles: ["AI and LLM apps"],
-    oneLiner:
-      "Question answering over documents with cited passages, plus invoice data extraction.",
-    problem: "",
-    solution: "",
-    tech: ["pgvector", "ONNX embeddings", "Groq / local LLM"],
-    repoPath: "projects/rag-lab",
+    oneLiner: "Upload any PDF and ask questions; answers quote the document with page citations.",
+    problem:
+      "Answers from long documents are only useful if you can check them. Chatbots over PDFs " +
+      "paraphrase without saying where, invent what the document does not say, and break on " +
+      "scanned pages.",
+    solution:
+      "Reads the PDF in an isolated process (text layer or OCR), rebuilds headings and pages, " +
+      "searches by keywords and meaning, and answers only from cited passages, or says the " +
+      "document does not cover it.",
+    tech: ["PDFium", "OCR (ONNX)", "pgvector", "PostgreSQL full-text", "FastAPI", "Next.js"],
+    repoPath: "projects/document-intelligence",
+    dataNote: "Your PDF, or a real NIST publication",
   },
   {
     slug: "support-agent",

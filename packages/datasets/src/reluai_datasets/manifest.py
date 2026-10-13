@@ -58,9 +58,34 @@ class Dataset(_Strict):
     used_by: list[str] = Field(default_factory=list)
 
 
+class ArtifactFile(_Strict):
+    url: HttpUrl
+    path: str = Field(description="Where the file is stored in the image")
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    bytes: int | None = Field(default=None, gt=0)
+    notes: str | None = None
+
+
+class FileArtifact(_Strict):
+    """A model or document fetched (or installed) at image build time and pinned by hash."""
+
+    id: str = Field(pattern=r"^[a-z0-9][a-z0-9.-]*$")
+    kind: Literal["model", "document"]
+    title: str
+    publisher: str
+    homepage: HttpUrl
+    description: str
+    real_data: bool = True
+    modifications: list[str] = Field(default_factory=list)
+    licence: Licence
+    files: list[ArtifactFile]
+    used_by: list[str] = Field(default_factory=list)
+
+
 class Manifest(_Strict):
     version: int
     datasets: list[Dataset]
+    artifacts: list[FileArtifact] = Field(default_factory=list)
 
     def get(self, dataset_id: str) -> Dataset:
         for ds in self.datasets:

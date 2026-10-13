@@ -5,8 +5,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Route } from "@playwright/test";
 
 /**
- * Browser tests answer every /api request from fixtures captured from a real run of the
- * pipeline, so the suite needs no backend and gives the same result every time.
+ * Browser tests answer every /api request from fixtures captured from real runs of the
+ * services, so the suite needs no backend and gives the same result every time.
  */
 const fixture = <T>(name: string): T =>
   JSON.parse(readFileSync(path.join(__dirname, "fixtures", `${name}.json`), "utf8")) as T;
@@ -35,6 +35,17 @@ export const supportCatalogue = fixture<Json>("support-catalogue");
 const supportPending = fixture<Json & { id: string }>("support-convo-pending");
 const supportApproved = fixture<Json>("support-convo-approved");
 const supportRefund = fixture<Json>("support-convo-refund");
+
+export const docsSample = fixture<Json & { id: string }>("docs-sample");
+const docsChunks = fixture<Json>("docs-chunks");
+export const docsUpload = fixture<Json & { id: string }>("docs-upload-queued");
+const docsUploadReady = fixture<Json>("docs-upload-ready");
+const docsAnswers: Record<string, Json> = {
+  "What are the four functions of the AI RMF core?": fixture<Json>("docs-ask-functions"),
+  "What does the framework say about cryptocurrency?": fixture<Json>("docs-ask-crypto"),
+  "When is a delivery considered late?": fixture<Json>("docs-ask-upload"),
+};
+const docsDeclined = fixture<Json>("docs-ask-crypto");
 
 function emptyDetail(run: RunJson): Json {
   return {
@@ -70,11 +81,14 @@ export interface ApiOptions {
   csvAsk?: { status: number; body: Json; headers?: Record<string, string> };
   /** Response for POST /api/support/conversations instead of the recorded ones. */
   supportStart?: { status: number; body: Json; headers?: Record<string, string> };
+  /** Response for POST /api/documents/{id}/ask instead of the recorded answers. */
+  docsAsk?: { status: number; body: Json; headers?: Record<string, string> };
 }
 
 export async function mockApi(page: Page, options: ApiOptions = {}) {
   const posted: Json[] = [];
   let polls = 0;
+  let docPolls = 0;
   const json = (route: Route, body: unknown, status = 200, headers: Record<string, string> = {}) =>
     route.fulfill({
       status,
@@ -120,6 +134,34 @@ export async function mockApi(page: Page, options: ApiOptions = {}) {
     if (req.method() === "POST" && p.endsWith("/approval")) {
       posted.push(req.postDataJSON() as Json);
       return json(route, supportApproved);
+    }
+    const askMatch = p.match(/^\/api\/documents\/([^/]+)\/ask$/);
+    if (req.method() === "POST" && askMatch) {
+      const body = req.postDataJSON() as Json & { question: string };
+      posted.push(body);
+      if (options.docsAsk) {
+        const r = options.docsAsk;
+        return json(route, r.body, r.status, r.headers);
+      }
+      return json(
+        route,
+        docsAnswers[body.question] ?? { ...docsDeclined, question: body.question },
+      );
+    }
+    if (req.method() === "POST" && p === "/api/documents/uploads") {
+      posted.push({ upload: req.headers()["content-type"]?.split(";")[0] });
+      return json(route, docsUpload, 202);
+    }
+    if (req.method() === "DELETE" && p === `/api/documents/${docsUpload.id}`) {
+      posted.push({ deleted: docsUpload.id });
+      return route.fulfill({ status: 204 });
+    }
+    if (p === "/api/documents/sample") return json(route, docsSample);
+    if (p === `/api/documents/${docsSample.id}/chunks`) return json(route, docsChunks);
+    if (p === `/api/documents/${docsUpload.id}`) {
+      // The recorded upload went queued → reading → ready; one poll is shown as reading.
+      const reading = { ...docsUpload, status: "reading", progress_done: 1, progress_total: 2 };
+      return json(route, docPolls++ === 0 ? reading : docsUploadReady);
     }
     if (p === "/api/support/catalogue") return json(route, supportCatalogue);
     if (p === "/api/csv/datasets/retail") return json(route, csvRetail);

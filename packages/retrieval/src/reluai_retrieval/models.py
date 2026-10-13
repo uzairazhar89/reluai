@@ -2,6 +2,8 @@
 
 ``chunk.tsv`` is a stored generated column: the heading path is weighted ``A`` and the
 chunk text ``B``, so a passage under a matching heading ranks above a passing mention.
+``chunk.embedding`` (pgvector) is optional: collections indexed with an embedding model
+also support meaning-based search (see ``reluai_retrieval.vector``).
 """
 
 from __future__ import annotations
@@ -9,6 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -28,6 +31,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from reluai_core.db import Base
 
 SCHEMA = "retrieval"
+EMBEDDING_DIMENSIONS = 384  # BAAI bge-small-en-v1.5
 TSV_EXPRESSION = (
     "setweight(to_tsvector('english', coalesce(heading, '')), 'A') || "
     "setweight(to_tsvector('english', text), 'B')"
@@ -73,3 +77,4 @@ class Chunk(Base):
     char_end: Mapped[int] = mapped_column(Integer)
     words: Mapped[int] = mapped_column(Integer)
     tsv: Mapped[Any] = mapped_column(TSVECTOR, Computed(TSV_EXPRESSION, persisted=True))
+    embedding: Mapped[Any | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=True)

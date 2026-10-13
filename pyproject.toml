@@ -10,6 +10,7 @@ dependencies = [
   "reluai-core",
   "reluai-csv-analyst",
   "reluai-datasets",
+  "reluai-document-intelligence",
   "reluai-inference",
   "reluai-pipeline",
   "reluai-retrieval",
@@ -40,6 +41,7 @@ reluai-api = { workspace = true }
 reluai-core = { workspace = true }
 reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
+reluai-document-intelligence = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
 reluai-retrieval = { workspace = true }
@@ -79,13 +81,21 @@ python_version = "3.12"
 strict = true
 warn_unreachable = true
 plugins = ["pydantic.mypy"]
-mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src"]
+mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src"]
 explicit_package_bases = true
-files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src"]
+files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src"]
 exclude = ["(^|/)migrations/", "(^|/)node_modules/"]
 
 [[tool.mypy.overrides]]
-module = ["procrastinate.*", "pyreadr.*", "openpyxl.*", "tenacity.*"]
+module = [
+  "onnxruntime.*",
+  "openpyxl.*",
+  "procrastinate.*",
+  "pypdfium2.*",
+  "pyreadr.*",
+  "rapidocr.*",
+  "tenacity.*",
+]
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]

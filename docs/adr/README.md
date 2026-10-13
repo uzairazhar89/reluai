@@ -13,3 +13,4 @@ A decision is changed by adding a new record that supersedes the old one.
 | [0006](0006-data-provenance-labelling.md) | Every figure and dataset is labelled with its provenance | Accepted |
 | [0007](0007-query-plans-not-generated-sql.md) | Questions become validated query plans, never generated SQL | Accepted |
 | [0008](0008-agent-actions-bounded-by-rules.md) | Agents act through tools, with amounts from rules and a person above a limit | Accepted |
+| [0009](0009-untrusted-documents-isolated-answers-cited.md) | Uploaded documents are read in an isolated process; answers must cite them | Accepted |

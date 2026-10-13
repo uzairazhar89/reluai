@@ -444,10 +444,198 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/documents/sample": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sample
+         * @description The bundled sample document (NIST AI RMF 1.0), ready for questions.
+         */
+        get: operations["get_sample_api_documents_sample_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Upload
+         * @description Queue a PDF for reading. Poll ``GET /{id}`` until ``status`` is ready or failed.
+         *
+         *     The file is held in memory until the worker reads it, then discarded; the extracted text
+         *     is deleted after an hour. Neither is logged.
+         */
+        post: operations["post_upload_api_documents_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation
+         * @description The latest evaluation run per answering method, on the sample document.
+         */
+        get: operations["get_evaluation_api_documents_evaluation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Document
+         * @description Processing status, page counts, outline and warnings.
+         */
+        get: operations["get_document_api_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Document
+         * @description Delete an uploaded document and its passages now, rather than after an hour.
+         */
+        delete: operations["delete_document_api_documents__document_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/{document_id}/chunks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Chunks
+         * @description The passages the document was split into, as they are searched.
+         */
+        get: operations["get_chunks_api_documents__document_id__chunks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/{document_id}/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Ask
+         * @description Answer a question from this document only, citing page-numbered passages.
+         */
+        post: operations["post_ask_api_documents__document_id__ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnswerOut */
+        AnswerOut: {
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+            /** Citations */
+            citations: number[];
+            /** Abstained */
+            abstained: boolean;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "extractive" | "model";
+            /** Note */
+            note: string | null;
+            /**
+             * Fallback Reason
+             * @description Why a model did not write this answer
+             */
+            fallback_reason: string | null;
+            /** Quotes */
+            quotes: components["schemas"]["QuoteOut"][];
+            /** Passages */
+            passages: components["schemas"]["PassageOut"][];
+            /**
+             * Search Mode
+             * @enum {string}
+             */
+            search_mode: "hybrid" | "keyword";
+            /**
+             * Keyword Match
+             * @enum {string}
+             */
+            keyword_match: "all" | "any" | "none";
+            /** Provider */
+            provider: string | null;
+            /** Model */
+            model: string | null;
+            /** Tokens */
+            tokens: number;
+            /** Retries */
+            retries: number;
+            /** Attempts */
+            attempts: components["schemas"]["AttemptOut"][];
+            /** Retrieval Ms */
+            retrieval_ms: number;
+            /** Answer Ms */
+            answer_ms: number;
+            /**
+             * Word Overlap
+             * @description Extractive: weighted share of the question's words in the best sentence
+             */
+            word_overlap?: number | null;
+            /**
+             * Similarity
+             * @description Extractive: cosine similarity of the best sentence to the question
+             */
+            similarity?: number | null;
+        };
         /** ApprovalOut */
         ApprovalOut: {
             /** Id */
@@ -539,6 +727,14 @@ export interface components {
              */
             file: string;
         };
+        /** Body_post_upload_api_documents_uploads_post */
+        Body_post_upload_api_documents_uploads_post: {
+            /**
+             * File
+             * @description PDF, up to 10 MB
+             */
+            file: string;
+        };
         /** CatalogueOut */
         CatalogueOut: {
             /**
@@ -554,6 +750,30 @@ export interface components {
             customers: components["schemas"]["CustomerOut"][];
             /** Llm Available */
             llm_available: boolean;
+        };
+        /** ChunkOut */
+        ChunkOut: {
+            /** Ordinal */
+            ordinal: number;
+            /** Heading */
+            heading: string;
+            /** Page From */
+            page_from: number;
+            /** Page To */
+            page_to: number;
+            /** Words */
+            words: number;
+            /** Text */
+            text: string;
+        };
+        /** ChunksOut */
+        ChunksOut: {
+            /** Total */
+            total: number;
+            /** Offset */
+            offset: number;
+            /** Items */
+            items: components["schemas"]["ChunkOut"][];
         };
         /** ColumnOut */
         ColumnOut: {
@@ -722,6 +942,111 @@ export interface components {
             decision: "approve" | "reject";
             /** Note */
             note?: string | null;
+        };
+        /** DocumentOut */
+        DocumentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "upload" | "sample";
+            /** Filename */
+            filename: string;
+            /** Title */
+            title: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "reading" | "ocr" | "indexing" | "embedding" | "ready" | "failed";
+            /** Progress Done */
+            progress_done: number;
+            /** Progress Total */
+            progress_total: number;
+            /** File Bytes */
+            file_bytes: number;
+            /**
+             * Page Count
+             * @description Pages in the file
+             */
+            page_count: number;
+            /** Pages Read */
+            pages_read: number;
+            /**
+             * Pages Text
+             * @description Pages read from the PDF's text layer
+             */
+            pages_text: number;
+            /**
+             * Pages Ocr
+             * @description Scanned pages read with OCR
+             */
+            pages_ocr: number;
+            /** Pages Empty */
+            pages_empty: number;
+            /**
+             * Ocr Skipped
+             * @description Scanned pages beyond the OCR limit (not read)
+             */
+            ocr_skipped: number[];
+            /** Chars */
+            chars: number;
+            /** Chunks */
+            chunks: number;
+            /** Truncated */
+            truncated: boolean;
+            /** Search Mode */
+            search_mode: ("hybrid" | "keyword") | null;
+            /** Embedding Model */
+            embedding_model: string | null;
+            /** Outline */
+            outline: components["schemas"]["OutlineOut"][];
+            /** Warnings */
+            warnings: string[];
+            /** Error Code */
+            error_code: string | null;
+            /** Error Message */
+            error_message: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expires At */
+            expires_at: string | null;
+            /** Timings */
+            timings: {
+                [key: string]: number;
+            };
+            source?: components["schemas"]["DocumentSourceOut"] | null;
+            /**
+             * Llm Available
+             * @description A model can write answers (otherwise extractive)
+             */
+            llm_available: boolean;
+            /**
+             * External Llm Available
+             * @description A hosted model (Groq) is configured; uploads need the visitor's consent
+             */
+            external_llm_available: boolean;
+        };
+        /** DocumentSourceOut */
+        DocumentSourceOut: {
+            /** Title */
+            title: string;
+            /** Publisher */
+            publisher: string;
+            /** Url */
+            url: string;
+            /** Licence */
+            licence: string;
+            /** Sha256 */
+            sha256: string;
         };
         /** DqOut */
         DqOut: {
@@ -1025,12 +1350,121 @@ export interface components {
              */
             column?: string | null;
         };
+        /** OutlineOut */
+        OutlineOut: {
+            /** Level */
+            level: number;
+            /** Title */
+            title: string;
+            /** Page */
+            page: number;
+        };
+        /** PassageOut */
+        PassageOut: {
+            /** Number */
+            number: number;
+            /** Heading */
+            heading: string;
+            /** Page From */
+            page_from: number;
+            /** Page To */
+            page_to: number;
+            /** Text */
+            text: string;
+            /** Snippet */
+            snippet: string;
+            /** Highlights */
+            highlights: [
+                number,
+                number
+            ][];
+            /** Keyword Rank */
+            keyword_rank: number | null;
+            /** Vector Rank */
+            vector_rank: number | null;
+            /** Similarity */
+            similarity: number | null;
+        };
         /** PolicySectionOut */
         PolicySectionOut: {
             /** Heading */
             heading: string;
             /** Text */
             text: string;
+        };
+        /** QaEvaluationItemOut */
+        QaEvaluationItemOut: {
+            /** Id */
+            id: string;
+            /** Question */
+            question: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "answerable" | "unanswerable";
+            /**
+             * Split
+             * @enum {string}
+             */
+            split: "dev" | "held_out";
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "extractive" | "model";
+            /** Correct */
+            correct: boolean;
+            /** Abstained */
+            abstained: boolean;
+            /**
+             * Retrieved
+             * @description An expected page was among the retrieved passages
+             */
+            retrieved: boolean;
+            /**
+             * Cited Expected
+             * @description The answer cited a passage on an expected page
+             */
+            cited_expected: boolean;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Tokens */
+            tokens: number;
+            /** Answer */
+            answer: string;
+        };
+        /** QaEvaluationRunOut */
+        QaEvaluationRunOut: {
+            /** Label */
+            label: string;
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Document */
+            document: string;
+            /** Questions */
+            questions: number;
+            /** Correct */
+            correct: number;
+            /** Tokens */
+            tokens: number;
+            /** Median Latency Ms */
+            median_latency_ms: number;
+            /** P95 Latency Ms */
+            p95_latency_ms: number;
+            /** Metrics */
+            metrics: {
+                [key: string]: number;
+            };
+            /** Environment */
+            environment: {
+                [key: string]: string | number | null;
+            };
+            /** Results */
+            results: components["schemas"]["QaEvaluationItemOut"][];
         };
         /** QuarantinePage */
         QuarantinePage: {
@@ -1083,6 +1517,33 @@ export interface components {
              * @description Suggested visualisation
              */
             chart?: ("number" | "bar" | "line" | "table") | null;
+        };
+        /** QuestionRequest */
+        QuestionRequest: {
+            /** Question */
+            question: string;
+            /**
+             * Mode
+             * @description auto: a model if one may be used, else extractive
+             * @default auto
+             * @enum {string}
+             */
+            mode: "auto" | "extractive";
+            /**
+             * Allow External
+             * @description For uploads: allow sending the retrieved passages to the hosted model
+             * @default false
+             */
+            allow_external: boolean;
+        };
+        /** QuoteOut */
+        QuoteOut: {
+            /** Number */
+            number: number;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
         };
         /** ReasonCount */
         ReasonCount: {
@@ -2173,6 +2634,208 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvaluationRunOut"][];
+                };
+            };
+        };
+    };
+    get_sample_api_documents_sample_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+        };
+    };
+    post_upload_api_documents_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_post_upload_api_documents_uploads_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_api_documents_evaluation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QaEvaluationRunOut"][];
+                };
+            };
+        };
+    };
+    get_document_api_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_document_api_documents__document_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_chunks_api_documents__document_id__chunks_get: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunksOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_ask_api_documents__document_id__ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

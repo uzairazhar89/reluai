@@ -59,3 +59,92 @@ datasets:
       content_sha256: 56dbc9b75d5834fc0a3a451e126601b14cb4cbc3fed774161f864eacddf18e54
       fingerprint_version: 1
     used_by: [pipeline-observatory, csv-analyst, support-agent]
+
+# Models and documents fetched at image-build time from pinned sources (or installed from a
+# hash-locked package) and listed on the /data page.
+artifacts:
+  - id: nist-ai-100-1
+    kind: document
+    title: Artificial Intelligence Risk Management Framework (AI RMF 1.0), NIST AI 100-1
+    publisher: National Institute of Standards and Technology (NIST)
+    homepage: https://doi.org/10.6028/NIST.AI.100-1
+    description: >-
+      The 48-page framework NIST published in January 2023 for managing risks of AI systems.
+      The Document Q&A demo offers it as a ready-indexed sample and its evaluation question set
+      is written against it.
+    real_data: true
+    modifications:
+      - Read with the same pipeline as uploads (text layer, running headers and page numbers
+        removed, headings and paragraphs rebuilt), split into passages and embedded at image
+        build time. The text itself is not altered.
+    licence:
+      name: US Government work
+      url: https://www.nist.gov/oism/copyrights
+      attribution: >-
+        National Institute of Standards and Technology (2023). Artificial Intelligence Risk
+        Management Framework (AI RMF 1.0). NIST AI 100-1. https://doi.org/10.6028/NIST.AI.100-1
+      notes: >-
+        Works of the US Government are not subject to copyright protection in the United States.
+    files:
+      - url: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf
+        path: /var/lib/reluai/data/docs/sample.json (extracted; the PDF is not kept)
+        sha256: 7576edb531d9848825814ee88e28b1795d3a84b435b4b797d3670eafdc4a89f1
+        bytes: 1946127
+    used_by: [document-intelligence]
+
+  - id: bge-small-en-v1.5
+    kind: model
+    title: bge-small-en-v1.5 (sentence embeddings)
+    publisher: Beijing Academy of Artificial Intelligence (BAAI)
+    homepage: https://huggingface.co/BAAI/bge-small-en-v1.5
+    description: >-
+      A 33-million-parameter English embedding model producing 384-dimensional vectors, used
+      for meaning-based search in the Document Q&A demo. Runs on CPU with ONNX Runtime.
+    real_data: true
+    modifications:
+      - The ONNX export published in the model repository is quantised to 8-bit weights
+        (ONNX Runtime dynamic quantisation, per channel) when the server image is built, and
+        only the quantised copy is kept. With the versions pinned in uv.lock the result is
+        reproducible; its SHA-256 is
+        f8b2217838ea27564f870f96e377cb6e5ca0fa37dec9599cf305d5de011d6b7f.
+      - Tokenisation is reimplemented in Python from the published vocabulary and checked
+        against the reference tokenizer.
+    licence:
+      name: MIT
+      url: https://huggingface.co/BAAI/bge-small-en-v1.5/blob/main/README.md
+      attribution: >-
+        Xiao, S., Liu, Z., Zhang, P. and Muennighoff, N. (2023). C-Pack: Packaged Resources To
+        Advance General Chinese Embedding. BAAI bge-small-en-v1.5, MIT licence.
+    files:
+      - url: https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/onnx/model.onnx
+        path: /var/lib/reluai/data/docs/models/bge-small-en-v1.5.onnx
+        sha256: 828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35
+        bytes: 133093490
+      - url: https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json
+        path: /var/lib/reluai/data/docs/models/bge-small-en-v1.5.tokenizer.json
+        sha256: d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66
+        bytes: 711396
+    used_by: [document-intelligence]
+
+  - id: pp-ocrv6-small
+    kind: model
+    title: PP-OCRv6 small text detection and recognition (via RapidOCR)
+    publisher: PaddlePaddle (PaddleOCR); ONNX conversion by the RapidOCR project
+    homepage: https://github.com/RapidAI/RapidOCR
+    description: >-
+      Text detection, orientation and recognition models used to read scanned pages in the
+      Document Q&A demo, run on CPU with ONNX Runtime.
+    real_data: true
+    licence:
+      name: Apache 2.0
+      url: https://github.com/RapidAI/RapidOCR/blob/main/LICENSE
+      attribution: >-
+        PaddleOCR (PaddlePaddle), PP-OCRv6 models, Apache 2.0; ONNX models packaged by
+        RapidOCR, Apache 2.0.
+      notes: >-
+        Installed from the rapidocr 3.10.0 wheel on PyPI, whose hash is pinned in uv.lock; the
+        models ship inside the wheel, so nothing is downloaded at run time.
+    files:
+      - url: https://pypi.org/project/rapidocr/3.10.0/
+        path: /opt/venv/lib/python3.13/site-packages/rapidocr/models/
+    used_by: [document-intelligence]

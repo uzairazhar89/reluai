@@ -11,6 +11,7 @@ from reluai_core.ratelimit import purge_expired
 from reluai_core.runtime import get_runtime
 from reluai_core.settings import CoreSettings
 from reluai_csv.tasks import blueprint as csv_blueprint
+from reluai_docs.tasks import blueprint as docs_blueprint
 from reluai_pipeline.tasks import EXECUTE_TASK
 from reluai_pipeline.tasks import blueprint as pipeline_blueprint
 from reluai_support.tasks import blueprint as support_blueprint
@@ -42,6 +43,7 @@ def build_job_app(settings: CoreSettings) -> App:
             "pipeline": pipeline_blueprint,
             "csv": csv_blueprint,
             "support": support_blueprint,
+            "docs": docs_blueprint,
         },
     )
 

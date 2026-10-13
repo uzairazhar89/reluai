@@ -18,6 +18,7 @@ from reluai_core.logging import configure_logging
 from reluai_core.runtime import Runtime, set_runtime
 from reluai_core.settings import CoreSettings, get_core_settings
 from reluai_csv import api as csv_api
+from reluai_docs import api as docs_api
 from reluai_pipeline import api as pipeline_api
 from reluai_pipeline.sources import crm
 from reluai_support import api as support_api
@@ -79,6 +80,9 @@ def create_app(
             "/api/contact": 16 * 1024,
             "/api/csv": 16 * 1024,
             "/api/support": 8 * 1024,
+            "/api/documents": 8 * 1024,
+            # Multipart overhead on top of the 10 MB PDF limit.
+            "/api/documents/uploads": 10_700_000,
             # Multipart overhead on top of the 2 MB file limit.
             "/api/csv/uploads": 2_200_000,
         },
@@ -92,5 +96,6 @@ def create_app(
     app.include_router(pipeline_api.router, prefix="/api/pipeline")
     app.include_router(csv_api.router, prefix="/api/csv")
     app.include_router(support_api.router, prefix="/api/support")
+    app.include_router(docs_api.router, prefix="/api/documents")
     app.include_router(crm.router, prefix="/internal/crm")
     return app

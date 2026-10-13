@@ -5,6 +5,8 @@ description = "Retrieval core: section-aware chunking, PostgreSQL full-text sear
 requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
+  "numpy>=2.2",
+  "pgvector>=0.4",
   "reluai-core",
 ]
 

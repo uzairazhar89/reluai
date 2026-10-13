@@ -9,6 +9,7 @@ dependencies = [
   "reluai-core",
   "reluai-csv-analyst",
   "reluai-datasets",
+  "reluai-document-intelligence",
   "reluai-inference",
   "reluai-pipeline",
   "reluai-retrieval",
@@ -24,6 +25,7 @@ reluai = "reluai_api.cli:app"
 reluai-core = { workspace = true }
 reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
+reluai-document-intelligence = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
 reluai-retrieval = { workspace = true }

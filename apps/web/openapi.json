@@ -866,10 +866,477 @@
           }
         }
       }
+    },
+    "/api/documents/sample": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get Sample",
+        "description": "The bundled sample document (NIST AI RMF 1.0), ready for questions.",
+        "operationId": "get_sample_api_documents_sample_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/uploads": {
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Post Upload",
+        "description": "Queue a PDF for reading. Poll ``GET /{id}`` until ``status`` is ready or failed.\n\nThe file is held in memory until the worker reads it, then discarded; the extracted text\nis deleted after an hour. Neither is logged.",
+        "operationId": "post_upload_api_documents_uploads_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_upload_api_documents_uploads_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/evaluation": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get Evaluation",
+        "description": "The latest evaluation run per answering method, on the sample document.",
+        "operationId": "get_evaluation_api_documents_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QaEvaluationRunOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Evaluation Api Documents Evaluation Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{document_id}": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get Document",
+        "description": "Processing status, page counts, outline and warnings.",
+        "operationId": "get_document_api_documents__document_id__get",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete Document",
+        "description": "Delete an uploaded document and its passages now, rather than after an hour.",
+        "operationId": "delete_document_api_documents__document_id__delete",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{document_id}/chunks": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get Chunks",
+        "description": "The passages the document was split into, as they are searched.",
+        "operationId": "get_chunks_api_documents__document_id__chunks_get",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunksOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{document_id}/ask": {
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Post Ask",
+        "description": "Answer a question from this document only, citing page-numbered passages.",
+        "operationId": "post_ask_api_documents__document_id__ask_post",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AnswerOut": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "citations": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Citations"
+          },
+          "abstained": {
+            "type": "boolean",
+            "title": "Abstained"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "extractive",
+              "model"
+            ],
+            "title": "Method"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason",
+            "description": "Why a model did not write this answer"
+          },
+          "quotes": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteOut"
+            },
+            "type": "array",
+            "title": "Quotes"
+          },
+          "passages": {
+            "items": {
+              "$ref": "#/components/schemas/PassageOut"
+            },
+            "type": "array",
+            "title": "Passages"
+          },
+          "search_mode": {
+            "type": "string",
+            "enum": [
+              "hybrid",
+              "keyword"
+            ],
+            "title": "Search Mode"
+          },
+          "keyword_match": {
+            "type": "string",
+            "enum": [
+              "all",
+              "any",
+              "none"
+            ],
+            "title": "Keyword Match"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          },
+          "retries": {
+            "type": "integer",
+            "title": "Retries"
+          },
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/AttemptOut"
+            },
+            "type": "array",
+            "title": "Attempts"
+          },
+          "retrieval_ms": {
+            "type": "integer",
+            "title": "Retrieval Ms"
+          },
+          "answer_ms": {
+            "type": "integer",
+            "title": "Answer Ms"
+          },
+          "word_overlap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Word Overlap",
+            "description": "Extractive: weighted share of the question's words in the best sentence"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity",
+            "description": "Extractive: cosine similarity of the best sentence to the question"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "answer",
+          "citations",
+          "abstained",
+          "method",
+          "note",
+          "fallback_reason",
+          "quotes",
+          "passages",
+          "search_mode",
+          "keyword_match",
+          "provider",
+          "model",
+          "tokens",
+          "retries",
+          "attempts",
+          "retrieval_ms",
+          "answer_ms"
+        ],
+        "title": "AnswerOut"
+      },
       "ApprovalOut": {
         "properties": {
           "id": {
@@ -1145,6 +1612,21 @@
         ],
         "title": "Body_post_upload_api_csv_uploads_post"
       },
+      "Body_post_upload_api_documents_uploads_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "PDF, up to 10 MB"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_post_upload_api_documents_uploads_post"
+      },
       "CatalogueOut": {
         "properties": {
           "as_of": {
@@ -1184,6 +1666,70 @@
           "llm_available"
         ],
         "title": "CatalogueOut"
+      },
+      "ChunkOut": {
+        "properties": {
+          "ordinal": {
+            "type": "integer",
+            "title": "Ordinal"
+          },
+          "heading": {
+            "type": "string",
+            "title": "Heading"
+          },
+          "page_from": {
+            "type": "integer",
+            "title": "Page From"
+          },
+          "page_to": {
+            "type": "integer",
+            "title": "Page To"
+          },
+          "words": {
+            "type": "integer",
+            "title": "Words"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ordinal",
+          "heading",
+          "page_from",
+          "page_to",
+          "words",
+          "text"
+        ],
+        "title": "ChunkOut"
+      },
+      "ChunksOut": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ChunkOut"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "offset",
+          "items"
+        ],
+        "title": "ChunksOut"
       },
       "ColumnOut": {
         "properties": {
@@ -1645,6 +2191,277 @@
           "decision"
         ],
         "title": "DecisionRequest"
+      },
+      "DocumentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "sample"
+            ],
+            "title": "Kind"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "reading",
+              "ocr",
+              "indexing",
+              "embedding",
+              "ready",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "progress_done": {
+            "type": "integer",
+            "title": "Progress Done"
+          },
+          "progress_total": {
+            "type": "integer",
+            "title": "Progress Total"
+          },
+          "file_bytes": {
+            "type": "integer",
+            "title": "File Bytes"
+          },
+          "page_count": {
+            "type": "integer",
+            "title": "Page Count",
+            "description": "Pages in the file"
+          },
+          "pages_read": {
+            "type": "integer",
+            "title": "Pages Read"
+          },
+          "pages_text": {
+            "type": "integer",
+            "title": "Pages Text",
+            "description": "Pages read from the PDF's text layer"
+          },
+          "pages_ocr": {
+            "type": "integer",
+            "title": "Pages Ocr",
+            "description": "Scanned pages read with OCR"
+          },
+          "pages_empty": {
+            "type": "integer",
+            "title": "Pages Empty"
+          },
+          "ocr_skipped": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Ocr Skipped",
+            "description": "Scanned pages beyond the OCR limit (not read)"
+          },
+          "chars": {
+            "type": "integer",
+            "title": "Chars"
+          },
+          "chunks": {
+            "type": "integer",
+            "title": "Chunks"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          },
+          "search_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "hybrid",
+                  "keyword"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Mode"
+          },
+          "embedding_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Embedding Model"
+          },
+          "outline": {
+            "items": {
+              "$ref": "#/components/schemas/OutlineOut"
+            },
+            "type": "array",
+            "title": "Outline"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "timings": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Timings"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentSourceOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "llm_available": {
+            "type": "boolean",
+            "title": "Llm Available",
+            "description": "A model can write answers (otherwise extractive)"
+          },
+          "external_llm_available": {
+            "type": "boolean",
+            "title": "External Llm Available",
+            "description": "A hosted model (Groq) is configured; uploads need the visitor's consent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "filename",
+          "title",
+          "status",
+          "progress_done",
+          "progress_total",
+          "file_bytes",
+          "page_count",
+          "pages_read",
+          "pages_text",
+          "pages_ocr",
+          "pages_empty",
+          "ocr_skipped",
+          "chars",
+          "chunks",
+          "truncated",
+          "search_mode",
+          "embedding_model",
+          "outline",
+          "warnings",
+          "error_code",
+          "error_message",
+          "created_at",
+          "expires_at",
+          "timings",
+          "llm_available",
+          "external_llm_available"
+        ],
+        "title": "DocumentOut"
+      },
+      "DocumentSourceOut": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "publisher": {
+            "type": "string",
+            "title": "Publisher"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "licence": {
+            "type": "string",
+            "title": "Licence"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "publisher",
+          "url",
+          "licence",
+          "sha256"
+        ],
+        "title": "DocumentSourceOut"
       },
       "DqOut": {
         "properties": {
@@ -2491,6 +3308,121 @@
         ],
         "title": "Metric"
       },
+      "OutlineOut": {
+        "properties": {
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level",
+          "title",
+          "page"
+        ],
+        "title": "OutlineOut"
+      },
+      "PassageOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "heading": {
+            "type": "string",
+            "title": "Heading"
+          },
+          "page_from": {
+            "type": "integer",
+            "title": "Page From"
+          },
+          "page_to": {
+            "type": "integer",
+            "title": "Page To"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "highlights": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Highlights"
+          },
+          "keyword_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyword Rank"
+          },
+          "vector_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Rank"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "heading",
+          "page_from",
+          "page_to",
+          "text",
+          "snippet",
+          "highlights",
+          "keyword_rank",
+          "vector_rank",
+          "similarity"
+        ],
+        "title": "PassageOut"
+      },
       "PolicySectionOut": {
         "properties": {
           "heading": {
@@ -2508,6 +3440,181 @@
           "text"
         ],
         "title": "PolicySectionOut"
+      },
+      "QaEvaluationItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "answerable",
+              "unanswerable"
+            ],
+            "title": "Kind"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "held_out"
+            ],
+            "title": "Split"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "extractive",
+              "model"
+            ],
+            "title": "Method"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct"
+          },
+          "abstained": {
+            "type": "boolean",
+            "title": "Abstained"
+          },
+          "retrieved": {
+            "type": "boolean",
+            "title": "Retrieved",
+            "description": "An expected page was among the retrieved passages"
+          },
+          "cited_expected": {
+            "type": "boolean",
+            "title": "Cited Expected",
+            "description": "The answer cited a passage on an expected page"
+          },
+          "latency_ms": {
+            "type": "integer",
+            "title": "Latency Ms"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "question",
+          "kind",
+          "split",
+          "method",
+          "correct",
+          "abstained",
+          "retrieved",
+          "cited_expected",
+          "latency_ms",
+          "tokens",
+          "answer"
+        ],
+        "title": "QaEvaluationItemOut"
+      },
+      "QaEvaluationRunOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "document": {
+            "type": "string",
+            "title": "Document"
+          },
+          "questions": {
+            "type": "integer",
+            "title": "Questions"
+          },
+          "correct": {
+            "type": "integer",
+            "title": "Correct"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens"
+          },
+          "median_latency_ms": {
+            "type": "integer",
+            "title": "Median Latency Ms"
+          },
+          "p95_latency_ms": {
+            "type": "integer",
+            "title": "P95 Latency Ms"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "environment": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Environment"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/QaEvaluationItemOut"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "ran_at",
+          "document",
+          "questions",
+          "correct",
+          "tokens",
+          "median_latency_ms",
+          "p95_latency_ms",
+          "metrics",
+          "environment",
+          "results"
+        ],
+        "title": "QaEvaluationRunOut"
       },
       "QuarantinePage": {
         "properties": {
@@ -2649,6 +3756,61 @@
         ],
         "title": "QueryPlan",
         "description": "Aggregate query over one table: metrics, optionally grouped and filtered."
+      },
+      "QuestionRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 2,
+            "title": "Question"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "extractive"
+            ],
+            "title": "Mode",
+            "description": "auto: a model if one may be used, else extractive",
+            "default": "auto"
+          },
+          "allow_external": {
+            "type": "boolean",
+            "title": "Allow External",
+            "description": "For uploads: allow sending the retrieved passages to the hosted model",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "QuestionRequest"
+      },
+      "QuoteOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "start": {
+            "type": "integer",
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "start",
+          "end"
+        ],
+        "title": "QuoteOut"
       },
       "ReasonCount": {
         "properties": {

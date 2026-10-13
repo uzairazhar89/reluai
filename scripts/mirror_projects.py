@@ -51,6 +51,12 @@ MIRRORS = (
         title="Customer Support Agent",
         packages=("platform-core", "inference", "retrieval", "datasets"),
     ),
+    Mirror(
+        project="document-intelligence",
+        repo="reluai-document-intelligence",
+        title="Document Q&A",
+        packages=("platform-core", "inference", "retrieval", "datasets"),
+    ),
 )
 
 ALWAYS = ("LICENSE", "artifacts/manifest.yaml", ".gitattributes", ".editorconfig")

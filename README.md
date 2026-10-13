@@ -15,7 +15,8 @@ per-project mirror repositories.
 | [Data Pipeline Observatory](projects/pipeline-observatory) | Live | ETL on 1.07 M real invoice lines: data contract, quarantine with reason codes, idempotent PostgreSQL loads, quality gates, run dashboard |
 | [AI CSV Analyst](projects/csv-analyst) | Live | Plain-English questions over the real retail table or an uploaded CSV: profiling, a rule-based parser with an optional LLM, validated query plans, a locked-down DuckDB sandbox, SQL and pandas shown |
 | [Customer Support Agent](projects/support-agent) | Live | A hand-written tool-calling agent over real invoices: refund rules in code, cited policy, supervisor approval above £50, a trace of every step, 44 scenarios |
-| Five more | Planned | Document Q&A, edge benchmarks, invoice matching, research search, street-scene vision ([plan](docs/plan/PORTFOLIO_REBUILD_PLAN.md)) |
+| [Document Q&A](projects/document-intelligence) | Live | Upload any PDF (text or scanned) and ask questions: an isolated, resource-capped reader, OCR on CPU, rebuilt headings and pages, hybrid keyword + vector search in PostgreSQL, answers that quote and cite pages or abstain |
+| Four more | Planned | Edge benchmarks, invoice matching, research search, street-scene vision ([plan](docs/plan/PORTFOLIO_REBUILD_PLAN.md)) |
 
 Nothing that is not built is presented as available, and every figure on the site comes from
 a recorded run.
@@ -30,18 +31,19 @@ packages/
   platform-core/       settings, logging, database, job queue, CPU lease, quotas, health, metrics
   inference/           LLM provider chain (Groq → Cerebras → local llama.cpp → deterministic)
   datasets/            artifact manifest and verified downloads
-  retrieval/           chunking, PostgreSQL full-text search, citations
+  retrieval/           chunking, PostgreSQL full-text and pgvector search, citations
 projects/
   pipeline-observatory/  P1: the data pipeline
   csv-analyst/           P2: the AI CSV Analyst
   support-agent/         P7: the customer support agent
+  document-intelligence/ P5: Document Q&A over uploaded PDFs
 infra/
   docker/              images (python: api + worker, web)
   compose/             base, staging and production profiles
   nginx/               edge proxy: TLS, security headers, rate limits, retired routes
   ansible/             VPS provisioning (hardening, Docker, app user, backups)
   backup/ scripts/     backup, restore, deploy with health gate and rollback
-artifacts/manifest.yaml  every third-party dataset: source, licence, checksums
+artifacts/manifest.yaml  every third-party dataset, model and document: source, licence, checksums
 docs/                  architecture, decisions (ADRs), runbooks, plan
 ```
 

@@ -40,9 +40,33 @@ export interface ManifestDataset {
   used_by: string[];
 }
 
+export interface ManifestArtifactFile {
+  url: string;
+  path: string;
+  sha256?: string;
+  bytes?: number;
+  notes?: string;
+}
+
+/** A model or document fetched (or installed) at image build time and pinned by hash. */
+export interface ManifestArtifact {
+  id: string;
+  kind: "model" | "document";
+  title: string;
+  publisher: string;
+  homepage: string;
+  description: string;
+  real_data?: boolean;
+  modifications?: string[];
+  licence: { name: string; url: string; attribution: string; notes?: string };
+  files: ManifestArtifactFile[];
+  used_by: string[];
+}
+
 export interface Manifest {
   version: number;
   datasets: ManifestDataset[];
+  artifacts?: ManifestArtifact[];
 }
 
 export function manifestPath(): string {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Pill } from "@/components/status-badge";
 import { projects } from "@/content/projects";
 import { formatInt } from "@/lib/format";
-import { loadManifest, type ManifestDataset } from "@/lib/manifest";
+import { loadManifest, type ManifestArtifact, type ManifestDataset } from "@/lib/manifest";
 
 // Rendered once at build time from artifacts/manifest.yaml.
 export const dynamic = "force-static";
@@ -126,6 +126,76 @@ function Dataset({ d }: { d: ManifestDataset }) {
   );
 }
 
+function Artifact({ a }: { a: ManifestArtifact }) {
+  return (
+    <article id={a.id} className="scroll-mt-24 border-t border-line pt-8">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="heading text-lg">{a.title}</h3>
+        <Pill>{a.kind === "model" ? "Model" : "Document"}</Pill>
+      </div>
+      <p className="mt-1 text-sm text-muted">
+        <a href={a.homepage} className="prose-link">
+          {a.publisher}
+        </a>
+      </p>
+      <dl className="mt-5 space-y-4 text-muted">
+        <div>
+          <dt className="font-medium text-text">What it is</dt>
+          <dd className="mt-1 max-w-[70ch]">{a.description}</dd>
+        </div>
+        <div>
+          <dt className="font-medium text-text">Licence and attribution</dt>
+          <dd className="mt-1 max-w-[70ch] space-y-2">
+            <p>
+              <a href={a.licence.url} className="prose-link">
+                {a.licence.name}
+              </a>
+              . {a.licence.attribution}
+            </p>
+            {a.licence.notes && <p className="text-sm">{a.licence.notes}</p>}
+          </dd>
+        </div>
+        {a.modifications && a.modifications.length > 0 && (
+          <div>
+            <dt className="font-medium text-text">What was changed</dt>
+            <dd className="mt-1 max-w-[70ch]">
+              <ul className="list-disc space-y-1 pl-5">
+                {a.modifications.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
+        <div>
+          <dt className="font-medium text-text">Files and checks</dt>
+          <dd className="mt-1 max-w-[70ch]">
+            <ul className="space-y-2">
+              {a.files.map((f) => (
+                <li key={f.url}>
+                  <a href={f.url} className="prose-link break-all">
+                    {f.url.replace("https://", "")}
+                  </a>
+                  {f.bytes ? `, ${formatInt(f.bytes)} bytes` : ""}
+                  {f.sha256 && (
+                    <span className="block break-all font-mono text-xs text-faint">
+                      sha256 {f.sha256}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-text">Used by</dt>
+          <dd className="mt-1">{a.used_by.map(projectTitle).join(", ")}</dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
+
 export default function DataPage() {
   const manifest = loadManifest();
   return (
@@ -169,6 +239,23 @@ export default function DataPage() {
           <Dataset key={d.id} d={d} />
         ))}
       </div>
+
+      {manifest.artifacts && manifest.artifacts.length > 0 && (
+        <section aria-labelledby="artifacts-h" className="mt-16">
+          <h2 id="artifacts-h" className="heading text-xl">
+            Models and documents
+          </h2>
+          <p className="mt-3 max-w-[66ch] text-muted">
+            Downloaded when the server image is built, from pinned versions, and accepted only if
+            each file&apos;s SHA-256 matches the value recorded here.
+          </p>
+          <div className="mt-8 space-y-10">
+            {manifest.artifacts.map((a) => (
+              <Artifact key={a.id} a={a} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <p className="mt-12 text-sm text-faint">
         New datasets are added here when the project that uses them goes live. The record is

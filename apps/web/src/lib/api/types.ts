@@ -39,6 +39,16 @@ export type TranscriptEntry = S["TranscriptOut"];
 export type SupportEvaluationRun = S["EvaluationRunOut"];
 export type PolicySection = S["PolicySectionOut"];
 
+export type DocumentInfo = S["DocumentOut"];
+export type DocumentOutlineEntry = S["OutlineOut"];
+export type DocumentChunks = S["ChunksOut"];
+export type DocumentChunk = S["ChunkOut"];
+export type DocumentQuestion = S["QuestionRequest"];
+export type DocumentAnswer = S["AnswerOut"];
+export type DocumentPassage = S["PassageOut"];
+export type DocumentQaRun = S["QaEvaluationRunOut"];
+export type DocumentQaItem = S["QaEvaluationItemOut"];
+
 /** RFC 9457 problem details returned by the API on errors. */
 export interface Problem {
   status: number;

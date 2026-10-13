@@ -156,7 +156,16 @@ jobs:
         run: |
           pipx install ansible-lint && pipx inject ansible-lint ansible
           cd infra/ansible && ansible-lint --offline -q site.yml
+      # A pinned release checked against its published SHA-256. (The project's download
+      # script pipes curl into tar without failing on HTTP errors, so a transient GitHub
+      # error became "gzip: stdin: not in gzip format".)
       - name: Workflows
+        env:
+          ACTIONLINT_VERSION: 1.7.7
+          ACTIONLINT_SHA256: 023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757
         run: |
-          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 -o actionlint.tar.gz "$url"
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
           ./actionlint -color

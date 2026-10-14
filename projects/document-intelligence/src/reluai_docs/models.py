@@ -81,3 +81,22 @@ class EvaluationRun(Base):
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
     environment: Mapped[dict[str, Any]] = mapped_column(JSONB)
     results: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+
+
+class InvoiceEvaluationRun(Base):
+    """One run of invoice extraction over the evaluation set (see ``invoices.evaluate``)."""
+
+    __tablename__ = "invoice_evaluation_run"
+    __table_args__ = (
+        Index("ix_docs_invoice_evaluation_ran_at", "ran_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    ran_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    documents: Mapped[int] = mapped_column(Integer)
+    exact: Mapped[int] = mapped_column(Integer)
+    median_ms: Mapped[int] = mapped_column(Integer)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    environment: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    results: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)

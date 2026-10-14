@@ -54,21 +54,21 @@ export const projects: Project[] = [
   },
   {
     slug: "document-intelligence",
-    title: "Document Q&A",
+    title: "Document Intelligence",
     status: "live",
     roles: ["AI and LLM apps"],
-    oneLiner: "Upload any PDF and ask questions; answers quote the document with page citations.",
+    oneLiner: "Ask any PDF with page citations, or read invoices into fields that are checked.",
     problem:
-      "Answers from long documents are only useful if you can check them. Chatbots over PDFs " +
-      "paraphrase without saying where, invent what the document does not say, and break on " +
-      "scanned pages.",
+      "Answers from long documents are only useful if you can check them, and invoice data is " +
+      "only useful if it is right. Chatbots over PDFs paraphrase without saying where; invoice " +
+      "readers rarely say when they are unsure; both break on scans.",
     solution:
-      "Reads the PDF in an isolated process (text layer or OCR), rebuilds headings and pages, " +
-      "searches by keywords and meaning, and answers only from cited passages, or says the " +
-      "document does not cover it.",
+      "Reads PDFs in an isolated process (text layer or OCR). Answers quote cited passages or " +
+      "abstain; invoices are read into fields, checked by arithmetic, and measured against the " +
+      "real records they were drawn from.",
     tech: ["PDFium", "OCR (ONNX)", "pgvector", "PostgreSQL full-text", "FastAPI", "Next.js"],
     repoPath: "projects/document-intelligence",
-    dataNote: "Your PDF, or a real NIST publication",
+    dataNote: "Your PDF, a NIST publication, or real retail invoices drawn as documents",
   },
   {
     slug: "support-agent",

@@ -1,4 +1,4 @@
-"""``reluai-docs``: fetch the model and sample, build the sample, ask, evaluate."""
+"""``reluai-docs``: fetch the model and sample, build the sample, ask, evaluate; invoices."""
 
 from __future__ import annotations
 
@@ -139,7 +139,43 @@ def _evaluate(settings: DocsSettings, provider: str, *, record: bool, show: bool
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def _invoices_build(settings: DocsSettings, canonical: Path, out: Path | None) -> int:
+    from reluai_docs.invoices.records import evaluation_set, select_invoices, write_set
+
+    out = out or settings.data_dir
+    out.mkdir(parents=True, exist_ok=True)
+    docs = evaluation_set(select_invoices(canonical))
+    write_set(docs, out / "invoices.json")
+    scans = sum(d.scanned for d in docs)
+    print(json.dumps({"documents": len(docs), "scans": scans, "path": str(out / "invoices.json")}))
+    return 0
+
+
+def _invoices_evaluate(settings: DocsSettings, *, record: bool, show: bool, split: str) -> int:
+    from reluai_docs.invoices.evaluate import summarise_run
+    from reluai_docs.invoices.service import evaluate, record_run
+
+    results = [r for r in evaluate(settings) if split in ("all", r.split)]
+    if not results:
+        raise SystemExit("the invoice set is not built; run `reluai-docs invoices build` first")
+    if show:
+        for r in results:
+            mark = "EXACT" if r.comparison.exact else "WRONG"
+            flag = "flagged" if r.comparison.needs_review else "       "
+            print(f"{mark} {flag} {r.id:24} {r.ms:6} ms  {'; '.join(r.comparison.mismatches[:2])}")
+    print(json.dumps(summarise_run(results), indent=2))
+    if record and split == "all":
+        db = _db()
+        try:
+            record_run(db, results)
+        finally:
+            db.dispose()
+    elif record:
+        print("only a run over the whole set is recorded")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:  # noqa: PLR0911
     parser = argparse.ArgumentParser(prog="reluai-docs")
     sub = parser.add_subparsers(dest="cmd", required=True)
     f = sub.add_parser("fetch", help="Download the embedding model and the sample PDF (verified)")
@@ -157,6 +193,15 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--provider", default="extractive", help="extractive, groq, local or chain")
     e.add_argument("--no-record", action="store_true")
     e.add_argument("--show", action="store_true", help="print every answer")
+    inv = sub.add_parser("invoices", help="Invoice extraction: build the set, evaluate")
+    isub = inv.add_subparsers(dest="invoices_cmd", required=True)
+    ib = isub.add_parser("build", help="Draw the invoice set from the canonical retail data")
+    ib.add_argument("--canonical", type=Path, required=True, help="online-retail-ii.parquet")
+    ib.add_argument("--out", type=Path, default=None, help="data dir (default: settings)")
+    ie = isub.add_parser("evaluate", help="Extract every invoice and compare with the records")
+    ie.add_argument("--no-record", action="store_true")
+    ie.add_argument("--show", action="store_true", help="print every document")
+    ie.add_argument("--split", choices=("all", "dev", "held_out"), default="all")
     args = parser.parse_args(argv)
     configure_logging(level="WARNING", json=False)
     logging.getLogger().handlers[:] = [logging.StreamHandler(sys.stderr)]
@@ -166,6 +211,12 @@ def main(argv: list[str] | None = None) -> int:
     settings = get_docs_settings()
     if args.cmd == "fetch":
         return _fetch(settings, args.out)
+    if args.cmd == "invoices":
+        if args.invoices_cmd == "build":
+            return _invoices_build(settings, args.canonical, args.out)
+        return _invoices_evaluate(
+            settings, record=not args.no_record, show=args.show, split=args.split
+        )
     if args.cmd == "quantize":
         from reluai_docs.embedding import quantize
 

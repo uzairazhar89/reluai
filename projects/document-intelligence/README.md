@@ -1,12 +1,19 @@
-# Document Q&A
+# Document Intelligence
 
-Upload a PDF, including a scanned one, and ask questions about it. Every answer quotes or
-cites the passages and pages it came from, and when the document does not cover a question
-the answer says so instead of guessing. Works with no language model; uses one (Groq or a
-local model) only when configured and, for uploads, only with the visitor's consent. Live
-demo: <https://reluai.cloud/projects/document-intelligence>.
+Two things done with the same isolated PDF reader (text layer or OCR):
 
-## How it works
+- **Ask a document.** Upload a PDF, including a scanned one, and ask questions about it.
+  Every answer quotes or cites the passages and pages it came from, and when the document
+  does not cover a question the answer says so instead of guessing.
+- **Read an invoice.** Turn an invoice into structured fields (number, date, customer,
+  country, line items, total) that are checked by arithmetic before anyone relies on them.
+  Accuracy is measured against real retail records the test invoices were drawn from.
+
+Works with no language model; questions use one (Groq or a local model) only when
+configured and, for uploads, only with the visitor's consent. Live demo:
+<https://reluai.cloud/projects/document-intelligence>.
+
+## How questions are answered
 
 ```
 upload (API) ─► size and signature checks ─► in-memory spool ─► job (worker, CPU lease)
@@ -49,6 +56,35 @@ question (API) ─► hybrid retrieval (keyword + vector, reciprocal-rank fusion
 - **Service** (`service.py`, `api.py`, `tasks.py`): upload, processing, questions, the
   passage explorer, deletion, expiry after an hour and the daily evaluation.
 
+## How invoices are read
+
+```
+invoice PDF ─► isolated reader (segments=True): text cells, or deskewed OCR boxes
+           ─► rows ─► item table: header row by column names, or the row above the first item
+           ─► columns: boundaries at the emptiest strip of the body; roles from the heading,
+                       or from content (whole numbers, the money column = qty × the other)
+           ─► items (wrapped descriptions joined; resumes after page breaks), then totals
+           ─► header fields: label beside or above the value; unknown labels by elimination
+           ─► checks: qty × unit price = amount, lines add up to the total, number and date
+                      present, sign fits the document type ─► needs review, or not
+```
+
+- **Segments** (`pdfread.py`): on the text layer a cell is the text between gaps that PDFium
+  bridges with *generated* spaces (no space character in the file), so a description stays
+  one piece while neighbouring cells do not; with OCR each detected box is a segment,
+  rotated back by the median slope of the boxes.
+- **Extraction** (`invoices/extract.py`): no model and no layout templates; the vocabulary
+  of labels and headings was written from the development layouts only.
+- **Test invoices** (`invoices/records.py`, `render.py`, `scan.py`): 96 real invoices from
+  UCI Online Retail II (stratified by length, with credit notes and invoices without a
+  customer), each drawn with ReportLab in a layout generated from a seed (labels, column
+  order and wording, date and number formats, fonts, rules, wrapping, page breaks); 28 also
+  as simulated scans (rasterised at 150 dpi, rotated by up to 1.2°, blurred, grey noise,
+  JPEG). Every page says it is a rendering of dataset records.
+- **Scoring** (`invoices/evaluate.py`): every header field, the total and each of the five
+  values of every line against the record; lines are paired in order by stock code. A
+  document is exact only if everything is right and no line is missing or extra.
+
 ## Run it
 
 ```bash
@@ -57,6 +93,9 @@ reluai-docs fetch                 # model + sample PDF, SHA-256 checked
 reluai-docs build-sample          # read, index and embed the sample into sample.json
 reluai-docs ask "What are the four functions of the AI RMF core?"
 reluai-docs evaluate --show       # the question set; add --provider groq with a key
+
+reluai-docs invoices build --canonical data/canonical/online-retail-ii.parquet
+reluai-docs invoices evaluate --show   # every invoice, read and compared with its record
 ```
 
 Tests: `uv run pytest projects/document-intelligence` (the API tests need
@@ -99,7 +138,45 @@ Where the extractive mode goes wrong, from the INT8 run:
 The server re-runs the set daily and the project page shows that run, so its figures come
 from the server rather than from this table.
 
+### Invoices
+
+`reluai-docs invoices evaluate` reads all 124 documents through the isolated reader (as an
+upload is read) and compares every value with the record. Development machine, 2 CPU
+cores, 14 October 2026:
+
+| Group | Documents | Read exactly | Lines fully right | Flagged | Wrong, not flagged | Median time |
+| --- | --- | --- | --- | --- | --- | --- |
+| Development layouts, PDF | 48 | 48 | 100% | 0 | 0 | 0.13 s |
+| Development layouts, scanned | 14 | 14 | 100% | 0 | 0 | 5.2 s |
+| Held-out layouts, PDF | 48 | 48 | 100% | 0 | 0 | 0.13 s |
+| Held-out layouts, scanned | 14 | 10 | 79.3% | 2 | 2 | 4.9 s |
+
+How to read it:
+
+- The extractor was developed until the development groups were right, so those rows show
+  that it works, not how well it generalises. Held-out layouts use seeds (1001 to 1012) that
+  were not rendered or read until the extractor was frozen, and draw some labels and column
+  headings from wordings reserved for them ("Pcs", "Net", "Document ref.", "Balance due").
+  The held-out set was run once with the frozen extractor; the figures above are that run.
+- Before freezing, the extractor was also stress-tested on development invoices with
+  wordings invented for the test (not the reserved ones) and on a second set of scans of
+  every development invoice; those runs found the problems fixed in development (OCR
+  joining a quantity to its description, headings split by OCR, totals with unfamiliar
+  labels) and are not part of the published figures.
+- Of the four held-out scans not read exactly, two were flagged by the checks and two were
+  not. Flagged: a quantity "-7" that OCR read as "L-", and a 22-line invoice whose headings
+  "EACH (GBP)" and "AMOUNT (GBP)" OCR split as "EACH" and "(GBP) AMOUNT (GBP)", which merged
+  the price and amount columns so no line multiplied out. Not flagged: two descriptions (an
+  "I" read from a ruling line; "BAG , PINK" read as "BAG, PINK"). The checks cover numbers,
+  not text.
+- Text PDFs take about a tenth of a second including starting the reader process; scans
+  take about five seconds, nearly all of it OCR.
+
 ## Data and models
+
+- Invoices: Chen, D. (2012). Online Retail II. UCI Machine Learning Repository,
+  <https://doi.org/10.24432/C5CG6D>, CC BY 4.0. Rendered as documents for evaluation; the
+  retailer is not named.
 
 - Sample: NIST AI 100-1, *Artificial Intelligence Risk Management Framework (AI RMF 1.0)*,
   a work of the US Government. <https://doi.org/10.6028/NIST.AI.100-1>

@@ -7,9 +7,15 @@ import { ProjectSection, ProjectToc } from "@/components/project-page";
 import { Pill } from "@/components/status-badge";
 import { projects } from "@/content/projects";
 import { DocsArchitecture } from "@/features/docs/architecture";
-import { QaDemo } from "@/features/docs/qa-demo";
+import { DocsDemos } from "@/features/docs/demos";
+import { InvoiceResults } from "@/features/docs/invoice-results";
 import { serverGet } from "@/lib/api/server";
-import type { DocumentInfo, DocumentQaItem, DocumentQaRun } from "@/lib/api/types";
+import type {
+  DocumentInfo,
+  DocumentQaItem,
+  DocumentQaRun,
+  InvoiceEvaluation,
+} from "@/lib/api/types";
 import { formatDateTime, formatInt } from "@/lib/format";
 import { site } from "@/lib/site";
 
@@ -23,9 +29,9 @@ const repoFile = (path: string) =>
 export const metadata: Metadata = {
   title: project.title,
   description:
-    "Upload a PDF and ask questions about it. The document is read in an isolated process " +
-    "(text layer or OCR), searched by keywords and meaning, and every answer cites the pages " +
-    "it came from, or says the document does not cover the question.",
+    "Ask a PDF questions and get answers that cite their pages, or read an invoice into " +
+    "checked fields. Documents are read in an isolated process (text layer or OCR); invoice " +
+    "accuracy is measured against the real records they were drawn from.",
   alternates: { canonical: `/projects/${project.slug}` },
 };
 
@@ -35,7 +41,12 @@ const stack = [
   ["Structure", "Headings, paragraphs and page numbers rebuilt from line geometry"],
   ["Search", "PostgreSQL full-text search and bge-small-en-v1.5 embeddings in pgvector"],
   ["Answers", "Extractive by default; Groq or the local model when allowed, citations checked"],
-  ["Interface", "FastAPI and a Procrastinate job; Next.js with live progress and citations"],
+  ["Invoices", "Table and fields from cell positions; arithmetic checks; no model needed"],
+  [
+    "Test data",
+    "Real invoices from UCI Online Retail II drawn with ReportLab, plus simulated scans",
+  ],
+  ["Interface", "FastAPI and Procrastinate jobs; Next.js with page previews and source boxes"],
 ] as const;
 
 const failures = [
@@ -62,6 +73,18 @@ const failures = [
   [
     "Text inside the PDF tries to instruct the model",
     "Passages are marked as data in the prompt, the model can only call two narrow tools, and its answer is displayed as plain text. It has no other tools to misuse.",
+  ],
+  [
+    "An invoice with wording the extractor has never seen",
+    "Columns are found from the gaps in the table, not from their headings. A heading it does not know (“Pcs”, “Net”) gets its role from the column’s content: whole numbers are quantities, and of two money columns the amount is the one equal to quantity × the other. Header fields with unknown labels are taken by elimination, from the type of their value.",
+  ],
+  [
+    "OCR misreads a number",
+    "The line no longer multiplies out, or the lines no longer add up to the total, so the invoice is flagged for review with the line named. Nothing is “corrected” behind the reviewer’s back.",
+  ],
+  [
+    "A PDF that is not an invoice",
+    "No item table is found and the result says so, with every check failed, rather than inventing fields.",
   ],
   [
     "Many uploads at once",
@@ -108,6 +131,7 @@ function Misses({ run }: { run: DocumentQaRun }) {
 function ResultsBody({ runs }: { runs: DocumentQaRun[] }) {
   return (
     <>
+      <h3 className="heading text-base text-text">Answering questions</h3>
       <p>
         A fixed set of questions about the sample document, written with the page each answer is on
         and the facts a correct answer must contain, plus questions the document does not answer
@@ -175,10 +199,11 @@ function ResultsBody({ runs }: { runs: DocumentQaRun[] }) {
   );
 }
 
-export default async function DocumentQaPage() {
-  const [sample, evaluation] = await Promise.all([
+export default async function DocumentIntelligencePage() {
+  const [sample, evaluation, invoices] = await Promise.all([
     serverGet<DocumentInfo>("/api/documents/sample", revalidate),
     serverGet<DocumentQaRun[]>("/api/documents/evaluation", revalidate),
+    serverGet<InvoiceEvaluation | null>("/api/documents/invoices/evaluation", revalidate),
   ]);
 
   return (
@@ -210,15 +235,16 @@ export default async function DocumentQaPage() {
           {project.title}
         </h1>
         <p className="mt-5 max-w-[62ch] text-lg text-muted">
-          Upload a PDF, including a scanned one, and ask questions about it. Every answer quotes or
-          cites the pages it came from, and when the document does not cover a question, it says so
-          instead of guessing.
+          Ask a PDF, including a scanned one, questions: every answer quotes or cites the pages it
+          came from, or says the document does not cover it. Or read an invoice into structured
+          fields that are checked before anyone relies on them, with accuracy measured against the
+          real records.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Pill tone="pass">Live</Pill>
           <Pill>AI and LLM apps</Pill>
           <Pill>Works without a model</Pill>
-          <Pill>Your PDF or a real NIST publication</Pill>
+          <Pill>Your PDF, a NIST publication or real retail invoices</Pill>
         </div>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="#demo">Try the live demo</ButtonLink>
@@ -239,7 +265,9 @@ export default async function DocumentQaPage() {
               things the document never said.
             </p>
             <p>
-              Real PDFs make it harder: running headers on every page, two-column layouts, words
+              Invoices are the opposite problem: short, but arriving by the thousand in every layout
+              a supplier&apos;s software produces, and keyed in by hand because a misread total
+              costs money. Real PDFs make both harder: running headers, two-column pages, words
               broken across lines, and scans with no text at all.
             </p>
           </ProjectSection>
@@ -251,6 +279,11 @@ export default async function DocumentQaPage() {
               it is not there, and a pipeline that copes with the PDFs people actually have. Those
               are the parts this project shows, with everything visible: how the file was read, how
               it was split, why each passage was retrieved.
+            </p>
+            <p>
+              For invoices, a read is only worth automating if it knows when it is wrong. The useful
+              figure is not just how often every value is right, but how often a wrong result is
+              flagged before it reaches the accounts.
             </p>
           </ProjectSection>
 
@@ -266,6 +299,13 @@ export default async function DocumentQaPage() {
               model, the answer quotes the best-matching sentences with their citations, or
               abstains. When a model is allowed, it writes the answer from the same passages and
               must cite them; invented citations are caught.
+            </p>
+            <p>
+              An invoice is read by the same isolated reader, keeping each table cell and label as a
+              separate piece with its position. The extractor finds the item table and its columns
+              from the gaps between them, reads the header fields from their labels, and checks the
+              arithmetic: quantity × unit price must equal each line&apos;s amount, and the amounts
+              must add up to the total. A failed check sends the invoice for review.
             </p>
           </ProjectSection>
 
@@ -315,20 +355,43 @@ export default async function DocumentQaPage() {
               questions against 33 for the full-precision model; the one difference is an
               unanswerable question the full model abstained on.
             </p>
+            <p>
+              <strong>Reading an invoice.</strong> On the text layer, a cell is the text between
+              gaps that the PDF bridges with no real space character, so &ldquo;CAKE STAND&rdquo;
+              stays one piece while two cells side by side do not. Scans give one box per detected
+              text line, deskewed using the slope of the boxes. Pieces at the same height form rows;
+              the item table&apos;s header is the row naming several columns, and the boundary
+              between two columns is the emptiest vertical strip of the table body between their
+              headings, which copes with a short heading over long descriptions. Rows with only
+              description text are wrapped descriptions; after a page break the table resumes under
+              the repeated header.
+            </p>
+            <p>
+              <strong>Test invoices from real records.</strong> Real invoice documents under an open
+              licence hardly exist, so 96 real invoices from the UCI Online Retail II data (with
+              credit notes and invoices without a customer) are drawn as PDFs, each in a layout
+              generated from a seed: label and column wording, column order, date and number
+              formats, fonts, rules, wrapping and page breaks. 28 are also turned into scans:
+              rasterised, rotated by up to a degree, blurred, given grey noise and JPEG-compressed.
+              Because each document comes from a record, every value read can be checked exactly.
+            </p>
           </ProjectSection>
 
           <ProjectSection id="demo">
             <p>
-              Start with the sample, the NIST AI Risk Management Framework, or upload your own PDF.
-              Click a citation to see the passage it points to.
+              Ask questions of the NIST AI Risk Management Framework or your own PDF, and click a
+              citation to see its passage. Or read an invoice: pick one of the samples, in a layout
+              the extractor was developed on or one it has never seen, as a PDF or a scan, and see
+              every value next to the record it came from.
             </p>
             <div className="pt-2 text-base">
-              <QaDemo initialSample={sample.ok ? sample.data : undefined} />
+              <DocsDemos initialSample={sample.ok ? sample.data : undefined} />
             </div>
             <p className="text-sm text-faint">
-              Portfolio demonstration. Each visitor can upload 5 PDFs and ask 30 questions an hour.
-              Uploaded text is deleted after an hour. Answers are generated from the document and
-              may be incomplete; check the cited passages.
+              Portfolio demonstration. Each visitor can upload 5 PDFs, ask 30 questions and read 30
+              sample invoices an hour. Uploaded text is deleted after an hour; uploaded invoices are
+              not kept at all. The sample invoices are real records from a public dataset drawn as
+              documents, not real invoices; answers and extractions may be wrong, so check them.
             </p>
           </ProjectSection>
 
@@ -337,8 +400,17 @@ export default async function DocumentQaPage() {
               <ResultsBody runs={evaluation.data} />
             ) : (
               <p>
-                Results are read from the running system and are not available right now. They
-                appear after the first scheduled run of the question set.
+                Question answering results are read from the running system and are not available
+                right now. They appear after the first scheduled run of the question set.
+              </p>
+            )}
+            <h3 className="heading pt-4 text-base text-text">Reading invoices</h3>
+            {invoices.ok && invoices.data ? (
+              <InvoiceResults run={invoices.data} />
+            ) : (
+              <p>
+                Invoice results are read from the running system and are not available right now.
+                They appear after the first scheduled run over the sample invoices.
               </p>
             )}
           </ProjectSection>
@@ -363,8 +435,15 @@ export default async function DocumentQaPage() {
               hashes, and the sample is indexed and embedded at build time.
             </p>
             <p>
-              A job every ten minutes deletes expired uploads with their passages, and a daily job
-              re-runs the question set so the results above come from this server.
+              The sample invoices are drawn from the canonical retail data when the image is built
+              and stored as records only; each PDF and scan is generated on request, the same bytes
+              every time. Reading one is synchronous, under the CPU lease, with a short wait: when
+              the server is busy the visitor is asked to try again rather than queued.
+            </p>
+            <p>
+              A job every ten minutes deletes expired uploads with their passages, and daily jobs
+              re-run the question set and read every sample invoice, so the results above come from
+              this server.
             </p>
           </ProjectSection>
 
@@ -399,6 +478,16 @@ export default async function DocumentQaPage() {
                 is why every answer shows its passages.
               </li>
               <li>English only: the embedding model and stemming are English.</li>
+              <li>
+                The invoice layouts, including the held-out ones, come from one generator: they vary
+                labels, column order, formats, fonts and rules, but real suppliers vary more
+                (several tables, totals with tax, logos, handwriting). Uploaded invoices are read on
+                a best-effort basis and judged only by the checks.
+              </li>
+              <li>
+                The checks catch numbers that do not add up, not text: an OCR error in a description
+                passes them, and is the main source of &ldquo;wrong, not flagged&rdquo;.
+              </li>
             </ul>
           </ProjectSection>
 
@@ -416,6 +505,9 @@ export default async function DocumentQaPage() {
                   ["answer.py", "Extractive answers, the model path and citation checks"],
                   ["service.py", "Upload, processing, questions and expiry"],
                   ["questions.py", "The evaluation question set"],
+                  ["invoices/extract.py", "Invoice table, fields and checks"],
+                  ["invoices/render.py", "Real records drawn in generated layouts"],
+                  ["invoices/evaluate.py", "Field-by-field comparison with the records"],
                 ] as const
               ).map(([file, what]) => (
                 <li key={file} className="flex flex-wrap gap-x-3">
@@ -435,7 +527,8 @@ export default async function DocumentQaPage() {
               Sample: National Institute of Standards and Technology (2023), Artificial Intelligence
               Risk Management Framework (AI RMF 1.0), NIST AI 100-1, a work of the US Government.
               Embedding model: BAAI bge-small-en-v1.5, MIT licence. OCR models: PaddleOCR PP-OCRv6
-              via RapidOCR, Apache 2.0. Details on the{" "}
+              via RapidOCR, Apache 2.0. Invoices: Chen, D. (2012), Online Retail II, UCI Machine
+              Learning Repository, CC BY 4.0. Details on the{" "}
               <Link href="/data" className="prose-link">
                 data page
               </Link>

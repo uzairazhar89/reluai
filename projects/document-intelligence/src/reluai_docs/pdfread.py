@@ -11,11 +11,19 @@ process itself, because PDF parsing and OCR operate on untrusted input.
   only the first ``max_ocr_pages`` such pages are read; the rest are reported as skipped.
 
 Coordinates are in PDF points, measured from the top-left corner of the page.
+
+For invoice extraction the reader can also return **segments**: pieces of a line separated
+by a wide gap (table cells, a label and its value), from character boxes on the text layer
+and from the individual detected boxes with OCR. It can also return a small JPEG preview of
+the first pages, so pages of an untrusted PDF are rendered here, not in the API process.
 """
 
 from __future__ import annotations
 
+import base64
 import ctypes
+import io
+import math
 import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
@@ -62,6 +70,8 @@ class RawPage:
     height: float
     method: PageMethod
     lines: list[RawLine] = field(default_factory=list)
+    segments: list[RawLine] = field(default_factory=list)  # only when requested
+    preview: str | None = None  # base64 JPEG, only when requested
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +81,9 @@ class ReadLimits:
     ocr_dpi: int = 150
     ocr_max_pixels: int = 6_000_000
     ocr_threads: int = 2
+    segments: bool = False
+    preview_pages: int = 0
+    preview_dpi: int = 100
 
 
 @dataclass(slots=True)
@@ -92,6 +105,8 @@ class ReadResult:
                     "height": p.height,
                     "method": p.method,
                     "lines": [asdict(ln) for ln in p.lines],
+                    "segments": [asdict(sg) for sg in p.segments],
+                    "preview": p.preview,
                 }
                 for p in self.pages
             ],
@@ -110,6 +125,8 @@ class ReadResult:
                     height=float(p["height"]),
                     method=p["method"],
                     lines=[RawLine(**ln) for ln in p["lines"]],
+                    segments=[RawLine(**sg) for sg in p.get("segments", [])],
+                    preview=p.get("preview"),
                 )
                 for p in data["pages"]
             ],
@@ -174,14 +191,63 @@ def _line(textpage: Any, text: str, first: int, last: int, height: float) -> Raw
     )
 
 
-def _text_lines(page: pdfium.PdfPage, height: float) -> list[RawLine]:
+def _segments(
+    textpage: Any, text: str, span: tuple[int, int], height: float, size: float
+) -> list[RawLine]:
+    """Split one line into segments (table cells, a label and its value).
+
+    The PDF says which spaces are real: text drawn separately (each table cell) is joined
+    by spaces PDFium generates, while a space inside a description is in the file. So a
+    break is a gap bridged only by generated spaces and wider than a word space, or any
+    gap wider than one and a half times the font size, or three or more real spaces in a
+    row (columns aligned with spaces).
+    """
+    first, last = span
+    raw = textpage.raw
+    out: list[RawLine] = []
+    start: int | None = None
+    prev = first
+    prev_right: float | None = None
+    real_spaces = 0
+    for i in range(first, last + 1):
+        if text[i].isspace():
+            if not pdfium_c.FPDFText_IsGenerated(raw, i):
+                real_spaces += 1
+            continue
+        left, _bottom, right, _top = textpage.get_charbox(i)
+        if start is not None and prev_right is not None:
+            gap = left - prev_right
+            generated = real_spaces == 0
+            if (
+                (generated and gap > max(2.5, 0.45 * size))
+                or gap > max(3.0, 1.5 * size)
+                or real_spaces >= 3
+            ):
+                seg = _line(textpage, text, start, prev, height)
+                if seg is not None:
+                    out.append(seg)
+                start = None
+        if start is None:
+            start = i
+        prev, prev_right, real_spaces = i, right, 0
+    if start is not None:
+        seg = _line(textpage, text, start, prev, height)
+        if seg is not None:
+            out.append(seg)
+    return out
+
+
+def _text_lines(
+    page: pdfium.PdfPage, height: float, *, segments: bool = False
+) -> tuple[list[RawLine], list[RawLine]]:
     textpage = page.get_textpage()
     try:
         count = textpage.count_chars()
         if count <= 0:
-            return []
+            return [], []
         text = textpage.get_text_range(0, count)
         lines: list[RawLine] = []
+        segs: list[RawLine] = []
         start = 0
         for m in [*_LINE_BREAK.finditer(text), None]:
             end = min(m.start() if m else len(text), count)
@@ -191,12 +257,25 @@ def _text_lines(page: pdfium.PdfPage, height: float) -> list[RawLine]:
                     line = RawLine(f"{line.text}-", line.x0, line.top, line.x1, line.bottom,
                                    line.size, line.bold)  # fmt: skip
                 lines.append(line)
+                if segments:
+                    segs += _segments(textpage, text, (start, end - 1), height, line.size)
             if m is None:
                 break
             start = m.end()
-        return lines
+        return lines, segs
     finally:
         textpage.close()
+
+
+def _preview(page: pdfium.PdfPage, dpi: int) -> str:
+    bitmap = page.render(scale=dpi / 72, grayscale=True)
+    try:
+        image = bitmap.to_pil().convert("L")
+    finally:
+        bitmap.close()
+    buf = io.BytesIO()
+    image.save(buf, "JPEG", quality=80, optimize=True)
+    return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
 def _has_images(page: pdfium.PdfPage) -> bool:
@@ -227,7 +306,9 @@ class _Ocr:
         return self._engine(image)
 
 
-def _ocr_lines(page: pdfium.PdfPage, limits: ReadLimits, ocr: _Ocr) -> list[RawLine]:
+def _ocr_lines(
+    page: pdfium.PdfPage, limits: ReadLimits, ocr: _Ocr
+) -> tuple[list[RawLine], list[RawLine]]:
     import numpy as np
 
     width, height = page.get_size()
@@ -243,17 +324,21 @@ def _ocr_lines(page: pdfium.PdfPage, limits: ReadLimits, ocr: _Ocr) -> list[RawL
     result = ocr(image)
     boxes = getattr(result, "boxes", None)
     if boxes is None:
-        return []
+        return [], []
+    found = [
+        ([(float(p[0]) / scale, float(p[1]) / scale) for p in box], " ".join(str(text).split()))
+        for box, text, score in zip(boxes, result.txts, result.scores, strict=False)
+        if text and str(text).strip() and float(score) >= 0.5
+    ]
+    found = _deskew(found, width / 2, height / 2)
     words: list[RawLine] = []
-    for box, text, score in zip(boxes, result.txts, result.scores, strict=False):
-        if not text or not text.strip() or float(score) < 0.5:
-            continue
-        xs = [float(p[0]) / scale for p in box]
-        ys = [float(p[1]) / scale for p in box]
+    for points, text in found:
+        xs = [x for x, _ in points]
+        ys = [y for _, y in points]
         top, bottom = min(ys), max(ys)
         words.append(
             RawLine(
-                text=" ".join(str(text).split()),
+                text=text,
                 x0=round(min(xs), 1),
                 top=round(top, 1),
                 x1=round(max(xs), 1),
@@ -262,7 +347,37 @@ def _ocr_lines(page: pdfium.PdfPage, limits: ReadLimits, ocr: _Ocr) -> list[RawL
                 size=round((bottom - top) / 1.2, 2),
             )
         )
-    return _merge_rows(words)
+    return _merge_rows(words), words if limits.segments else []
+
+
+Points = list[tuple[float, float]]
+
+
+def _deskew(found: list[tuple[Points, str]], cx: float, cy: float) -> list[tuple[Points, str]]:
+    """Undo a scan's rotation in the coordinates: the detector's boxes follow the text, so
+    the median slope of the long boxes is the page's skew. Without this, a row of a table
+    drifts by several points from one side of the page to the other."""
+    slopes = sorted(
+        math.atan2(p[1][1] - p[0][1], p[1][0] - p[0][0])
+        for p, _ in found
+        if len(p) == 4 and abs(p[1][0] - p[0][0]) > 3 * abs(p[3][1] - p[0][1]) > 0
+    )
+    if len(slopes) < 3:
+        return found
+    angle = slopes[len(slopes) // 2]
+    if abs(angle) < math.radians(0.1):
+        return found
+    cos, sin = math.cos(angle), math.sin(angle)
+    return [
+        (
+            [
+                (cx + (x - cx) * cos + (y - cy) * sin, cy - (x - cx) * sin + (y - cy) * cos)
+                for x, y in points
+            ],
+            text,
+        )
+        for points, text in found
+    ]
 
 
 def _merge_rows(boxes: list[RawLine]) -> list[RawLine]:
@@ -319,8 +434,9 @@ def _ocr_pages(
             progress("ocr", done, len(todo))
         page = pdf[index]
         try:
-            result.pages[index].lines = _ocr_lines(page, limits, ocr)
-            result.pages[index].method = "ocr"
+            target = result.pages[index]
+            target.lines, target.segments = _ocr_lines(page, limits, ocr)
+            target.method = "ocr"
         finally:
             page.close()
     if todo and progress:
@@ -352,14 +468,25 @@ def read_pdf(data: bytes, limits: ReadLimits, progress: Progress | None = None) 
             page = pdf[index]
             try:
                 width, height = page.get_size()
-                lines = _text_lines(page, height)
+                lines, segs = _text_lines(page, height, segments=limits.segments)
                 chars = sum(len(ln.text.replace(" ", "")) for ln in lines)
                 method: PageMethod = "text" if chars else "empty"
                 if chars < _MIN_TEXT_CHARS and _has_images(page):
                     scanned.append(index)
-                    method, lines = "skipped", []
+                    method, lines, segs = "skipped", [], []
+                preview = None
+                if index < limits.preview_pages:
+                    preview = _preview(page, limits.preview_dpi)
                 result.pages.append(
-                    RawPage(index + 1, round(width, 1), round(height, 1), method, lines)
+                    RawPage(
+                        number=index + 1,
+                        width=round(width, 1),
+                        height=round(height, 1),
+                        method=method,
+                        lines=lines,
+                        segments=segs,
+                        preview=preview,
+                    )
                 )
             finally:
                 page.close()

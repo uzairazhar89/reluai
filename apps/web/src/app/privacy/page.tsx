@@ -43,12 +43,16 @@ const sections = [
     "Messages you type in the Customer Support Agent demo, the agent's steps and the simulated refunds and tickets are stored with the conversation for 24 hours so the page can show the trace, then deleted. The conversation keeps the daily usage code described above, so only you can continue it; nothing else about you is stored.",
   ],
   [
-    "Document Q&A: uploads",
+    "Document Intelligence: uploads for questions",
     "A PDF you upload is held in memory on this server only until it has been read (seconds), then discarded; it is never written to disk. The text and passages extracted from it are stored in the database for one hour so you can ask questions, then deleted, or at once if you press Delete now. The document keeps the daily usage code described above, so only you can open it. Its contents and your questions are never logged; only counts and timings are.",
   ],
   [
+    "Document Intelligence: invoices",
+    "An invoice PDF you upload to be read is processed in memory on this server, in a separate process, and only the extracted fields are sent back to your browser; the file and the result are not stored or logged (only page and line counts and timings are). Reading a sample invoice is counted against the hourly limit with the daily usage code described above.",
+  ],
+  [
     "AI providers",
-    "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. In the support agent demo, when a provider is configured, the conversation (your messages, the anonymised invoice details the agent looks up and the demo's policy text) is sent to it to choose the next step. In the Document Q&A demo, questions about the sample document may be answered by a provider with the retrieved passages; for a PDF you uploaded, your question and up to six retrieved passages (never the whole file) are sent only if you tick the box that allows it. Each page says when no provider is configured. Providers' own terms govern what they keep.",
+    "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. In the support agent demo, when a provider is configured, the conversation (your messages, the anonymised invoice details the agent looks up and the demo's policy text) is sent to it to choose the next step. In the Document Intelligence demo, questions about the sample document may be answered by a provider with the retrieved passages; for a PDF you uploaded, your question and up to six retrieved passages (never the whole file) are sent only if you tick the box that allows it. Invoices are read without any provider. Each page says when no provider is configured. Providers' own terms govern what they keep.",
   ],
 ] as const;
 

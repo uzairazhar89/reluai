@@ -17,7 +17,9 @@ export function docsErrorMessage(error: unknown): string {
       case "empty_file":
         return error.message;
       case "busy":
-        return "Several documents are being read right now. Try again in a minute.";
+        return "The server is busy reading other documents. Try again in a minute.";
+      case "invoice_not_found":
+        return "This sample invoice is no longer available; reload the page for the current set.";
       case "document_not_found":
         return "This document has expired or was deleted. Uploads are kept for an hour; upload it again.";
       case "not_your_document":

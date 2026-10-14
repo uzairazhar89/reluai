@@ -10,7 +10,7 @@ const pages = [
   ["/projects/data-pipeline-observatory", /^Data Pipeline Observatory$/],
   ["/projects/ai-csv-analyst", /^AI CSV Analyst$/],
   ["/projects/support-agent", /^Customer Support Agent$/],
-  ["/projects/document-intelligence", /^Document Q&A$/],
+  ["/projects/document-intelligence", /^Document Intelligence$/],
   ["/data", /^Data and licences$/],
   ["/hire", /^Hire me$/],
   ["/status", /^Status$/],

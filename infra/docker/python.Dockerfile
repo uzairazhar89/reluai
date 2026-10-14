@@ -46,16 +46,19 @@ RUN reluai-data fetch online-retail-ii --out /data/canonical \
  && reluai-csv build-dataset --canonical-dir /data/canonical --out /data/csv \
  && reluai-support build-data --canonical-dir /data/canonical --out /data/support \
  && rm -f /data/canonical/*.zip /data/canonical/*.rda
-# Document Q&A: the embedding model and the sample PDF (pinned, SHA-256 checked). The model is
-# quantised to 8 bits here (`onnx` is added to this stage's environment only; the runtime
-# image copies the environment from `build`), then the sample is read, indexed and embedded
-# so the API only loads the result. Only the INT8 model and the result are kept.
+# Document Intelligence: the embedding model and the sample PDF (pinned, SHA-256 checked).
+# The model is quantised to 8 bits here (`onnx` is added to this stage's environment only;
+# the runtime image copies the environment from `build`), then the sample is read, indexed
+# and embedded so the API only loads the result. Only the INT8 model and the result are
+# kept. The invoice extraction set (real invoices drawn from the canonical data, with their
+# records) is written next to it; the invoices themselves are rendered on request.
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable --inexact \
       --package reluai-document-intelligence --group quantize
 RUN reluai-docs fetch --out /data/docs \
  && reluai-docs quantize --model-dir /data/docs/models \
  && reluai-docs build-sample --out /data/docs \
+ && reluai-docs invoices build --canonical /data/canonical/online-retail-ii.parquet --out /data/docs \
  && rm -rf /data/docs/source /data/docs/models/bge-small-en-v1.5.onnx
 
 # ---------------------------------------------------------------- runtime base

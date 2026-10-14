@@ -86,6 +86,9 @@ def read_isolated(
         "ocr_dpi": limits.read.ocr_dpi,
         "ocr_max_pixels": limits.read.ocr_max_pixels,
         "ocr_threads": limits.read.ocr_threads,
+        "segments": limits.read.segments,
+        "preview_pages": limits.read.preview_pages,
+        "preview_dpi": limits.read.preview_dpi,
     }
     proc = subprocess.Popen(
         [sys.executable, "-I", "-B", "-m", "reluai_docs.child"],

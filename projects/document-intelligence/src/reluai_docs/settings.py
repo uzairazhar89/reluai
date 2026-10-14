@@ -46,6 +46,17 @@ class DocsSettings(BaseSettings):
     upload_ttl_minutes: int = Field(default=60, ge=5)
     question_max_chars: int = Field(default=300, ge=20)
 
+    # Invoice extraction (synchronous, under the CPU lease).
+    invoice_max_pages: int = Field(default=4, ge=1, le=20)
+    invoice_max_ocr_pages: int = Field(default=3, ge=0, le=10)
+    invoice_preview_dpi: int = Field(default=100, ge=50, le=200)
+    invoice_lease_wait_seconds: float = Field(default=20.0, ge=0)
+    visitor_invoice_runs_per_hour: int = Field(default=30, ge=1)
+
+    @property
+    def invoices_path(self) -> Path:
+        return self.data_dir / "invoices.json"
+
     @property
     def model_dir(self) -> Path:
         return self.data_dir / "models"

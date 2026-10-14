@@ -54,7 +54,7 @@ MIRRORS = (
     Mirror(
         project="document-intelligence",
         repo="reluai-document-intelligence",
-        title="Document Q&A",
+        title="Document Intelligence",
         packages=("platform-core", "inference", "retrieval", "datasets"),
     ),
 )

@@ -44,6 +44,9 @@ def main() -> int:
         ocr_dpi=int(options.get("ocr_dpi", 150)),
         ocr_max_pixels=int(options.get("ocr_max_pixels", 6_000_000)),
         ocr_threads=int(options.get("ocr_threads", 2)),
+        segments=bool(options.get("segments", False)),
+        preview_pages=int(options.get("preview_pages", 0)),
+        preview_dpi=int(options.get("preview_dpi", 100)),
     )
     try:
         result = read_pdf(

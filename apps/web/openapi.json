@@ -957,6 +957,191 @@
         }
       }
     },
+    "/api/documents/invoices": {
+      "get": {
+        "tags": [
+          "documents",
+          "documents"
+        ],
+        "summary": "Get Gallery",
+        "description": "The sample invoices (real records drawn in generated layouts, some as scans), with\neach one's outcome in the latest evaluation run.",
+        "operationId": "get_gallery_api_documents_invoices_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceGalleryOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/invoices/evaluation": {
+      "get": {
+        "tags": [
+          "documents",
+          "documents"
+        ],
+        "summary": "Get Evaluation",
+        "description": "The latest extraction evaluation run (accuracy against the records), if any.",
+        "operationId": "get_evaluation_api_documents_invoices_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/InvoiceEvaluationOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Evaluation Api Documents Invoices Evaluation Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/invoices/{doc_id}.pdf": {
+      "get": {
+        "tags": [
+          "documents",
+          "documents"
+        ],
+        "summary": "Get Pdf",
+        "description": "The sample invoice as a PDF (generated on request, the same bytes every time).",
+        "operationId": "get_pdf_api_documents_invoices__doc_id__pdf_get",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 24,
+              "pattern": "^C?\\d{6}-s\\d{1,4}(-scan)?$",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/invoices/{doc_id}/extract": {
+      "post": {
+        "tags": [
+          "documents",
+          "documents"
+        ],
+        "summary": "Post Extract",
+        "description": "Read a sample invoice now, as an upload would be read, and compare every value with\nthe record it was drawn from.",
+        "operationId": "post_extract_api_documents_invoices__doc_id__extract_post",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 24,
+              "pattern": "^C?\\d{6}-s\\d{1,4}(-scan)?$",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/invoices/uploads": {
+      "post": {
+        "tags": [
+          "documents",
+          "documents"
+        ],
+        "summary": "Post Upload",
+        "description": "Read your own invoice PDF. Nothing is stored: the file is read in memory, in an\nisolated process, and only the result is returned. With no record to compare against,\nthe checks are the only verdict.",
+        "operationId": "post_upload_api_documents_invoices_uploads_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_upload_api_documents_invoices_uploads_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/documents/{document_id}": {
       "get": {
         "tags": [
@@ -1611,6 +1796,21 @@
           "file"
         ],
         "title": "Body_post_upload_api_csv_uploads_post"
+      },
+      "Body_post_upload_api_documents_invoices_uploads_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "PDF invoice, up to 10 MB"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_post_upload_api_documents_invoices_uploads_post"
       },
       "Body_post_upload_api_documents_uploads_post": {
         "properties": {
@@ -3197,6 +3397,833 @@
         ],
         "title": "InterpreterOut"
       },
+      "InvoiceBoxOut": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "x0": {
+            "type": "number",
+            "title": "X0"
+          },
+          "top": {
+            "type": "number",
+            "title": "Top"
+          },
+          "x1": {
+            "type": "number",
+            "title": "X1"
+          },
+          "bottom": {
+            "type": "number",
+            "title": "Bottom"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "x0",
+          "top",
+          "x1",
+          "bottom"
+        ],
+        "title": "InvoiceBoxOut"
+      },
+      "InvoiceCheckOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "passed",
+          "detail"
+        ],
+        "title": "InvoiceCheckOut"
+      },
+      "InvoiceColumnOut": {
+        "properties": {
+          "header": {
+            "type": "string",
+            "title": "Header"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "code",
+                  "description",
+                  "quantity",
+                  "unit_price",
+                  "amount"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "by": {
+            "type": "string",
+            "enum": [
+              "header",
+              "content",
+              "none"
+            ],
+            "title": "By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "header",
+          "role",
+          "by"
+        ],
+        "title": "InvoiceColumnOut"
+      },
+      "InvoiceComparisonOut": {
+        "properties": {
+          "exact": {
+            "type": "boolean",
+            "title": "Exact"
+          },
+          "header": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/InvoiceVerdictOut"
+            },
+            "type": "object",
+            "title": "Header"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLineVerdictOut"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "missing": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Missing"
+          },
+          "extra": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Extra"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exact",
+          "header",
+          "lines",
+          "missing",
+          "extra"
+        ],
+        "title": "InvoiceComparisonOut"
+      },
+      "InvoiceDocumentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "held_out"
+            ],
+            "title": "Split"
+          },
+          "style": {
+            "type": "integer",
+            "title": "Style",
+            "description": "Layout seed; 1000 and above are held-out layouts"
+          },
+          "scanned": {
+            "type": "boolean",
+            "title": "Scanned"
+          },
+          "lines": {
+            "type": "integer",
+            "title": "Lines"
+          },
+          "credit_note": {
+            "type": "boolean",
+            "title": "Credit Note"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "exact",
+                  "flagged",
+                  "wrong"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run",
+            "description": "Outcome in the latest evaluation run"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "split",
+          "style",
+          "scanned",
+          "lines",
+          "credit_note"
+        ],
+        "title": "InvoiceDocumentOut",
+        "description": "An invoice of the evaluation set: a real record drawn in a generated layout."
+      },
+      "InvoiceEvaluationItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "held_out"
+            ],
+            "title": "Split"
+          },
+          "scanned": {
+            "type": "boolean",
+            "title": "Scanned"
+          },
+          "style": {
+            "type": "integer",
+            "title": "Style"
+          },
+          "lines": {
+            "type": "integer",
+            "title": "Lines"
+          },
+          "credit_note": {
+            "type": "boolean",
+            "title": "Credit Note"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "exact": {
+            "type": "boolean",
+            "title": "Exact"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "header": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Header"
+          },
+          "truth_lines": {
+            "type": "integer",
+            "title": "Truth Lines"
+          },
+          "read_lines": {
+            "type": "integer",
+            "title": "Read Lines"
+          },
+          "paired": {
+            "type": "integer",
+            "title": "Paired"
+          },
+          "lines_exact": {
+            "type": "integer",
+            "title": "Lines Exact"
+          },
+          "mismatches": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mismatches"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "split",
+          "scanned",
+          "style",
+          "lines",
+          "credit_note",
+          "ms",
+          "exact",
+          "needs_review",
+          "header",
+          "truth_lines",
+          "read_lines",
+          "paired",
+          "lines_exact",
+          "mismatches"
+        ],
+        "title": "InvoiceEvaluationItemOut"
+      },
+      "InvoiceEvaluationOut": {
+        "properties": {
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "documents": {
+            "type": "integer",
+            "title": "Documents"
+          },
+          "exact": {
+            "type": "integer",
+            "title": "Exact"
+          },
+          "median_ms": {
+            "type": "integer",
+            "title": "Median Ms"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "environment": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Environment"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceEvaluationItemOut"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ran_at",
+          "documents",
+          "exact",
+          "median_ms",
+          "metrics",
+          "environment",
+          "results"
+        ],
+        "title": "InvoiceEvaluationOut"
+      },
+      "InvoiceExtractionOut": {
+        "properties": {
+          "document_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "invoice",
+                  "credit_note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Type"
+          },
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/InvoiceFieldOut"
+            },
+            "type": "object",
+            "title": "Fields"
+          },
+          "total": {
+            "$ref": "#/components/schemas/InvoiceFieldOut"
+          },
+          "subtotal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceFieldOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "item_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Count"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLineOut"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceColumnOut"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceCheckOut"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_type",
+          "fields",
+          "total",
+          "subtotal",
+          "item_count",
+          "lines",
+          "columns",
+          "checks",
+          "needs_review",
+          "notes"
+        ],
+        "title": "InvoiceExtractionOut"
+      },
+      "InvoiceFieldOut": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "box": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceBoxOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "by": {
+            "type": "string",
+            "enum": [
+              "label",
+              "elimination",
+              "table",
+              "fallback",
+              "missing"
+            ],
+            "title": "By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "text",
+          "box",
+          "label",
+          "by"
+        ],
+        "title": "InvoiceFieldOut"
+      },
+      "InvoiceGalleryOut": {
+        "properties": {
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceDocumentOut"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
+          "evaluated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluated At",
+            "description": "When the latest evaluation ran"
+          }
+        },
+        "type": "object",
+        "required": [
+          "documents",
+          "evaluated_at"
+        ],
+        "title": "InvoiceGalleryOut"
+      },
+      "InvoiceLineOut": {
+        "properties": {
+          "stock_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Code"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "cells": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Cells"
+          },
+          "box": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceBoxOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "stock_code",
+          "description",
+          "quantity",
+          "unit_price",
+          "amount",
+          "cells",
+          "box"
+        ],
+        "title": "InvoiceLineOut"
+      },
+      "InvoiceLineVerdictOut": {
+        "properties": {
+          "read": {
+            "type": "integer",
+            "title": "Read"
+          },
+          "record": {
+            "type": "integer",
+            "title": "Record"
+          },
+          "fields": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Fields"
+          },
+          "expected": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Expected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "read",
+          "record",
+          "fields",
+          "expected"
+        ],
+        "title": "InvoiceLineVerdictOut"
+      },
+      "InvoicePageOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "width": {
+            "type": "number",
+            "title": "Width"
+          },
+          "height": {
+            "type": "number",
+            "title": "Height"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "text",
+              "ocr",
+              "empty",
+              "skipped"
+            ],
+            "title": "Method"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview",
+            "description": "data: URL of a JPEG of the page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "width",
+          "height",
+          "method",
+          "preview"
+        ],
+        "title": "InvoicePageOut"
+      },
+      "InvoiceRunOut": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "sample",
+              "upload"
+            ],
+            "title": "Source"
+          },
+          "document": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceDocumentOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "page_count": {
+            "type": "integer",
+            "title": "Page Count"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/InvoicePageOut"
+            },
+            "type": "array",
+            "title": "Pages"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/InvoiceExtractionOut"
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceComparisonOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Each value against the record it was rendered from (sample invoices only)"
+          },
+          "timings": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Timings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "document",
+          "filename",
+          "page_count",
+          "pages",
+          "extraction",
+          "comparison",
+          "timings"
+        ],
+        "title": "InvoiceRunOut"
+      },
       "InvoiceSummary": {
         "properties": {
           "invoice_no": {
@@ -3225,6 +4252,49 @@
           "is_credit_note"
         ],
         "title": "InvoiceSummary"
+      },
+      "InvoiceVerdictOut": {
+        "properties": {
+          "read": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read"
+          },
+          "record": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "read",
+          "record",
+          "correct"
+        ],
+        "title": "InvoiceVerdictOut"
       },
       "LogOut": {
         "properties": {

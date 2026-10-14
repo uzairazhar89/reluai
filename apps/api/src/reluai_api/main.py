@@ -83,6 +83,7 @@ def create_app(
             "/api/documents": 8 * 1024,
             # Multipart overhead on top of the 10 MB PDF limit.
             "/api/documents/uploads": 10_700_000,
+            "/api/documents/invoices/uploads": 10_700_000,
             # Multipart overhead on top of the 2 MB file limit.
             "/api/csv/uploads": 2_200_000,
         },

@@ -27,6 +27,11 @@ datasets:
       - The support agent uses the invoice lines of customers with an ID, with exact
         duplicate lines removed. Shipments, the service policy, tickets and customer
         messages around them are simulated and labelled as such.
+      - Document Intelligence draws 96 invoices (with credit notes and invoices without a
+        customer ID) as PDFs in generated layouts, 28 of them also as simulated scans, to
+        measure invoice extraction against the records. Each page states that it is a
+        rendering of dataset records, not a real invoice; the retailer is not named. Values
+        are not altered.
     licence:
       name: CC BY 4.0
       url: https://creativecommons.org/licenses/by/4.0/
@@ -58,7 +63,7 @@ datasets:
       max_timestamp: 2011-12-09T12:50:00
       content_sha256: 56dbc9b75d5834fc0a3a451e126601b14cb4cbc3fed774161f864eacddf18e54
       fingerprint_version: 1
-    used_by: [pipeline-observatory, csv-analyst, support-agent]
+    used_by: [pipeline-observatory, csv-analyst, support-agent, document-intelligence]
 
 # Models and documents fetched at image-build time from pinned sources (or installed from a
 # hash-locked package) and listed on the /data page.

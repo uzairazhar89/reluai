@@ -507,6 +507,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/documents/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Gallery
+         * @description The sample invoices (real records drawn in generated layouts, some as scans), with
+         *     each one's outcome in the latest evaluation run.
+         */
+        get: operations["get_gallery_api_documents_invoices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/invoices/evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation
+         * @description The latest extraction evaluation run (accuracy against the records), if any.
+         */
+        get: operations["get_evaluation_api_documents_invoices_evaluation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/invoices/{doc_id}.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pdf
+         * @description The sample invoice as a PDF (generated on request, the same bytes every time).
+         */
+        get: operations["get_pdf_api_documents_invoices__doc_id__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/invoices/{doc_id}/extract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Extract
+         * @description Read a sample invoice now, as an upload would be read, and compare every value with
+         *     the record it was drawn from.
+         */
+        post: operations["post_extract_api_documents_invoices__doc_id__extract_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/invoices/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Upload
+         * @description Read your own invoice PDF. Nothing is stored: the file is read in memory, in an
+         *     isolated process, and only the result is returned. With no record to compare against,
+         *     the checks are the only verdict.
+         */
+        post: operations["post_upload_api_documents_invoices_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/documents/{document_id}": {
         parameters: {
             query?: never;
@@ -724,6 +828,14 @@ export interface components {
             /**
              * File
              * @description CSV file, up to 2 MB and 50,000 rows
+             */
+            file: string;
+        };
+        /** Body_post_upload_api_documents_invoices_uploads_post */
+        Body_post_upload_api_documents_invoices_uploads_post: {
+            /**
+             * File
+             * @description PDF invoice, up to 10 MB
              */
             file: string;
         };
@@ -1301,6 +1413,274 @@ export interface components {
             /** Attempts */
             attempts?: components["schemas"]["AttemptOut"][];
         };
+        /** InvoiceBoxOut */
+        InvoiceBoxOut: {
+            /** Page */
+            page: number;
+            /** X0 */
+            x0: number;
+            /** Top */
+            top: number;
+            /** X1 */
+            x1: number;
+            /** Bottom */
+            bottom: number;
+        };
+        /** InvoiceCheckOut */
+        InvoiceCheckOut: {
+            /** Name */
+            name: string;
+            /** Passed */
+            passed: boolean;
+            /** Detail */
+            detail: string;
+        };
+        /** InvoiceColumnOut */
+        InvoiceColumnOut: {
+            /** Header */
+            header: string;
+            /** Role */
+            role: ("code" | "description" | "quantity" | "unit_price" | "amount") | null;
+            /**
+             * By
+             * @enum {string}
+             */
+            by: "header" | "content" | "none";
+        };
+        /** InvoiceComparisonOut */
+        InvoiceComparisonOut: {
+            /** Exact */
+            exact: boolean;
+            /** Header */
+            header: {
+                [key: string]: components["schemas"]["InvoiceVerdictOut"];
+            };
+            /** Lines */
+            lines: components["schemas"]["InvoiceLineVerdictOut"][];
+            /** Missing */
+            missing: {
+                [key: string]: string | number;
+            }[];
+            /** Extra */
+            extra: number[];
+        };
+        /**
+         * InvoiceDocumentOut
+         * @description An invoice of the evaluation set: a real record drawn in a generated layout.
+         */
+        InvoiceDocumentOut: {
+            /** Id */
+            id: string;
+            /** Number */
+            number: string;
+            /**
+             * Split
+             * @enum {string}
+             */
+            split: "dev" | "held_out";
+            /**
+             * Style
+             * @description Layout seed; 1000 and above are held-out layouts
+             */
+            style: number;
+            /** Scanned */
+            scanned: boolean;
+            /** Lines */
+            lines: number;
+            /** Credit Note */
+            credit_note: boolean;
+            /**
+             * Last Run
+             * @description Outcome in the latest evaluation run
+             */
+            last_run?: ("exact" | "flagged" | "wrong") | null;
+        };
+        /** InvoiceEvaluationItemOut */
+        InvoiceEvaluationItemOut: {
+            /** Id */
+            id: string;
+            /**
+             * Split
+             * @enum {string}
+             */
+            split: "dev" | "held_out";
+            /** Scanned */
+            scanned: boolean;
+            /** Style */
+            style: number;
+            /** Lines */
+            lines: number;
+            /** Credit Note */
+            credit_note: boolean;
+            /** Ms */
+            ms: number;
+            /** Exact */
+            exact: boolean;
+            /** Needs Review */
+            needs_review: boolean;
+            /** Header */
+            header: {
+                [key: string]: boolean;
+            };
+            /** Truth Lines */
+            truth_lines: number;
+            /** Read Lines */
+            read_lines: number;
+            /** Paired */
+            paired: number;
+            /** Lines Exact */
+            lines_exact: number;
+            /** Mismatches */
+            mismatches: string[];
+        };
+        /** InvoiceEvaluationOut */
+        InvoiceEvaluationOut: {
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Documents */
+            documents: number;
+            /** Exact */
+            exact: number;
+            /** Median Ms */
+            median_ms: number;
+            /** Metrics */
+            metrics: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            /** Environment */
+            environment: {
+                [key: string]: string | number | null;
+            };
+            /** Results */
+            results: components["schemas"]["InvoiceEvaluationItemOut"][];
+        };
+        /** InvoiceExtractionOut */
+        InvoiceExtractionOut: {
+            /** Document Type */
+            document_type: ("invoice" | "credit_note") | null;
+            /** Fields */
+            fields: {
+                [key: string]: components["schemas"]["InvoiceFieldOut"];
+            };
+            total: components["schemas"]["InvoiceFieldOut"];
+            subtotal: components["schemas"]["InvoiceFieldOut"] | null;
+            /** Item Count */
+            item_count: number | null;
+            /** Lines */
+            lines: components["schemas"]["InvoiceLineOut"][];
+            /** Columns */
+            columns: components["schemas"]["InvoiceColumnOut"][];
+            /** Checks */
+            checks: components["schemas"]["InvoiceCheckOut"][];
+            /** Needs Review */
+            needs_review: boolean;
+            /** Notes */
+            notes: string[];
+        };
+        /** InvoiceFieldOut */
+        InvoiceFieldOut: {
+            /** Value */
+            value: string | number | null;
+            /** Text */
+            text: string | null;
+            box: components["schemas"]["InvoiceBoxOut"] | null;
+            /** Label */
+            label: string | null;
+            /**
+             * By
+             * @enum {string}
+             */
+            by: "label" | "elimination" | "table" | "fallback" | "missing";
+        };
+        /** InvoiceGalleryOut */
+        InvoiceGalleryOut: {
+            /** Documents */
+            documents: components["schemas"]["InvoiceDocumentOut"][];
+            /**
+             * Evaluated At
+             * @description When the latest evaluation ran
+             */
+            evaluated_at: string | null;
+        };
+        /** InvoiceLineOut */
+        InvoiceLineOut: {
+            /** Stock Code */
+            stock_code: string | null;
+            /** Description */
+            description: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /** Unit Price */
+            unit_price: string | null;
+            /** Amount */
+            amount: string | null;
+            /** Cells */
+            cells: {
+                [key: string]: string;
+            };
+            box: components["schemas"]["InvoiceBoxOut"] | null;
+        };
+        /** InvoiceLineVerdictOut */
+        InvoiceLineVerdictOut: {
+            /** Read */
+            read: number;
+            /** Record */
+            record: number;
+            /** Fields */
+            fields: {
+                [key: string]: boolean;
+            };
+            /** Expected */
+            expected: {
+                [key: string]: string | number;
+            };
+        };
+        /** InvoicePageOut */
+        InvoicePageOut: {
+            /** Number */
+            number: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "text" | "ocr" | "empty" | "skipped";
+            /**
+             * Preview
+             * @description data: URL of a JPEG of the page
+             */
+            preview: string | null;
+        };
+        /** InvoiceRunOut */
+        InvoiceRunOut: {
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "sample" | "upload";
+            document: components["schemas"]["InvoiceDocumentOut"] | null;
+            /** Filename */
+            filename: string | null;
+            /** Page Count */
+            page_count: number;
+            /** Pages */
+            pages: components["schemas"]["InvoicePageOut"][];
+            extraction: components["schemas"]["InvoiceExtractionOut"];
+            /** @description Each value against the record it was rendered from (sample invoices only) */
+            comparison: components["schemas"]["InvoiceComparisonOut"] | null;
+            /** Timings */
+            timings: {
+                [key: string]: number;
+            };
+        };
         /** InvoiceSummary */
         InvoiceSummary: {
             /** Invoice No */
@@ -1314,6 +1694,15 @@ export interface components {
             total_gbp: number;
             /** Is Credit Note */
             is_credit_note: boolean;
+        };
+        /** InvoiceVerdictOut */
+        InvoiceVerdictOut: {
+            /** Read */
+            read: string | number | null;
+            /** Record */
+            record: string | number | null;
+            /** Correct */
+            correct: boolean;
         };
         /** LogOut */
         LogOut: {
@@ -2707,6 +3096,141 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QaEvaluationRunOut"][];
+                };
+            };
+        };
+    };
+    get_gallery_api_documents_invoices_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceGalleryOut"];
+                };
+            };
+        };
+    };
+    get_evaluation_api_documents_invoices_evaluation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceEvaluationOut"] | null;
+                };
+            };
+        };
+    };
+    get_pdf_api_documents_invoices__doc_id__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_extract_api_documents_invoices__doc_id__extract_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_upload_api_documents_invoices_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_post_upload_api_documents_invoices_uploads_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

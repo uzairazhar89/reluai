@@ -94,6 +94,7 @@ module = [
   "pypdfium2.*",
   "pyreadr.*",
   "rapidocr.*",
+  "reportlab.*",
   "tenacity.*",
 ]
 ignore_missing_imports = true

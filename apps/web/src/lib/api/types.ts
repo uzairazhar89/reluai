@@ -49,6 +49,19 @@ export type DocumentPassage = S["PassageOut"];
 export type DocumentQaRun = S["QaEvaluationRunOut"];
 export type DocumentQaItem = S["QaEvaluationItemOut"];
 
+export type InvoiceDocument = S["InvoiceDocumentOut"];
+export type InvoiceGallery = S["InvoiceGalleryOut"];
+export type InvoiceRun = S["InvoiceRunOut"];
+export type InvoiceExtraction = S["InvoiceExtractionOut"];
+export type InvoiceField = S["InvoiceFieldOut"];
+export type InvoiceLine = S["InvoiceLineOut"];
+export type InvoiceCheck = S["InvoiceCheckOut"];
+export type InvoiceBox = S["InvoiceBoxOut"];
+export type InvoicePage = S["InvoicePageOut"];
+export type InvoiceComparison = S["InvoiceComparisonOut"];
+export type InvoiceEvaluation = S["InvoiceEvaluationOut"];
+export type InvoiceEvaluationItem = S["InvoiceEvaluationItemOut"];
+
 /** RFC 9457 problem details returned by the API on errors. */
 export interface Problem {
   status: number;

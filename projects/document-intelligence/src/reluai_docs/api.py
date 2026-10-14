@@ -17,6 +17,7 @@ from reluai_core.logging import get_logger
 from reluai_core.ratelimit import consume_quota, visitor_key
 from reluai_docs import service
 from reluai_docs.embedding import TextEmbedder
+from reluai_docs.invoices.api import router as invoices_router
 from reluai_docs.models import DocumentRecord, EvaluationRun
 from reluai_docs.schemas import (
     AnswerOut,
@@ -184,6 +185,10 @@ def get_evaluation(db: DatabaseDep) -> list[QaEvaluationRunOut]:
             )
             for r in sorted(latest.values(), key=lambda r: r.label)
         ]
+
+
+# Before the "/{document_id}" routes, which would otherwise match "/invoices".
+router.include_router(invoices_router)
 
 
 @router.get("/{document_id}", response_model=DocumentOut)

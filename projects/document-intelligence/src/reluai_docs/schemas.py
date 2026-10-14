@@ -169,3 +169,148 @@ class QaEvaluationRunOut(BaseModel):
     metrics: dict[str, float | int]
     environment: dict[str, str | int | float | None]
     results: list[QaEvaluationItemOut]
+
+
+# --------------------------------------------------------------------------- invoices
+InvoiceRole = Literal["code", "description", "quantity", "unit_price", "amount"]
+
+
+class InvoiceDocumentOut(BaseModel):
+    """An invoice of the evaluation set: a real record drawn in a generated layout."""
+
+    id: str
+    number: str
+    split: Literal["dev", "held_out"]
+    style: int = Field(description="Layout seed; 1000 and above are held-out layouts")
+    scanned: bool
+    lines: int
+    credit_note: bool
+    last_run: Literal["exact", "flagged", "wrong"] | None = Field(
+        default=None, description="Outcome in the latest evaluation run"
+    )
+
+
+class InvoiceBoxOut(BaseModel):
+    page: int
+    x0: float
+    top: float
+    x1: float
+    bottom: float
+
+
+class InvoiceFieldOut(BaseModel):
+    value: str | int | None
+    text: str | None
+    box: InvoiceBoxOut | None
+    label: str | None
+    by: Literal["label", "elimination", "table", "fallback", "missing"]
+
+
+class InvoiceLineOut(BaseModel):
+    stock_code: str | None
+    description: str | None
+    quantity: int | None
+    unit_price: str | None
+    amount: str | None
+    cells: dict[str, str]
+    box: InvoiceBoxOut | None
+
+
+class InvoiceCheckOut(BaseModel):
+    name: str
+    passed: bool
+    detail: str
+
+
+class InvoiceColumnOut(BaseModel):
+    header: str
+    role: InvoiceRole | None
+    by: Literal["header", "content", "none"]
+
+
+class InvoiceExtractionOut(BaseModel):
+    document_type: Literal["invoice", "credit_note"] | None
+    fields: dict[str, InvoiceFieldOut]
+    total: InvoiceFieldOut
+    subtotal: InvoiceFieldOut | None
+    item_count: int | None
+    lines: list[InvoiceLineOut]
+    columns: list[InvoiceColumnOut]
+    checks: list[InvoiceCheckOut]
+    needs_review: bool
+    notes: list[str]
+
+
+class InvoicePageOut(BaseModel):
+    number: int
+    width: float
+    height: float
+    method: Literal["text", "ocr", "empty", "skipped"]
+    preview: str | None = Field(description="data: URL of a JPEG of the page")
+
+
+class InvoiceVerdictOut(BaseModel):
+    read: str | int | None
+    record: str | int | None
+    correct: bool
+
+
+class InvoiceLineVerdictOut(BaseModel):
+    read: int
+    record: int
+    fields: dict[str, bool]
+    expected: dict[str, str | int]
+
+
+class InvoiceComparisonOut(BaseModel):
+    exact: bool
+    header: dict[str, InvoiceVerdictOut]
+    lines: list[InvoiceLineVerdictOut]
+    missing: list[dict[str, str | int]]
+    extra: list[int]
+
+
+class InvoiceRunOut(BaseModel):
+    source: Literal["sample", "upload"]
+    document: InvoiceDocumentOut | None
+    filename: str | None
+    page_count: int
+    pages: list[InvoicePageOut]
+    extraction: InvoiceExtractionOut
+    comparison: InvoiceComparisonOut | None = Field(
+        description="Each value against the record it was rendered from (sample invoices only)"
+    )
+    timings: dict[str, int]
+
+
+class InvoiceEvaluationItemOut(BaseModel):
+    id: str
+    split: Literal["dev", "held_out"]
+    scanned: bool
+    style: int
+    lines: int
+    credit_note: bool
+    ms: int
+    exact: bool
+    needs_review: bool
+    header: dict[str, bool]
+    truth_lines: int
+    read_lines: int
+    paired: int
+    lines_exact: int
+    mismatches: list[str]
+
+
+class InvoiceEvaluationOut(BaseModel):
+    ran_at: datetime
+    documents: int
+    exact: int
+    median_ms: int
+    metrics: dict[str, dict[str, object]]
+    environment: dict[str, str | int | float | None]
+    results: list[InvoiceEvaluationItemOut]
+
+
+class InvoiceGalleryOut(BaseModel):
+    documents: list[InvoiceDocumentOut]
+    evaluated_at: datetime | None = Field(description="When the latest evaluation ran")

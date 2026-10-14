@@ -47,6 +47,10 @@ const docsAnswers: Record<string, Json> = {
 };
 const docsDeclined = fixture<Json>("docs-ask-crypto");
 
+export const invoiceGallery = fixture<Json & { documents: { id: string }[] }>("invoices-gallery");
+const invoiceSampleRun = fixture<Json>("invoice-run-sample");
+const invoiceUploadRun = fixture<Json>("invoice-run-upload");
+
 function emptyDetail(run: RunJson): Json {
   return {
     run,
@@ -83,6 +87,8 @@ export interface ApiOptions {
   supportStart?: { status: number; body: Json; headers?: Record<string, string> };
   /** Response for POST /api/documents/{id}/ask instead of the recorded answers. */
   docsAsk?: { status: number; body: Json; headers?: Record<string, string> };
+  /** Response for POST /api/documents/invoices/{id}/extract instead of the recorded run. */
+  invoiceRun?: { status: number; body: Json; headers?: Record<string, string> };
 }
 
 export async function mockApi(page: Page, options: ApiOptions = {}) {
@@ -148,6 +154,20 @@ export async function mockApi(page: Page, options: ApiOptions = {}) {
         docsAnswers[body.question] ?? { ...docsDeclined, question: body.question },
       );
     }
+    const invoiceRun = p.match(/^\/api\/documents\/invoices\/([^/]+)\/extract$/);
+    if (req.method() === "POST" && invoiceRun) {
+      posted.push({ invoice: invoiceRun[1] });
+      if (options.invoiceRun) {
+        const r = options.invoiceRun;
+        return json(route, r.body, r.status, r.headers);
+      }
+      return json(route, invoiceSampleRun);
+    }
+    if (req.method() === "POST" && p === "/api/documents/invoices/uploads") {
+      posted.push({ invoiceUpload: req.headers()["content-type"]?.split(";")[0] });
+      return json(route, invoiceUploadRun);
+    }
+    if (p === "/api/documents/invoices") return json(route, invoiceGallery);
     if (req.method() === "POST" && p === "/api/documents/uploads") {
       posted.push({ upload: req.headers()["content-type"]?.split(";")[0] });
       return json(route, docsUpload, 202);

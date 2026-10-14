@@ -3,7 +3,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { api, ApiError, unwrap } from "@/lib/api/client";
-import type { DocumentAnswer, DocumentInfo, DocumentQuestion, Problem } from "@/lib/api/types";
+import type {
+  DocumentAnswer,
+  DocumentInfo,
+  DocumentQuestion,
+  InvoiceRun,
+  Problem,
+} from "@/lib/api/types";
 
 import { isProcessing } from "./format";
 
@@ -100,4 +106,49 @@ export function useDelete() {
       return id;
     },
   });
+}
+
+/* ------------------------------------------------------------------ invoices */
+export function useInvoiceGallery() {
+  return useQuery({
+    queryKey: ["docs", "invoices"],
+    queryFn: async () => unwrap(await api.GET("/api/documents/invoices")),
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Read a sample invoice now (render, isolated reader, extraction, comparison). */
+export function useInvoiceRun() {
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrap(
+        await api.POST("/api/documents/invoices/{doc_id}/extract", {
+          params: { path: { doc_id: id } },
+        }),
+      ),
+  });
+}
+
+async function uploadInvoice(file: File): Promise<InvoiceRun> {
+  const form = new FormData();
+  form.append("file", file, file.name);
+  let res: Response;
+  try {
+    res = await fetch("/api/documents/invoices/uploads", { method: "POST", body: form });
+  } catch {
+    throw new ApiError({ status: 0 });
+  }
+  const body = (await res.json().catch(() => ({}))) as Partial<Problem> & Partial<InvoiceRun>;
+  if (!res.ok) {
+    const retry = Number(res.headers.get("retry-after"));
+    throw new ApiError(
+      { ...body, status: res.status },
+      Number.isFinite(retry) && retry > 0 ? retry : undefined,
+    );
+  }
+  return body as InvoiceRun;
+}
+
+export function useInvoiceUpload() {
+  return useMutation({ mutationFn: uploadInvoice });
 }

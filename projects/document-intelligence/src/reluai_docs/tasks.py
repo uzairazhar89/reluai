@@ -1,4 +1,4 @@
-"""Background jobs: read uploaded PDFs, expire them, and re-run the evaluation daily."""
+"""Background jobs: read uploaded PDFs, expire them, and re-run both evaluations daily."""
 
 from __future__ import annotations
 
@@ -52,3 +52,29 @@ def evaluation(timestamp: int) -> None:
         return
     record_run(rt.db, summary)
     log.info("docs.evaluation_done", correct=summary.correct, questions=summary.questions)
+
+
+@blueprint.periodic(cron="47 4 * * *", periodic_id="docs-invoice-evaluation")
+@blueprint.task(name="invoice_evaluation", queue=QUEUE_DEFAULT)
+def invoice_evaluation(timestamp: int) -> None:
+    """Re-run invoice extraction over the whole set (about two minutes of CPU, mostly OCR),
+    so the published accuracy comes from this server."""
+    from reluai_docs.invoices import service as invoices
+
+    rt = get_runtime()
+    settings = get_docs_settings()
+    if not invoices.documents(settings):
+        log.warning("docs.invoice_evaluation_skipped", reason="invoice set not built")
+        return
+    try:
+        with cpu_lease(
+            rt.db.engine,
+            holder="docs-invoice-evaluation",
+            wait_seconds=rt.settings.cpu_lease_wait_seconds,
+        ):
+            results = invoices.evaluate(settings)
+    except LeaseUnavailableError:
+        log.warning("docs.invoice_evaluation_skipped", reason="cpu lease busy")
+        return
+    run = invoices.record_run(rt.db, results)
+    log.info("docs.invoice_evaluation_done", exact=run.exact, documents=run.documents)

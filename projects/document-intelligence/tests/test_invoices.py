@@ -194,6 +194,21 @@ def test_selection_rules_and_split(tmp_path: Path) -> None:
     assert {d.style >= 1000 for d in docs if d.split == "held_out"} == {True}
 
 
+def test_simulated_scan_is_the_same_bytes_every_time(monkeypatch: pytest.MonkeyPatch) -> None:
+    import time
+
+    from PIL import PdfImagePlugin
+
+    from reluai_docs.invoices.scan import simulate_scan
+
+    pdf = render_invoice(CREDIT, style_for(2))
+    first = simulate_scan(pdf, seed=7, dpi=60)
+    later = time.gmtime(time.time() + 3600)
+    monkeypatch.setattr(PdfImagePlugin.time, "gmtime", lambda *_: later)  # an hour on
+    assert simulate_scan(pdf, seed=7, dpi=60) == first
+    assert simulate_scan(pdf, seed=8, dpi=60) != first
+
+
 @pytest.mark.slow
 def test_simulated_scan_is_read_with_ocr() -> None:
     doc = EvalDocument("536365-s4-scan", "dev", INVOICE, 4, True)

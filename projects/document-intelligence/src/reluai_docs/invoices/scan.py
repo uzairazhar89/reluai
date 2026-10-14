@@ -10,10 +10,13 @@ from __future__ import annotations
 
 import io
 import random
+import time
 
 import numpy as np
 import pypdfium2 as pdfium
 from PIL import Image, ImageFilter
+
+_FIXED_DATE = time.gmtime(0)
 
 
 def simulate_scan(pdf: bytes, *, seed: int, dpi: int = 150) -> bytes:
@@ -44,5 +47,14 @@ def simulate_scan(pdf: bytes, *, seed: int, dpi: int = 150) -> bytes:
     finally:
         doc.close()
     out = io.BytesIO()
-    pages[0].save(out, "PDF", resolution=float(dpi), save_all=True, append_images=pages[1:])
+    pages[0].save(
+        out,
+        "PDF",
+        resolution=float(dpi),
+        save_all=True,
+        append_images=pages[1:],
+        # Pillow stamps the current time otherwise; a fixed date keeps the bytes identical.
+        creationDate=_FIXED_DATE,
+        modDate=_FIXED_DATE,
+    )
     return out.getvalue()

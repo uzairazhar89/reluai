@@ -92,7 +92,10 @@ Platform services you get for free, all from `reluai_core`:
   `COPY projects/csv-analyst/pyproject.toml projects/csv-analyst/` next to the others
   (the dependency layer is cached from these files).
 - Root `pyproject.toml`: add `"projects/csv-analyst/src"` to mypy's `files`.
-- `scripts/mirror_projects.py`: add a `Mirror(...)` entry for its public mirror.
+- `scripts/mirror_projects.py`: add a `Mirror(...)` entry for its public mirror. Create
+  that repository on GitHub (public, empty) and add it to the `MIRROR_TOKEN` token's
+  repositories, or the `mirror` run goes red ("Setting up the mirror repositories" in
+  `github-actions.md`).
 
 ### 5. Regenerate the website's API types
 

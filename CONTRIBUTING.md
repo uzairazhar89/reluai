@@ -40,4 +40,6 @@ The full checklist, with file paths and code patterns, is in
 3. Add its page under `apps/web/src/app/projects/<slug>` using the twelve project sections,
    and set its status in `apps/web/src/content/projects.ts` to `live` only when the demo
    works end to end.
-4. Add it to `scripts/mirror_projects.sh` so it gets its own read-only mirror repository.
+4. Add it to `scripts/mirror_projects.py` so it gets its own read-only mirror repository,
+   create that repository on GitHub (public, empty) and add it to the `MIRROR_TOKEN`
+   token's repositories.

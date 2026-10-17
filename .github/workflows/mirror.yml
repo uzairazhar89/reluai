@@ -3,7 +3,9 @@ name: mirror
 # Refreshes the read-only per-project mirror repositories after a successful deploy, so each
 # project card can link to its own repository while all work happens in this monorepo.
 # Needs a MIRROR_TOKEN secret: a fine-grained token with "Contents: read and write" on the
-# mirror repositories only. Without it the job assembles the mirrors and stops.
+# mirror repositories only (docs/guides/github-actions.md). Without it the job assembles the
+# mirrors, warns on the run's summary page and stops; with it, a mirror it cannot update
+# (missing repository, token without write access) fails the run.
 on:
   workflow_run:
     workflows: [deploy]

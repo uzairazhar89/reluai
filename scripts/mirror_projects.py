@@ -7,6 +7,10 @@ its own browsable repository. Run by ``.github/workflows/mirror.yml`` after a de
 
     python scripts/mirror_projects.py --out build/mirrors            # assemble only
     python scripts/mirror_projects.py --out build/mirrors --push      # needs MIRROR_TOKEN
+
+Without ``MIRROR_TOKEN`` the run succeeds with a warning on its summary page. With it, a
+mirror that cannot be cloned or pushed (missing repository, token without access) is
+reported there too and the run fails, after trying every mirror.
 """
 
 from __future__ import annotations
@@ -73,6 +77,10 @@ def git(*args: str, cwd: Path) -> str:
     ).stdout.strip()
 
 
+def git_ok(*args: str, cwd: Path) -> bool:
+    return subprocess.run([GIT, *args], cwd=cwd, capture_output=True, check=False).returncode == 0  # noqa: S603
+
+
 def header(m: Mirror, sha: str) -> str:
     return (
         f"> **Read-only mirror.** This repository is published automatically from "
@@ -117,7 +125,16 @@ def assemble(m: Mirror, out: Path, sha: str) -> Path:
     return dest
 
 
-def push(m: Mirror, assembled: Path, sha: str, token: str) -> None:
+def notice(title: str, message: str) -> None:
+    """A warning that shows on the workflow run's summary page, not only in its log."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::warning title={title}::{message}")
+    else:
+        print(f"warning: {title}: {message}", file=sys.stderr)
+
+
+def push(m: Mirror, assembled: Path, sha: str, token: str) -> str:
+    """Commit the assembled tree onto the mirror; returns what happened, in a few words."""
     remote = f"https://x-access-token:{token}@github.com/{OWNER}/{m.repo}.git"
     work = assembled.with_name(assembled.name + ".git-work")
     if work.exists():
@@ -129,8 +146,17 @@ def push(m: Mirror, assembled: Path, sha: str, token: str) -> None:
         check=False,
     )
     if clone.returncode != 0:
-        print(f"skip {m.repo}: cannot clone (create the empty repository first?)", file=sys.stderr)
-        return
+        reason = (clone.stderr.strip().splitlines() or ["no output"])[-1].replace(token, "***")
+        notice(
+            f"{m.repo} not updated",
+            f"cannot clone github.com/{OWNER}/{m.repo} ({reason}). Create the repository, and "
+            "give MIRROR_TOKEN 'Contents: read and write' on it.",
+        )
+        return "not updated: cannot clone (missing repository, or no access for the token)"
+    if not git_ok("rev-parse", "--verify", "--quiet", "HEAD", cwd=work):
+        # A newly created, empty repository: start it on "main" rather than whatever the
+        # runner's git calls its default branch.
+        git("symbolic-ref", "HEAD", "refs/heads/main", cwd=work)
     for child in work.iterdir():
         if child.name == ".git":
             continue
@@ -142,7 +168,7 @@ def push(m: Mirror, assembled: Path, sha: str, token: str) -> None:
     git("add", "--all", cwd=work)
     if not git("status", "--porcelain", cwd=work):
         print(f"{m.repo}: already up to date")
-        return
+        return "already up to date"
     git(
         "-c",
         "user.name=reluai-mirror",
@@ -154,8 +180,38 @@ def push(m: Mirror, assembled: Path, sha: str, token: str) -> None:
         f"Mirror of {OWNER}/reluai@{sha[:12]}",
         cwd=work,
     )
-    git("push", "--quiet", "origin", "HEAD", cwd=work)
+    pushed = subprocess.run(  # noqa: S603
+        [GIT, "push", "--quiet", "origin", "HEAD"],
+        cwd=work,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if pushed.returncode != 0:
+        reason = (pushed.stderr.strip().splitlines() or ["no output"])[-1].replace(token, "***")
+        if any(sign in pushed.stderr for sign in ("403", "denied", "Authentication failed")):
+            notice(
+                f"{m.repo} not updated",
+                f"the push was refused ({reason}). MIRROR_TOKEN needs 'Contents: read and "
+                "write' on this repository.",
+            )
+            return "not updated: push refused (the token cannot write to this repository)"
+        notice(f"{m.repo} not updated", f"the push failed ({reason}).")
+        return f"not updated: push failed ({reason})"
     print(f"{m.repo}: pushed snapshot of {sha[:12]}")
+    return f"pushed snapshot of {sha[:12]}"
+
+
+def summary(rows: list[tuple[str, str]]) -> None:
+    """Per-repository outcome as a table on the workflow run page."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    lines = ["| Mirror | Result |", "| --- | --- |"]
+    for repo, result in rows:
+        lines.append(f"| [{repo}](https://github.com/{OWNER}/{repo}) | {result} |")
+    with open(path, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 def main(argv: list[str]) -> int:
@@ -167,13 +223,25 @@ def main(argv: list[str]) -> int:
     sha = git("rev-parse", "HEAD", cwd=ROOT)
     token = os.environ.get("MIRROR_TOKEN", "")
     if args.push and not token:
-        print("MIRROR_TOKEN is not set; assembling without pushing", file=sys.stderr)
+        notice(
+            "Mirrors not published",
+            "The MIRROR_TOKEN secret is not set, so the mirrors were assembled but not pushed. "
+            "Add a fine-grained token with 'Contents: read and write' on the mirror repositories.",
+        )
+    rows: list[tuple[str, str]] = []
     for m in MIRRORS:
         assembled = assemble(m, args.out, sha)
         print(f"assembled {m.repo} in {assembled}")
         if args.push and token:
-            push(m, assembled, sha, token)
-    return 0
+            rows.append((m.repo, push(m, assembled, sha, token)))
+        elif args.push:
+            rows.append((m.repo, "not updated: MIRROR_TOKEN is not set"))
+    if args.push:
+        summary(rows)
+    # With a token, a mirror that could not be updated is a configuration problem worth a
+    # red run; without one, publishing is simply switched off (the warning says so).
+    failed = [repo for repo, result in rows if result.startswith("not updated") and token]
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

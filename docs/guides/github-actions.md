@@ -57,6 +57,28 @@ from ever reaching the server.
 
 Pull requests run only `ci`. Nothing is released from a pull request.
 
+## Setting up the mirror repositories (once)
+
+`mirror` copies each project folder into its own public repository (`reluai-csv-analyst`,
+`reluai-support-agent`, `reluai-document-intelligence`, `reluai-pipeline-observatory`), so a
+project page can link to a repository with just that project in it. `GITHUB_TOKEN` cannot
+push to other repositories, so the job needs a token of its own:
+
+1. Create each mirror repository on GitHub, public and **empty** (no README, licence or
+   `.gitignore`; the first run fills it and starts it on `main`).
+2. Settings (your account) → Developer settings → Personal access tokens → **Fine-grained
+   tokens** → Generate new token. Resource owner: your account. Repository access: **Only
+   select repositories**, the mirror repositories (not `reluai` itself). Permissions →
+   Repository permissions → **Contents: Read and write**. Pick an expiry and note it.
+3. In `reluai`: Settings → Secrets and variables → Actions → New repository secret, name
+   `MIRROR_TOKEN`, value the token.
+4. Actions → `mirror` → **Run workflow** on `main`. No new deploy is needed.
+
+The run's summary page lists each mirror and what happened to it. Without `MIRROR_TOKEN`
+the run stays green and shows a warning that nothing was published. With it, a mirror that
+cannot be updated turns the run red after the others have been tried. When the token
+expires, runs go red with "push refused"; generate a new one and replace the secret.
+
 ## Running a workflow by hand
 
 Actions tab → pick the workflow on the left → **Run workflow**. `deploy` asks for the
@@ -71,6 +93,8 @@ commit SHA to deploy; this is also how you roll back to an older version.
 | `web` job red at Prettier | formatting | `cd apps/web && pnpm format` |
 | `release` red at Trivy | a fixable critical vulnerability in a base image or package | update the dependency or base image |
 | `deploy` red at "Configure SSH" | missing or wrong deploy secrets | Settings → Environments → production |
+| `mirror` green but a mirror repository stays empty | `MIRROR_TOKEN` not set (the run shows a warning) | the run's summary page; see "Setting up the mirror repositories" |
+| `mirror` red, "cannot clone" or "push refused" | the repository does not exist, or the token cannot write to it or has expired | the run's summary page |
 | "The hosted runner lost communication with the server" | something cut the runner's own network or exhausted its memory | the step that was running when it stopped |
 
 ## Cost

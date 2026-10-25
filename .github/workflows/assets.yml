@@ -1,0 +1,62 @@
+name: assets
+
+# Builds a data bundle from its canonical sources and publishes it as a release asset of this
+# repository (run by hand: Actions → assets → Run workflow). Image builds and development
+# copies then fetch that one file, pinned by SHA-256 in artifacts/manifest.yaml, instead of
+# depending on the original hosts. The build script checks what it downloads, and this run's
+# log and the release notes record where everything came from.
+#
+# Bundles:
+#   coco-cc  COCO 2017 validation photos under reuse licences, with annotations
+#            (scripts/assets/coco_cc.py), for the Edge AI Benchmark Lab.
+on:
+  workflow_dispatch:
+    inputs:
+      bundle:
+        description: Bundle to build
+        type: choice
+        options: [coco-cc]
+        required: true
+
+permissions:
+  contents: write  # create the release that holds the bundle
+
+concurrency:
+  group: assets-${{ inputs.bundle }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      BUNDLE: ${{ inputs.bundle }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Build the bundle
+        run: |
+          case "$BUNDLE" in
+            coco-cc) script=scripts/assets/coco_cc.py ;;
+            *) echo "::error::unknown bundle $BUNDLE"; exit 1 ;;
+          esac
+          python "$script" --out "$RUNNER_TEMP/asset"
+      - name: Publish as a release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          out="$RUNNER_TEMP/asset"
+          tag="$(cat "$out/TAG")"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::error title=Bundle already published::$tag exists. Bundles are immutable; raise the version in the script to publish a new one."
+            exit 1
+          fi
+          gh release create "$tag" --title "Data bundle: $tag" --notes-file "$out/NOTES.md" \
+            --latest=false "$out"/*.tar "$out/SHA256SUMS"
+          {
+            echo "### $tag published"
+            echo
+            cat "$out/NOTES.md"
+          } >> "$GITHUB_STEP_SUMMARY"

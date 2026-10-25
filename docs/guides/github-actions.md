@@ -79,6 +79,24 @@ the run stays green and shows a warning that nothing was published. With it, a m
 cannot be updated turns the run red after the others have been tried. When the token
 expires, runs go red with "push refused"; generate a new one and replace the secret.
 
+## Data bundles (`assets`)
+
+Some sources cannot be reached from every place the project is built or developed, and some
+are large archives of which only a small part is needed. The `assets` workflow (run by hand:
+Actions → `assets` → **Run workflow**, pick the bundle) downloads such a source, checks it,
+packs the part that is used and publishes it as a release of this repository named
+`assets-<bundle>-<version>`, with its SHA-256 in the release notes. The image build and
+development copies then fetch that one file, pinned by its SHA-256 in
+`artifacts/manifest.yaml`.
+
+Bundles are never replaced: a run for a version that is already published fails. To change
+a bundle, raise the version in its script (`scripts/assets/`), run the workflow, and update
+the pin.
+
+| Bundle | Script | Contents |
+| --- | --- | --- |
+| `coco-cc` | `scripts/assets/coco_cc.py` | COCO 2017 validation photos under reuse licences (CC BY, CC BY-SA, no known restrictions, US Government work) with their annotations: a street subset and a general subset |
+
 ## Running a workflow by hand
 
 Actions tab → pick the workflow on the left → **Run workflow**. `deploy` asks for the

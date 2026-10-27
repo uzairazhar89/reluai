@@ -56,13 +56,40 @@ jobs:
           cache-to: type=gha,scope=${{ matrix.name }},mode=max
       # Gate: stop the release on a critical vulnerability that has a fix available.
       - name: Vulnerability gate (critical, fixable)
+        id: gate
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           image-ref: ${{ env.IMAGE }}:${{ env.SHA }}
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"
-          format: table
+          format: json
+          output: trivy-gate.json
+      # A blocked release names each finding on the run page (annotations and the summary),
+      # so the package to upgrade is visible without opening the log.
+      - name: Name the blocking vulnerabilities
+        if: failure() && steps.gate.outcome == 'failure'
+        env:
+          IMAGE_NAME: ${{ matrix.name }}
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          report = json.load(open("trivy-gate.json"))
+          rows = []
+          for result in report.get("Results") or []:
+              for v in result.get("Vulnerabilities") or []:
+                  rows.append((v["VulnerabilityID"], v["PkgName"], v.get("InstalledVersion", ""),
+                               v.get("FixedVersion", ""), result.get("Target", ""),
+                               (v.get("Title") or "").replace("|", "/")[:120]))
+          image = os.environ["IMAGE_NAME"]
+          for vid, pkg, have, fixed, target, title in rows:
+              print(f"::error title={vid} in {pkg} ({image})::{pkg} {have} -> fixed in {fixed}; {target}; {title}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(f"### Critical, fixable vulnerabilities in the {image} image\n\n")
+              out.write("| Vulnerability | Package | Installed | Fixed in | Where |\n| --- | --- | --- | --- | --- |\n")
+              for vid, pkg, have, fixed, target, _ in rows:
+                  out.write(f"| {vid} | {pkg} | {have} | {fixed} | {target} |\n")
+          EOF
       # Report: every finding, uploaded to the repository's Security tab (never fails the run).
       - name: Vulnerability report (all severities)
         if: always()

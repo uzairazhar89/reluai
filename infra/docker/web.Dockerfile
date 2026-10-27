@@ -32,6 +32,8 @@ LABEL org.opencontainers.image.title="reluai-web" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${VERSION}"
 WORKDIR /app
+# Security fixes published since the base image was built (re-run for every version).
+RUN apk upgrade --no-cache
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \

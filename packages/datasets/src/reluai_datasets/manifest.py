@@ -67,10 +67,10 @@ class ArtifactFile(_Strict):
 
 
 class FileArtifact(_Strict):
-    """A model or document fetched (or installed) at image build time and pinned by hash."""
+    """A model, document or photo set fetched (or installed) at image build, pinned by hash."""
 
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9.-]*$")
-    kind: Literal["model", "document"]
+    kind: Literal["model", "document", "images"]
     title: str
     publisher: str
     homepage: HttpUrl

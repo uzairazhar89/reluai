@@ -60,7 +60,8 @@ Pull requests run only `ci`. Nothing is released from a pull request.
 ## Setting up the mirror repositories (once)
 
 `mirror` copies each project folder into its own public repository (`reluai-csv-analyst`,
-`reluai-support-agent`, `reluai-document-intelligence`, `reluai-pipeline-observatory`), so a
+`reluai-support-agent`, `reluai-document-intelligence`, `reluai-pipeline-observatory`,
+`reluai-edge-benchmark`), so a
 project page can link to a repository with just that project in it. `GITHUB_TOKEN` cannot
 push to other repositories, so the job needs a token of its own:
 

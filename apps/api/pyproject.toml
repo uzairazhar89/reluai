@@ -10,6 +10,7 @@ dependencies = [
   "reluai-csv-analyst",
   "reluai-datasets",
   "reluai-document-intelligence",
+  "reluai-edge-benchmark",
   "reluai-inference",
   "reluai-pipeline",
   "reluai-retrieval",
@@ -26,6 +27,7 @@ reluai-core = { workspace = true }
 reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
 reluai-document-intelligence = { workspace = true }
+reluai-edge-benchmark = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
 reluai-retrieval = { workspace = true }

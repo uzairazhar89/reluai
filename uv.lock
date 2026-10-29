@@ -23,6 +23,7 @@ members = [
     "reluai-csv-analyst",
     "reluai-datasets",
     "reluai-document-intelligence",
+    "reluai-edge-benchmark",
     "reluai-inference",
     "reluai-pipeline",
     "reluai-retrieval",
@@ -1981,6 +1982,7 @@ dependencies = [
     { name = "reluai-csv-analyst" },
     { name = "reluai-datasets" },
     { name = "reluai-document-intelligence" },
+    { name = "reluai-edge-benchmark" },
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
     { name = "reluai-retrieval" },
@@ -1996,6 +1998,7 @@ requires-dist = [
     { name = "reluai-csv-analyst", editable = "projects/csv-analyst" },
     { name = "reluai-datasets", editable = "packages/datasets" },
     { name = "reluai-document-intelligence", editable = "projects/document-intelligence" },
+    { name = "reluai-edge-benchmark", editable = "projects/edge-benchmark" },
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
     { name = "reluai-retrieval", editable = "packages/retrieval" },
@@ -2123,6 +2126,39 @@ requires-dist = [
 quantize = [{ name = "onnx", specifier = ">=1.17" }]
 
 [[package]]
+name = "reluai-edge-benchmark"
+version = "0.1.0"
+source = { editable = "projects/edge-benchmark" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "numpy" },
+    { name = "onnxruntime" },
+    { name = "pillow" },
+    { name = "python-multipart" },
+    { name = "reluai-core" },
+    { name = "reluai-datasets" },
+]
+
+[package.dev-dependencies]
+quantize = [
+    { name = "onnx" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.142" },
+    { name = "numpy", specifier = ">=2.2" },
+    { name = "onnxruntime", specifier = ">=1.22" },
+    { name = "pillow", specifier = ">=13" },
+    { name = "python-multipart", specifier = ">=0.0.20" },
+    { name = "reluai-core", editable = "packages/platform-core" },
+    { name = "reluai-datasets", editable = "packages/datasets" },
+]
+
+[package.metadata.requires-dev]
+quantize = [{ name = "onnx", specifier = ">=1.17" }]
+
+[[package]]
 name = "reluai-inference"
 version = "0.1.0"
 source = { editable = "packages/inference" }
@@ -2212,6 +2248,7 @@ dependencies = [
     { name = "reluai-csv-analyst" },
     { name = "reluai-datasets" },
     { name = "reluai-document-intelligence" },
+    { name = "reluai-edge-benchmark" },
     { name = "reluai-inference" },
     { name = "reluai-pipeline" },
     { name = "reluai-retrieval" },
@@ -2238,6 +2275,7 @@ requires-dist = [
     { name = "reluai-csv-analyst", editable = "projects/csv-analyst" },
     { name = "reluai-datasets", editable = "packages/datasets" },
     { name = "reluai-document-intelligence", editable = "projects/document-intelligence" },
+    { name = "reluai-edge-benchmark", editable = "projects/edge-benchmark" },
     { name = "reluai-inference", editable = "packages/inference" },
     { name = "reluai-pipeline", editable = "projects/pipeline-observatory" },
     { name = "reluai-retrieval", editable = "packages/retrieval" },

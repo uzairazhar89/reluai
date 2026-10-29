@@ -1,0 +1,74 @@
+[
+  {
+    "name": "000000464786.jpg",
+    "url": "/api/bench/samples/000000464786.jpg",
+    "width": 640,
+    "height": 428,
+    "licence": "CC BY 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+    "source_url": "https://farm3.staticflickr.com/2463/3824077883_b53d4d7506_z.jpg"
+  },
+  {
+    "name": "000000050844.jpg",
+    "url": "/api/bench/samples/000000050844.jpg",
+    "width": 334,
+    "height": 500,
+    "licence": "CC BY 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+    "source_url": "https://farm3.staticflickr.com/2674/3904379072_e7e9125836_z.jpg"
+  },
+  {
+    "name": "000000375015.jpg",
+    "url": "/api/bench/samples/000000375015.jpg",
+    "width": 640,
+    "height": 404,
+    "licence": "CC BY 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+    "source_url": "https://farm9.staticflickr.com/8043/8137199999_ab9bacf07c_z.jpg"
+  },
+  {
+    "name": "000000418961.jpg",
+    "url": "/api/bench/samples/000000418961.jpg",
+    "width": 640,
+    "height": 427,
+    "licence": "CC BY-SA 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "source_url": "https://farm3.staticflickr.com/2313/5747810152_504480afe6_z.jpg"
+  },
+  {
+    "name": "000000347456.jpg",
+    "url": "/api/bench/samples/000000347456.jpg",
+    "width": 640,
+    "height": 309,
+    "licence": "CC BY 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+    "source_url": "https://farm6.staticflickr.com/5308/5885294408_015bb70d70_z.jpg"
+  },
+  {
+    "name": "000000039769.jpg",
+    "url": "/api/bench/samples/000000039769.jpg",
+    "width": 640,
+    "height": 480,
+    "licence": "CC BY-SA 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "source_url": "https://farm1.staticflickr.com/60/210383891_f91a89fd5e_z.jpg"
+  },
+  {
+    "name": "000000558421.jpg",
+    "url": "/api/bench/samples/000000558421.jpg",
+    "width": 640,
+    "height": 427,
+    "licence": "CC BY 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+    "source_url": "https://farm3.staticflickr.com/2889/9008706940_5f20f0cb94_z.jpg"
+  },
+  {
+    "name": "000000567432.jpg",
+    "url": "/api/bench/samples/000000567432.jpg",
+    "width": 640,
+    "height": 424,
+    "licence": "CC BY-SA 2.0",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "source_url": "https://farm6.staticflickr.com/5045/5314595462_5435cc69b5_z.jpg"
+  }
+]

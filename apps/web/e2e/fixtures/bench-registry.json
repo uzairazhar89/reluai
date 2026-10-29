@@ -1,0 +1,191 @@
+{
+  "models": [
+    {
+      "id": "mobilenetv3-small",
+      "title": "MobileNetV3-Small",
+      "summary": "A network designed for phones: depthwise-separable convolutions, squeeze-and-excitation blocks and hard-swish activations, 2.5 million parameters.",
+      "params_millions": 2.54,
+      "input_size": 224,
+      "crop_pct": 0.875,
+      "published_top1": 67.636,
+      "published_top5": 87.638,
+      "paper": "Howard et al. (2019), Searching for MobileNetV3. ICCV.",
+      "licence": "Apache 2.0",
+      "homepage": "https://huggingface.co/timm/mobilenetv3_small_100.lamb_in1k",
+      "weights_url": "https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/mobilenetv3_small_100_lamb-266a294c.pth",
+      "files": {
+        "pytorch-fp32": {
+          "bytes": 10256237,
+          "sha256": "266a294cbf3d119000a760bf5664a4d80a9674d0616b5cc0836b093d20c38249"
+        },
+        "onnx-fp32": {
+          "bytes": 10430254,
+          "sha256": "8578fd34ab48356edbb15f4167dab184ca4e8ee9dc8918808f75bc0525da0683"
+        },
+        "onnx-int8": {
+          "bytes": 3401076,
+          "sha256": "6ec38fd3adeca976b211cfce93bbf6174d68fa9fb9e065112a78105be7d785a2"
+        }
+      },
+      "quantisation": {
+        "format": "QDQ",
+        "weights": "int8, per channel",
+        "activations": "uint8, per tensor",
+        "calibration_method": "MinMax",
+        "calibration_photos": 128,
+        "confident_photos": 35,
+        "confident_threshold": 0.5,
+        "target_agreement": 99.0,
+        "all_layers": { "agreement": 0.0, "confident_agreement": 0.0, "kl": 3.98906 },
+        "kept_fp32": [
+          { "node": "node_Conv_509", "op": "Conv", "kl_when_alone": 4.34 },
+          { "node": "Mul_2", "op": "Mul", "kl_when_alone": 4.32909 },
+          { "node": "node_Conv_507", "op": "Conv", "kl_when_alone": 4.32598 },
+          { "node": "node_mul_143", "op": "Mul", "kl_when_alone": 1.48983 },
+          { "node": "node_Conv_513", "op": "Conv", "kl_when_alone": 0.48782 },
+          { "node": "Mul_41", "op": "Mul", "kl_when_alone": 0.47594 },
+          { "node": "Mul_52", "op": "Mul", "kl_when_alone": 0.40794 },
+          { "node": "node_Conv_537", "op": "Conv", "kl_when_alone": 0.3758 },
+          { "node": "Mul_93", "op": "Mul", "kl_when_alone": 0.32716 },
+          { "node": "Mul_66", "op": "Mul", "kl_when_alone": 0.3221 },
+          { "node": "node_mul_727", "op": "Mul", "kl_when_alone": 0.31516 },
+          { "node": "node_Conv_543", "op": "Conv", "kl_when_alone": 0.30799 },
+          { "node": "node_Conv_557", "op": "Conv", "kl_when_alone": 0.29901 },
+          { "node": "node_Conv_539", "op": "Conv", "kl_when_alone": 0.28383 },
+          { "node": "Mul_55", "op": "Mul", "kl_when_alone": 0.27892 },
+          { "node": "node_Conv_545", "op": "Conv", "kl_when_alone": 0.27485 },
+          { "node": "node_Conv_515", "op": "Conv", "kl_when_alone": 0.2646 },
+          { "node": "node_Conv_533", "op": "Conv", "kl_when_alone": 0.25311 },
+          { "node": "node_Conv_569", "op": "Conv", "kl_when_alone": 0.22161 },
+          { "node": "Mul_38", "op": "Mul", "kl_when_alone": 0.17832 },
+          { "node": "node_Conv_531", "op": "Conv", "kl_when_alone": 0.15693 },
+          { "node": "node_Conv_555", "op": "Conv", "kl_when_alone": 0.10358 },
+          { "node": "node_mul_991", "op": "Mul", "kl_when_alone": 0.09377 },
+          { "node": "Mul_106", "op": "Mul", "kl_when_alone": 0.06824 },
+          { "node": "node_Conv_563", "op": "Conv", "kl_when_alone": 0.067 },
+          { "node": "node_Conv_527", "op": "Conv", "kl_when_alone": 0.06308 },
+          { "node": "node_mul_2307", "op": "Mul", "kl_when_alone": 0.06169 },
+          { "node": "Mul_120", "op": "Mul", "kl_when_alone": 0.05776 },
+          { "node": "node_Conv_567", "op": "Conv", "kl_when_alone": 0.05063 },
+          { "node": "Mul_123", "op": "Mul", "kl_when_alone": 0.04948 },
+          { "node": "Mul_82", "op": "Mul", "kl_when_alone": 0.04743 },
+          { "node": "node_mul_1517", "op": "Mul", "kl_when_alone": 0.04633 },
+          { "node": "Mul_25", "op": "Mul", "kl_when_alone": 0.03895 },
+          { "node": "Mul_79", "op": "Mul", "kl_when_alone": 0.03802 },
+          { "node": "node_Conv_561", "op": "Conv", "kl_when_alone": 0.03423 },
+          { "node": "node_Conv_525", "op": "Conv", "kl_when_alone": 0.03336 },
+          { "node": "node_Conv_511", "op": "Conv", "kl_when_alone": 0.03251 },
+          { "node": "Mul_28", "op": "Mul", "kl_when_alone": 0.03118 },
+          { "node": "Mul_69", "op": "Mul", "kl_when_alone": 0.02698 },
+          { "node": "Mul_96", "op": "Mul", "kl_when_alone": 0.02309 },
+          { "node": "node_Conv_551", "op": "Conv", "kl_when_alone": 0.02304 },
+          { "node": "node_mul_1255", "op": "Mul", "kl_when_alone": 0.02283 },
+          { "node": "Mul_109", "op": "Mul", "kl_when_alone": 0.01967 },
+          { "node": "node_mul_2043", "op": "Mul", "kl_when_alone": 0.01717 },
+          { "node": "node_Conv_519", "op": "Conv", "kl_when_alone": 0.01652 },
+          { "node": "node_Conv_549", "op": "Conv", "kl_when_alone": 0.01077 },
+          { "node": "node_Conv_523", "op": "Conv", "kl_when_alone": 0.00761 },
+          { "node": "node_Conv_517", "op": "Conv", "kl_when_alone": 0.00707 }
+        ],
+        "final": { "agreement": 85.16, "confident_agreement": 100.0, "kl": 0.08071 },
+        "candidates": 140,
+        "steps": [
+          { "kept_fp32": 1, "agreement": 0.0, "confident_agreement": 0.0, "kl": 3.8951 },
+          { "kept_fp32": 2, "agreement": 0.0, "confident_agreement": 0.0, "kl": 3.91314 },
+          { "kept_fp32": 3, "agreement": 4.69, "confident_agreement": 0.0, "kl": 3.07477 },
+          { "kept_fp32": 4, "agreement": 13.28, "confident_agreement": 22.86, "kl": 2.49919 },
+          { "kept_fp32": 6, "agreement": 8.59, "confident_agreement": 8.57, "kl": 2.56878 },
+          { "kept_fp32": 8, "agreement": 7.03, "confident_agreement": 8.57, "kl": 2.53836 },
+          { "kept_fp32": 12, "agreement": 14.06, "confident_agreement": 22.86, "kl": 2.26534 },
+          { "kept_fp32": 16, "agreement": 30.47, "confident_agreement": 45.71, "kl": 1.4822 },
+          { "kept_fp32": 24, "agreement": 32.81, "confident_agreement": 57.14, "kl": 1.19787 },
+          { "kept_fp32": 32, "agreement": 0.0, "confident_agreement": 0.0, "kl": 4.2811 },
+          { "kept_fp32": 48, "agreement": 85.16, "confident_agreement": 100.0, "kl": 0.08071 }
+        ]
+      }
+    },
+    {
+      "id": "resnet18",
+      "title": "ResNet-18",
+      "summary": "A classic residual network built from plain 3×3 convolutions, 11.7 million parameters; trained with the 2021 'ResNet strikes back' recipe.",
+      "params_millions": 11.69,
+      "input_size": 224,
+      "crop_pct": 0.95,
+      "published_top1": 71.504,
+      "published_top5": 90.086,
+      "paper": "He et al. (2016), Deep Residual Learning for Image Recognition. CVPR; Wightman et al. (2021), ResNet strikes back.",
+      "licence": "Apache 2.0",
+      "homepage": "https://huggingface.co/timm/resnet18.a1_in1k",
+      "weights_url": "https://github.com/huggingface/pytorch-image-models/releases/download/v0.1-rsb-weights/resnet18_a1_0-d63eafa0.pth",
+      "files": {
+        "pytorch-fp32": {
+          "bytes": 46812648,
+          "sha256": "d63eafa07a6e32a39d328e364f8c9f89d671444ecc7f02aa0f7eb8882af3dd29"
+        },
+        "onnx-fp32": {
+          "bytes": 46827634,
+          "sha256": "2c82bcd6f5cd513df8c15ac31a5fc34bd6a37cfa3f6cad630814dce681f23541"
+        },
+        "onnx-int8": {
+          "bytes": 11870458,
+          "sha256": "2bea365a7120f36852c92a477050e063f93c39f2109fd640d67846d9773343fc"
+        }
+      },
+      "quantisation": {
+        "format": "QDQ",
+        "weights": "int8, per channel",
+        "activations": "uint8, per tensor",
+        "calibration_method": "MinMax",
+        "calibration_photos": 128,
+        "confident_photos": 56,
+        "confident_threshold": 0.5,
+        "target_agreement": 99.0,
+        "all_layers": { "agreement": 83.59, "confident_agreement": 100.0, "kl": 0.0422 },
+        "kept_fp32": [],
+        "final": { "agreement": 83.59, "confident_agreement": 100.0, "kl": 0.0422 },
+        "candidates": null,
+        "steps": []
+      }
+    }
+  ],
+  "variants": [
+    {
+      "id": "pytorch-fp32",
+      "title": "PyTorch FP32",
+      "runtime": "pytorch",
+      "precision": "fp32",
+      "summary": "The trained model in PyTorch, eager mode: the usual starting point."
+    },
+    {
+      "id": "onnx-fp32",
+      "title": "ONNX Runtime FP32",
+      "runtime": "onnxruntime",
+      "precision": "fp32",
+      "summary": "Exported to ONNX; the runtime fuses and reorders operations. Same weights."
+    },
+    {
+      "id": "onnx-int8",
+      "title": "ONNX Runtime INT8",
+      "runtime": "onnxruntime",
+      "precision": "int8",
+      "summary": "Weights and activations stored and computed as 8-bit integers, calibrated on photos."
+    }
+  ],
+  "tools": {
+    "onnxruntime": "1.31.0",
+    "torch": "2.14.1",
+    "timm": "1.0.30",
+    "opset": 18,
+    "exporter": "torch.onnx.export(dynamo=True)",
+    "onnx": "1.23.2"
+  },
+  "quantisation": {
+    "format": "QDQ",
+    "weights": "int8, per channel",
+    "activations": "uint8, per tensor",
+    "calibration_method": "MinMax",
+    "calibration_photos": 128
+  },
+  "photos": { "calibration": 128, "agreement": 200, "samples": 8, "bundle": "coco-cc-subset-v1" },
+  "published_accuracy_source": "https://github.com/huggingface/pytorch-image-models/blob/af97f99efef62bd9bd7eaa908fffe5b7a2d98e2c/results/results-imagenet.csv"
+}

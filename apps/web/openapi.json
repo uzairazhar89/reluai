@@ -1342,6 +1342,270 @@
           }
         }
       }
+    },
+    "/api/bench/registry": {
+      "get": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Get Registry",
+        "description": "The models and variants, with file sizes, hashes and how they were built.",
+        "operationId": "get_registry_api_bench_registry_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchRegistryOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/runs/latest": {
+      "get": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Get Latest",
+        "description": "The most recent benchmark run on this server, if any.",
+        "operationId": "get_latest_api_bench_runs_latest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BenchRunOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Latest Api Bench Runs Latest Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/runs": {
+      "get": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Get Runs",
+        "description": "Recent runs, newest first, with the median latencies at the highest thread count.",
+        "operationId": "get_runs_api_bench_runs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 60,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenchRunSummaryOut"
+                  },
+                  "title": "Response Get Runs Api Bench Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/samples": {
+      "get": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Get Samples",
+        "description": "Photos offered in \"Try it\", with their licence and source.",
+        "operationId": "get_samples_api_bench_samples_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BenchSampleOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Samples Api Bench Samples Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/samples/{name}": {
+      "get": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Get Sample",
+        "operationId": "get_sample_api_bench_samples__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w-]{1,40}\\.jpg$",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/jpeg": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/try/samples/{name}": {
+      "post": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Post Try Sample",
+        "description": "Classify a sample photo with every variant of a model, now, on this server.",
+        "operationId": "post_try_sample_api_bench_try_samples__name__post",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w-]{1,40}\\.jpg$",
+              "title": "Name"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,40}$",
+              "default": "mobilenetv3-small",
+              "title": "Model"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchTryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bench/try": {
+      "post": {
+        "tags": [
+          "bench"
+        ],
+        "summary": "Post Try",
+        "description": "Classify your own photo with every variant of a model. Nothing is stored: the photo\nis decoded and re-encoded in an isolated process, classified, and discarded.",
+        "operationId": "post_try_api_bench_try_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_try_api_bench_try_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchTryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1781,6 +2045,1159 @@
           "latency_ms"
         ],
         "title": "AttemptOut"
+      },
+      "BenchAgreementOut": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "variant": {
+            "type": "string",
+            "title": "Variant"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "photos": {
+            "type": "integer",
+            "title": "Photos"
+          },
+          "top1_agreement": {
+            "type": "number",
+            "title": "Top1 Agreement",
+            "description": "% of photos with the same top class"
+          },
+          "confident_photos": {
+            "type": "integer",
+            "title": "Confident Photos",
+            "description": "Photos where PyTorch's top class is \u2265 50%"
+          },
+          "top1_agreement_confident": {
+            "type": "number",
+            "title": "Top1 Agreement Confident",
+            "description": "Same top class on those photos, %"
+          },
+          "top5_overlap": {
+            "type": "number",
+            "title": "Top5 Overlap",
+            "description": "Mean share of the top five classes in common, %"
+          },
+          "reference_top1_in_top5": {
+            "type": "number",
+            "title": "Reference Top1 In Top5"
+          },
+          "max_probability_difference": {
+            "type": "number",
+            "title": "Max Probability Difference"
+          },
+          "mean_top1_probability_difference": {
+            "type": "number",
+            "title": "Mean Top1 Probability Difference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "variant",
+          "reference",
+          "photos",
+          "top1_agreement",
+          "confident_photos",
+          "top1_agreement_confident",
+          "top5_overlap",
+          "reference_top1_in_top5",
+          "max_probability_difference",
+          "mean_top1_probability_difference"
+        ],
+        "title": "BenchAgreementOut"
+      },
+      "BenchCpuOut": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor"
+          },
+          "mhz": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mhz"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "hypervisor": {
+            "type": "boolean",
+            "title": "Hypervisor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "vendor",
+          "mhz",
+          "flags",
+          "hypervisor"
+        ],
+        "title": "BenchCpuOut"
+      },
+      "BenchFileOut": {
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "title": "Bytes"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bytes",
+          "sha256"
+        ],
+        "title": "BenchFileOut"
+      },
+      "BenchHardwareMemoryOut": {
+        "properties": {
+          "total_mb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Mb"
+          },
+          "container_limit_mb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Container Limit Mb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_mb",
+          "container_limit_mb"
+        ],
+        "title": "BenchHardwareMemoryOut"
+      },
+      "BenchHardwareOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "cpu": {
+            "$ref": "#/components/schemas/BenchCpuOut"
+          },
+          "logical_cpus": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logical Cpus"
+          },
+          "usable_cpus": {
+            "type": "integer",
+            "title": "Usable Cpus"
+          },
+          "cpu_quota": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpu Quota"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/BenchHardwareMemoryOut"
+          },
+          "os": {
+            "type": "string",
+            "title": "Os"
+          },
+          "kernel": {
+            "type": "string",
+            "title": "Kernel"
+          },
+          "machine": {
+            "type": "string",
+            "title": "Machine"
+          },
+          "python": {
+            "type": "string",
+            "title": "Python"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cpu",
+          "logical_cpus",
+          "usable_cpus",
+          "cpu_quota",
+          "memory",
+          "os",
+          "kernel",
+          "machine",
+          "python",
+          "versions"
+        ],
+        "title": "BenchHardwareOut"
+      },
+      "BenchHeadlineOut": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "variant": {
+            "type": "string",
+            "title": "Variant"
+          },
+          "threads": {
+            "type": "integer",
+            "title": "Threads"
+          },
+          "inference_p50_ms": {
+            "type": "number",
+            "title": "Inference P50 Ms"
+          },
+          "total_p50_ms": {
+            "type": "number",
+            "title": "Total P50 Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "variant",
+          "threads",
+          "inference_p50_ms",
+          "total_p50_ms"
+        ],
+        "title": "BenchHeadlineOut"
+      },
+      "BenchKeptLayerOut": {
+        "properties": {
+          "node": {
+            "type": "string",
+            "title": "Node"
+          },
+          "op": {
+            "type": "string",
+            "title": "Op"
+          },
+          "kl_when_alone": {
+            "type": "number",
+            "title": "Kl When Alone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node",
+          "op",
+          "kl_when_alone"
+        ],
+        "title": "BenchKeptLayerOut"
+      },
+      "BenchLatencyOut": {
+        "properties": {
+          "total": {
+            "$ref": "#/components/schemas/BenchLatencyStats"
+          },
+          "preprocess": {
+            "$ref": "#/components/schemas/BenchLatencyStats"
+          },
+          "inference": {
+            "$ref": "#/components/schemas/BenchLatencyStats"
+          },
+          "postprocess": {
+            "$ref": "#/components/schemas/BenchLatencyStats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "preprocess",
+          "inference",
+          "postprocess"
+        ],
+        "title": "BenchLatencyOut"
+      },
+      "BenchLatencyStats": {
+        "properties": {
+          "p50": {
+            "type": "number",
+            "title": "P50"
+          },
+          "p95": {
+            "type": "number",
+            "title": "P95"
+          },
+          "mean": {
+            "type": "number",
+            "title": "Mean"
+          },
+          "min": {
+            "type": "number",
+            "title": "Min"
+          }
+        },
+        "type": "object",
+        "required": [
+          "p50",
+          "p95",
+          "mean",
+          "min"
+        ],
+        "title": "BenchLatencyStats"
+      },
+      "BenchMemoryOut": {
+        "properties": {
+          "start": {
+            "type": "number",
+            "title": "Start"
+          },
+          "after_import": {
+            "type": "number",
+            "title": "After Import"
+          },
+          "after_load": {
+            "type": "number",
+            "title": "After Load"
+          },
+          "end": {
+            "type": "number",
+            "title": "End"
+          },
+          "peak": {
+            "type": "number",
+            "title": "Peak"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "after_import",
+          "after_load",
+          "end",
+          "peak"
+        ],
+        "title": "BenchMemoryOut"
+      },
+      "BenchModelOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "params_millions": {
+            "type": "number",
+            "title": "Params Millions"
+          },
+          "input_size": {
+            "type": "integer",
+            "title": "Input Size"
+          },
+          "crop_pct": {
+            "type": "number",
+            "title": "Crop Pct"
+          },
+          "published_top1": {
+            "type": "number",
+            "title": "Published Top1"
+          },
+          "published_top5": {
+            "type": "number",
+            "title": "Published Top5"
+          },
+          "paper": {
+            "type": "string",
+            "title": "Paper"
+          },
+          "licence": {
+            "type": "string",
+            "title": "Licence"
+          },
+          "homepage": {
+            "type": "string",
+            "title": "Homepage"
+          },
+          "weights_url": {
+            "type": "string",
+            "title": "Weights Url"
+          },
+          "files": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BenchFileOut"
+            },
+            "type": "object",
+            "title": "Files"
+          },
+          "quantisation": {
+            "$ref": "#/components/schemas/BenchQuantisationOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "params_millions",
+          "input_size",
+          "crop_pct",
+          "published_top1",
+          "published_top5",
+          "paper",
+          "licence",
+          "homepage",
+          "weights_url",
+          "files",
+          "quantisation"
+        ],
+        "title": "BenchModelOut"
+      },
+      "BenchPhaseOut": {
+        "properties": {
+          "preprocess": {
+            "type": "number",
+            "title": "Preprocess"
+          },
+          "inference": {
+            "type": "number",
+            "title": "Inference"
+          },
+          "postprocess": {
+            "type": "number",
+            "title": "Postprocess"
+          }
+        },
+        "type": "object",
+        "required": [
+          "preprocess",
+          "inference",
+          "postprocess"
+        ],
+        "title": "BenchPhaseOut"
+      },
+      "BenchPredictionOut": {
+        "properties": {
+          "index": {
+            "type": "integer",
+            "title": "Index"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "probability": {
+            "type": "number",
+            "title": "Probability"
+          }
+        },
+        "type": "object",
+        "required": [
+          "index",
+          "label",
+          "probability"
+        ],
+        "title": "BenchPredictionOut"
+      },
+      "BenchQuantStepOut": {
+        "properties": {
+          "kept_fp32": {
+            "type": "integer",
+            "title": "Kept Fp32"
+          },
+          "agreement": {
+            "type": "number",
+            "title": "Agreement"
+          },
+          "confident_agreement": {
+            "type": "number",
+            "title": "Confident Agreement"
+          },
+          "kl": {
+            "type": "number",
+            "title": "Kl"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kept_fp32",
+          "agreement",
+          "confident_agreement",
+          "kl"
+        ],
+        "title": "BenchQuantStepOut"
+      },
+      "BenchQuantisationOut": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "title": "Format"
+          },
+          "weights": {
+            "type": "string",
+            "title": "Weights"
+          },
+          "activations": {
+            "type": "string",
+            "title": "Activations"
+          },
+          "calibration_method": {
+            "type": "string",
+            "title": "Calibration Method"
+          },
+          "calibration_photos": {
+            "type": "integer",
+            "title": "Calibration Photos"
+          },
+          "confident_photos": {
+            "type": "integer",
+            "title": "Confident Photos"
+          },
+          "confident_threshold": {
+            "type": "number",
+            "title": "Confident Threshold"
+          },
+          "target_agreement": {
+            "type": "number",
+            "title": "Target Agreement"
+          },
+          "all_layers": {
+            "$ref": "#/components/schemas/BenchScoreOut"
+          },
+          "kept_fp32": {
+            "items": {
+              "$ref": "#/components/schemas/BenchKeptLayerOut"
+            },
+            "type": "array",
+            "title": "Kept Fp32"
+          },
+          "final": {
+            "$ref": "#/components/schemas/BenchScoreOut"
+          },
+          "candidates": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidates"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/BenchQuantStepOut"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "format",
+          "weights",
+          "activations",
+          "calibration_method",
+          "calibration_photos",
+          "confident_photos",
+          "confident_threshold",
+          "target_agreement",
+          "all_layers",
+          "kept_fp32",
+          "final"
+        ],
+        "title": "BenchQuantisationOut"
+      },
+      "BenchRegistryOut": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/BenchModelOut"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/BenchVariantOut"
+            },
+            "type": "array",
+            "title": "Variants"
+          },
+          "tools": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Tools"
+          },
+          "quantisation": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Quantisation"
+          },
+          "photos": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Photos"
+          },
+          "published_accuracy_source": {
+            "type": "string",
+            "title": "Published Accuracy Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models",
+          "variants",
+          "tools",
+          "quantisation",
+          "photos",
+          "published_accuracy_source"
+        ],
+        "title": "BenchRegistryOut"
+      },
+      "BenchResultOut": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "variant": {
+            "type": "string",
+            "title": "Variant"
+          },
+          "threads": {
+            "type": "integer",
+            "title": "Threads"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "import_ms": {
+            "type": "number",
+            "title": "Import Ms"
+          },
+          "load_ms": {
+            "type": "number",
+            "title": "Load Ms"
+          },
+          "latency_ms": {
+            "$ref": "#/components/schemas/BenchLatencyOut"
+          },
+          "iterations": {
+            "type": "integer",
+            "title": "Iterations"
+          },
+          "warmup": {
+            "type": "integer",
+            "title": "Warmup"
+          },
+          "cpu_percent": {
+            "type": "number",
+            "title": "Cpu Percent",
+            "description": "CPU time over wall time while timing; 200 = 2 cores"
+          },
+          "throughput": {
+            "$ref": "#/components/schemas/BenchThroughputOut"
+          },
+          "memory_mb": {
+            "$ref": "#/components/schemas/BenchMemoryOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "variant",
+          "threads",
+          "size_bytes",
+          "import_ms",
+          "load_ms",
+          "latency_ms",
+          "iterations",
+          "warmup",
+          "cpu_percent",
+          "throughput",
+          "memory_mb"
+        ],
+        "title": "BenchResultOut"
+      },
+      "BenchRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "title": "Duration Seconds"
+          },
+          "hardware": {
+            "$ref": "#/components/schemas/BenchHardwareOut"
+          },
+          "protocol": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Protocol"
+          },
+          "build": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Build"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BenchResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "agreement": {
+            "items": {
+              "$ref": "#/components/schemas/BenchAgreementOut"
+            },
+            "type": "array",
+            "title": "Agreement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ran_at",
+          "label",
+          "duration_seconds",
+          "hardware",
+          "protocol",
+          "build",
+          "results",
+          "agreement"
+        ],
+        "title": "BenchRunOut"
+      },
+      "BenchRunSummaryOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ran_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ran At"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "hardware_id": {
+            "type": "string",
+            "title": "Hardware Id"
+          },
+          "cpu_model": {
+            "type": "string",
+            "title": "Cpu Model"
+          },
+          "headline": {
+            "items": {
+              "$ref": "#/components/schemas/BenchHeadlineOut"
+            },
+            "type": "array",
+            "title": "Headline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ran_at",
+          "label",
+          "hardware_id",
+          "cpu_model",
+          "headline"
+        ],
+        "title": "BenchRunSummaryOut"
+      },
+      "BenchSampleOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "licence": {
+            "type": "string",
+            "title": "Licence"
+          },
+          "licence_url": {
+            "type": "string",
+            "title": "Licence Url"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "url",
+          "width",
+          "height",
+          "licence",
+          "licence_url",
+          "source_url"
+        ],
+        "title": "BenchSampleOut"
+      },
+      "BenchScoreOut": {
+        "properties": {
+          "agreement": {
+            "type": "number",
+            "title": "Agreement",
+            "description": "% of calibration photos with the 32-bit top class"
+          },
+          "confident_agreement": {
+            "type": "number",
+            "title": "Confident Agreement",
+            "description": "The same, on photos it is \u2265 50% sure of"
+          },
+          "kl": {
+            "type": "number",
+            "title": "Kl",
+            "description": "Mean KL divergence from the 32-bit probabilities"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agreement",
+          "confident_agreement",
+          "kl"
+        ],
+        "title": "BenchScoreOut"
+      },
+      "BenchThroughputOut": {
+        "properties": {
+          "batch": {
+            "type": "integer",
+            "title": "Batch"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "images_per_second": {
+            "type": "number",
+            "title": "Images Per Second"
+          }
+        },
+        "type": "object",
+        "required": [
+          "batch",
+          "runs",
+          "images_per_second"
+        ],
+        "title": "BenchThroughputOut"
+      },
+      "BenchTryOut": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "sample"
+            ],
+            "title": "Source"
+          },
+          "sample": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample"
+          },
+          "photo": {
+            "$ref": "#/components/schemas/BenchTryPhotoOut"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BenchTryVariantOut"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "import_ms": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Import Ms",
+            "description": "Starting each runtime in a fresh process"
+          },
+          "wait_ms": {
+            "type": "integer",
+            "title": "Wait Ms"
+          },
+          "total_ms": {
+            "type": "integer",
+            "title": "Total Ms"
+          },
+          "hardware_id": {
+            "type": "string",
+            "title": "Hardware Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "source",
+          "sample",
+          "photo",
+          "results",
+          "import_ms",
+          "wait_ms",
+          "total_ms",
+          "hardware_id"
+        ],
+        "title": "BenchTryOut"
+      },
+      "BenchTryPhotoOut": {
+        "properties": {
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          }
+        },
+        "type": "object",
+        "required": [
+          "width",
+          "height"
+        ],
+        "title": "BenchTryPhotoOut"
+      },
+      "BenchTryVariantOut": {
+        "properties": {
+          "variant": {
+            "type": "string",
+            "title": "Variant"
+          },
+          "load_ms": {
+            "type": "number",
+            "title": "Load Ms"
+          },
+          "first": {
+            "$ref": "#/components/schemas/BenchPhaseOut",
+            "description": "First call after loading (includes lazy set-up)"
+          },
+          "warm": {
+            "$ref": "#/components/schemas/BenchPhaseOut",
+            "description": "Median of the following calls"
+          },
+          "top5": {
+            "items": {
+              "$ref": "#/components/schemas/BenchPredictionOut"
+            },
+            "type": "array",
+            "title": "Top5"
+          },
+          "same_top1_as_reference": {
+            "type": "boolean",
+            "title": "Same Top1 As Reference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "variant",
+          "load_ms",
+          "first",
+          "warm",
+          "top5",
+          "same_top1_as_reference"
+        ],
+        "title": "BenchTryVariantOut"
+      },
+      "BenchVariantOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "runtime": {
+            "type": "string",
+            "title": "Runtime"
+          },
+          "precision": {
+            "type": "string",
+            "title": "Precision"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "runtime",
+          "precision",
+          "summary"
+        ],
+        "title": "BenchVariantOut"
+      },
+      "Body_post_try_api_bench_try_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "JPEG, PNG or WebP photo, up to 5 MB"
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{1,40}$",
+            "title": "Model",
+            "default": "mobilenetv3-small"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_post_try_api_bench_try_post"
       },
       "Body_post_upload_api_csv_uploads_post": {
         "properties": {

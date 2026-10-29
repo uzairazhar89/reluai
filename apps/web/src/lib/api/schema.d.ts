@@ -675,6 +675,144 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/bench/registry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Registry
+         * @description The models and variants, with file sizes, hashes and how they were built.
+         */
+        get: operations["get_registry_api_bench_registry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/runs/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Latest
+         * @description The most recent benchmark run on this server, if any.
+         */
+        get: operations["get_latest_api_bench_runs_latest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Runs
+         * @description Recent runs, newest first, with the median latencies at the highest thread count.
+         */
+        get: operations["get_runs_api_bench_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Samples
+         * @description Photos offered in "Try it", with their licence and source.
+         */
+        get: operations["get_samples_api_bench_samples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/samples/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sample */
+        get: operations["get_sample_api_bench_samples__name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/try/samples/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Try Sample
+         * @description Classify a sample photo with every variant of a model, now, on this server.
+         */
+        post: operations["post_try_sample_api_bench_try_samples__name__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bench/try": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Try
+         * @description Classify your own photo with every variant of a model. Nothing is stored: the photo
+         *     is decoded and re-encoded in an isolated process, classified, and discarded.
+         */
+        post: operations["post_try_api_bench_try_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -822,6 +960,457 @@ export interface components {
             outcome: string;
             /** Latency Ms */
             latency_ms: number;
+        };
+        /** BenchAgreementOut */
+        BenchAgreementOut: {
+            /** Model */
+            model: string;
+            /** Variant */
+            variant: string;
+            /** Reference */
+            reference: string;
+            /** Photos */
+            photos: number;
+            /**
+             * Top1 Agreement
+             * @description % of photos with the same top class
+             */
+            top1_agreement: number;
+            /**
+             * Confident Photos
+             * @description Photos where PyTorch's top class is ≥ 50%
+             */
+            confident_photos: number;
+            /**
+             * Top1 Agreement Confident
+             * @description Same top class on those photos, %
+             */
+            top1_agreement_confident: number;
+            /**
+             * Top5 Overlap
+             * @description Mean share of the top five classes in common, %
+             */
+            top5_overlap: number;
+            /** Reference Top1 In Top5 */
+            reference_top1_in_top5: number;
+            /** Max Probability Difference */
+            max_probability_difference: number;
+            /** Mean Top1 Probability Difference */
+            mean_top1_probability_difference: number;
+        };
+        /** BenchCpuOut */
+        BenchCpuOut: {
+            /** Model */
+            model: string;
+            /** Vendor */
+            vendor: string | null;
+            /** Mhz */
+            mhz: number | null;
+            /** Flags */
+            flags: string[];
+            /** Hypervisor */
+            hypervisor: boolean;
+        };
+        /** BenchFileOut */
+        BenchFileOut: {
+            /** Bytes */
+            bytes: number;
+            /** Sha256 */
+            sha256: string;
+        };
+        /** BenchHardwareMemoryOut */
+        BenchHardwareMemoryOut: {
+            /** Total Mb */
+            total_mb: number | null;
+            /** Container Limit Mb */
+            container_limit_mb: number | null;
+        };
+        /** BenchHardwareOut */
+        BenchHardwareOut: {
+            /** Id */
+            id: string;
+            cpu: components["schemas"]["BenchCpuOut"];
+            /** Logical Cpus */
+            logical_cpus: number | null;
+            /** Usable Cpus */
+            usable_cpus: number;
+            /** Cpu Quota */
+            cpu_quota: number | null;
+            memory: components["schemas"]["BenchHardwareMemoryOut"];
+            /** Os */
+            os: string;
+            /** Kernel */
+            kernel: string;
+            /** Machine */
+            machine: string;
+            /** Python */
+            python: string;
+            /** Versions */
+            versions: {
+                [key: string]: string;
+            };
+        };
+        /** BenchHeadlineOut */
+        BenchHeadlineOut: {
+            /** Model */
+            model: string;
+            /** Variant */
+            variant: string;
+            /** Threads */
+            threads: number;
+            /** Inference P50 Ms */
+            inference_p50_ms: number;
+            /** Total P50 Ms */
+            total_p50_ms: number;
+        };
+        /** BenchKeptLayerOut */
+        BenchKeptLayerOut: {
+            /** Node */
+            node: string;
+            /** Op */
+            op: string;
+            /** Kl When Alone */
+            kl_when_alone: number;
+        };
+        /** BenchLatencyOut */
+        BenchLatencyOut: {
+            total: components["schemas"]["BenchLatencyStats"];
+            preprocess: components["schemas"]["BenchLatencyStats"];
+            inference: components["schemas"]["BenchLatencyStats"];
+            postprocess: components["schemas"]["BenchLatencyStats"];
+        };
+        /** BenchLatencyStats */
+        BenchLatencyStats: {
+            /** P50 */
+            p50: number;
+            /** P95 */
+            p95: number;
+            /** Mean */
+            mean: number;
+            /** Min */
+            min: number;
+        };
+        /** BenchMemoryOut */
+        BenchMemoryOut: {
+            /** Start */
+            start: number;
+            /** After Import */
+            after_import: number;
+            /** After Load */
+            after_load: number;
+            /** End */
+            end: number;
+            /** Peak */
+            peak: number;
+        };
+        /** BenchModelOut */
+        BenchModelOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Params Millions */
+            params_millions: number;
+            /** Input Size */
+            input_size: number;
+            /** Crop Pct */
+            crop_pct: number;
+            /** Published Top1 */
+            published_top1: number;
+            /** Published Top5 */
+            published_top5: number;
+            /** Paper */
+            paper: string;
+            /** Licence */
+            licence: string;
+            /** Homepage */
+            homepage: string;
+            /** Weights Url */
+            weights_url: string;
+            /** Files */
+            files: {
+                [key: string]: components["schemas"]["BenchFileOut"];
+            };
+            quantisation: components["schemas"]["BenchQuantisationOut"];
+        };
+        /** BenchPhaseOut */
+        BenchPhaseOut: {
+            /** Preprocess */
+            preprocess: number;
+            /** Inference */
+            inference: number;
+            /** Postprocess */
+            postprocess: number;
+        };
+        /** BenchPredictionOut */
+        BenchPredictionOut: {
+            /** Index */
+            index: number;
+            /** Label */
+            label: string;
+            /** Probability */
+            probability: number;
+        };
+        /** BenchQuantStepOut */
+        BenchQuantStepOut: {
+            /** Kept Fp32 */
+            kept_fp32: number;
+            /** Agreement */
+            agreement: number;
+            /** Confident Agreement */
+            confident_agreement: number;
+            /** Kl */
+            kl: number;
+        };
+        /** BenchQuantisationOut */
+        BenchQuantisationOut: {
+            /** Format */
+            format: string;
+            /** Weights */
+            weights: string;
+            /** Activations */
+            activations: string;
+            /** Calibration Method */
+            calibration_method: string;
+            /** Calibration Photos */
+            calibration_photos: number;
+            /** Confident Photos */
+            confident_photos: number;
+            /** Confident Threshold */
+            confident_threshold: number;
+            /** Target Agreement */
+            target_agreement: number;
+            all_layers: components["schemas"]["BenchScoreOut"];
+            /** Kept Fp32 */
+            kept_fp32: components["schemas"]["BenchKeptLayerOut"][];
+            final: components["schemas"]["BenchScoreOut"];
+            /** Candidates */
+            candidates?: number | null;
+            /** Steps */
+            steps?: components["schemas"]["BenchQuantStepOut"][];
+        };
+        /** BenchRegistryOut */
+        BenchRegistryOut: {
+            /** Models */
+            models: components["schemas"]["BenchModelOut"][];
+            /** Variants */
+            variants: components["schemas"]["BenchVariantOut"][];
+            /** Tools */
+            tools: {
+                [key: string]: string | number;
+            };
+            /** Quantisation */
+            quantisation: {
+                [key: string]: string | number;
+            };
+            /** Photos */
+            photos: {
+                [key: string]: string | number;
+            };
+            /** Published Accuracy Source */
+            published_accuracy_source: string;
+        };
+        /** BenchResultOut */
+        BenchResultOut: {
+            /** Model */
+            model: string;
+            /** Variant */
+            variant: string;
+            /** Threads */
+            threads: number;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Import Ms */
+            import_ms: number;
+            /** Load Ms */
+            load_ms: number;
+            latency_ms: components["schemas"]["BenchLatencyOut"];
+            /** Iterations */
+            iterations: number;
+            /** Warmup */
+            warmup: number;
+            /**
+             * Cpu Percent
+             * @description CPU time over wall time while timing; 200 = 2 cores
+             */
+            cpu_percent: number;
+            throughput: components["schemas"]["BenchThroughputOut"];
+            memory_mb: components["schemas"]["BenchMemoryOut"];
+        };
+        /** BenchRunOut */
+        BenchRunOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Label */
+            label: string;
+            /** Duration Seconds */
+            duration_seconds: number;
+            hardware: components["schemas"]["BenchHardwareOut"];
+            /** Protocol */
+            protocol: {
+                [key: string]: unknown;
+            };
+            /** Build */
+            build: {
+                [key: string]: unknown;
+            };
+            /** Results */
+            results: components["schemas"]["BenchResultOut"][];
+            /** Agreement */
+            agreement: components["schemas"]["BenchAgreementOut"][];
+        };
+        /** BenchRunSummaryOut */
+        BenchRunSummaryOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Label */
+            label: string;
+            /** Hardware Id */
+            hardware_id: string;
+            /** Cpu Model */
+            cpu_model: string;
+            /** Headline */
+            headline: components["schemas"]["BenchHeadlineOut"][];
+        };
+        /** BenchSampleOut */
+        BenchSampleOut: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Licence */
+            licence: string;
+            /** Licence Url */
+            licence_url: string;
+            /** Source Url */
+            source_url: string;
+        };
+        /** BenchScoreOut */
+        BenchScoreOut: {
+            /**
+             * Agreement
+             * @description % of calibration photos with the 32-bit top class
+             */
+            agreement: number;
+            /**
+             * Confident Agreement
+             * @description The same, on photos it is ≥ 50% sure of
+             */
+            confident_agreement: number;
+            /**
+             * Kl
+             * @description Mean KL divergence from the 32-bit probabilities
+             */
+            kl: number;
+        };
+        /** BenchThroughputOut */
+        BenchThroughputOut: {
+            /** Batch */
+            batch: number;
+            /** Runs */
+            runs: number;
+            /** Images Per Second */
+            images_per_second: number;
+        };
+        /** BenchTryOut */
+        BenchTryOut: {
+            /** Model */
+            model: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "upload" | "sample";
+            /** Sample */
+            sample: string | null;
+            photo: components["schemas"]["BenchTryPhotoOut"];
+            /** Results */
+            results: components["schemas"]["BenchTryVariantOut"][];
+            /**
+             * Import Ms
+             * @description Starting each runtime in a fresh process
+             */
+            import_ms: {
+                [key: string]: number;
+            };
+            /** Wait Ms */
+            wait_ms: number;
+            /** Total Ms */
+            total_ms: number;
+            /** Hardware Id */
+            hardware_id: string;
+        };
+        /** BenchTryPhotoOut */
+        BenchTryPhotoOut: {
+            /** Format */
+            format?: string | null;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+        };
+        /** BenchTryVariantOut */
+        BenchTryVariantOut: {
+            /** Variant */
+            variant: string;
+            /** Load Ms */
+            load_ms: number;
+            /** @description First call after loading (includes lazy set-up) */
+            first: components["schemas"]["BenchPhaseOut"];
+            /** @description Median of the following calls */
+            warm: components["schemas"]["BenchPhaseOut"];
+            /** Top5 */
+            top5: components["schemas"]["BenchPredictionOut"][];
+            /** Same Top1 As Reference */
+            same_top1_as_reference: boolean;
+        };
+        /** BenchVariantOut */
+        BenchVariantOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Runtime */
+            runtime: string;
+            /** Precision */
+            precision: string;
+            /** Summary */
+            summary: string;
+        };
+        /** Body_post_try_api_bench_try_post */
+        Body_post_try_api_bench_try_post: {
+            /**
+             * File
+             * @description JPEG, PNG or WebP photo, up to 5 MB
+             */
+            file: string;
+            /**
+             * Model
+             * @default mobilenetv3-small
+             */
+            model: string;
         };
         /** Body_post_upload_api_csv_uploads_post */
         Body_post_upload_api_csv_uploads_post: {
@@ -3351,6 +3940,194 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_registry_api_bench_registry_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchRegistryOut"];
+                };
+            };
+        };
+    };
+    get_latest_api_bench_runs_latest_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchRunOut"] | null;
+                };
+            };
+        };
+    };
+    get_runs_api_bench_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchRunSummaryOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_samples_api_bench_samples_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchSampleOut"][];
+                };
+            };
+        };
+    };
+    get_sample_api_bench_samples__name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_try_sample_api_bench_try_samples__name__post: {
+        parameters: {
+            query?: {
+                model?: string;
+            };
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchTryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_try_api_bench_try_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_post_try_api_bench_try_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchTryOut"];
                 };
             };
             /** @description Validation Error */

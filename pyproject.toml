@@ -11,6 +11,7 @@ dependencies = [
   "reluai-csv-analyst",
   "reluai-datasets",
   "reluai-document-intelligence",
+  "reluai-edge-benchmark",
   "reluai-inference",
   "reluai-pipeline",
   "reluai-retrieval",
@@ -42,6 +43,7 @@ reluai-core = { workspace = true }
 reluai-csv-analyst = { workspace = true }
 reluai-datasets = { workspace = true }
 reluai-document-intelligence = { workspace = true }
+reluai-edge-benchmark = { workspace = true }
 reluai-inference = { workspace = true }
 reluai-pipeline = { workspace = true }
 reluai-retrieval = { workspace = true }
@@ -81,14 +83,17 @@ python_version = "3.12"
 strict = true
 warn_unreachable = true
 plugins = ["pydantic.mypy"]
-mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src"]
+mypy_path = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src", "projects/edge-benchmark/src"]
 explicit_package_bases = true
-files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src"]
+files = ["apps/api/src", "packages/platform-core/src", "packages/datasets/src", "packages/inference/src", "projects/pipeline-observatory/src", "projects/csv-analyst/src", "packages/retrieval/src", "projects/support-agent/src", "projects/document-intelligence/src", "projects/edge-benchmark/src"]
 exclude = ["(^|/)migrations/", "(^|/)node_modules/"]
 
 [[tool.mypy.overrides]]
 module = [
+  "onnx.*",
   "onnxruntime.*",
+  "timm.*",
+  "torch.*",
   "openpyxl.*",
   "procrastinate.*",
   "pypdfium2.*",
@@ -120,7 +125,7 @@ filterwarnings = ["error::DeprecationWarning:reluai_.*"]
 
 [tool.coverage.run]
 branch = true
-source = ["reluai_api", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_docs", "reluai_inference", "reluai_pipeline", "reluai_retrieval", "reluai_support"]
+source = ["reluai_api", "reluai_bench", "reluai_core", "reluai_csv", "reluai_datasets", "reluai_docs", "reluai_inference", "reluai_pipeline", "reluai_retrieval", "reluai_support"]
 
 [tool.coverage.report]
 show_missing = true

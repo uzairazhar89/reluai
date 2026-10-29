@@ -38,7 +38,8 @@ jobs:
         with:
           python-version: "3.13"
           enable-cache: true
-      - run: uv sync --frozen
+      # Every package with its dependency groups, so the quantisation tests (``onnx``) run too.
+      - run: uv sync --frozen --all-packages --all-groups
       - name: Denylist (retired brand must never reappear)
         run: uv run python scripts/check_denylist.py
       - run: uv run ruff check .

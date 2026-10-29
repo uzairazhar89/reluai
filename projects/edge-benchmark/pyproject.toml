@@ -1,0 +1,33 @@
+[project]
+name = "reluai-edge-benchmark"
+version = "0.1.0"
+description = "Edge AI Benchmark Lab: image classifiers run as PyTorch FP32, ONNX Runtime FP32 and ONNX Runtime INT8 on the server's CPU, each measured in its own isolated process and recorded with a hardware fingerprint"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "fastapi>=0.142",
+  "numpy>=2.2",
+  "onnxruntime>=1.22",
+  "pillow>=13",
+  "python-multipart>=0.0.20",
+  "reluai-core",
+  "reluai-datasets",
+]
+
+[dependency-groups]
+# Only for the image build: static 8-bit quantisation (reluai-bench build).
+quantize = ["onnx>=1.17"]
+
+[project.scripts]
+reluai-bench = "reluai_bench.cli:main"
+
+[tool.uv.sources]
+reluai-core = { workspace = true }
+reluai-datasets = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reluai_bench"]

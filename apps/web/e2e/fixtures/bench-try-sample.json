@@ -1,0 +1,54 @@
+{
+  "model": "mobilenetv3-small",
+  "source": "sample",
+  "sample": "000000050844.jpg",
+  "photo": { "format": "JPEG", "width": 334, "height": 500 },
+  "results": [
+    {
+      "variant": "pytorch-fp32",
+      "load_ms": 54.0,
+      "first": { "preprocess": 9.64, "inference": 16.96, "postprocess": 0.17 },
+      "warm": { "preprocess": 4.87, "inference": 6.29, "postprocess": 0.1 },
+      "top5": [
+        { "index": 850, "label": "teddy", "probability": 0.74319 },
+        { "index": 865, "label": "toyshop", "probability": 0.12309 },
+        { "index": 496, "label": "Christmas stocking", "probability": 0.02173 },
+        { "index": 719, "label": "piggy bank", "probability": 0.0063 },
+        { "index": 767, "label": "rubber eraser", "probability": 0.00473 }
+      ],
+      "same_top1_as_reference": true
+    },
+    {
+      "variant": "onnx-fp32",
+      "load_ms": 35.8,
+      "first": { "preprocess": 18.88, "inference": 2.11, "postprocess": 0.17 },
+      "warm": { "preprocess": 5.76, "inference": 1.49, "postprocess": 0.09 },
+      "top5": [
+        { "index": 850, "label": "teddy", "probability": 0.74319 },
+        { "index": 865, "label": "toyshop", "probability": 0.12309 },
+        { "index": 496, "label": "Christmas stocking", "probability": 0.02173 },
+        { "index": 719, "label": "piggy bank", "probability": 0.0063 },
+        { "index": 767, "label": "rubber eraser", "probability": 0.00473 }
+      ],
+      "same_top1_as_reference": true
+    },
+    {
+      "variant": "onnx-int8",
+      "load_ms": 56.1,
+      "first": { "preprocess": 6.55, "inference": 2.58, "postprocess": 0.13 },
+      "warm": { "preprocess": 5.22, "inference": 1.76, "postprocess": 0.1 },
+      "top5": [
+        { "index": 850, "label": "teddy", "probability": 0.51511 },
+        { "index": 865, "label": "toyshop", "probability": 0.12247 },
+        { "index": 496, "label": "Christmas stocking", "probability": 0.03448 },
+        { "index": 773, "label": "saltshaker", "probability": 0.01361 },
+        { "index": 767, "label": "rubber eraser", "probability": 0.01251 }
+      ],
+      "same_top1_as_reference": true
+    }
+  ],
+  "import_ms": { "pytorch": 2372.4, "onnxruntime": 22.3 },
+  "wait_ms": 4,
+  "total_ms": 3624,
+  "hardware_id": "5a519e71059e"
+}

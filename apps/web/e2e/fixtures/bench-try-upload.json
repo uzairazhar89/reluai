@@ -1,0 +1,54 @@
+{
+  "model": "resnet18",
+  "source": "upload",
+  "sample": null,
+  "photo": { "format": "JPEG", "width": 640, "height": 428 },
+  "results": [
+    {
+      "variant": "pytorch-fp32",
+      "load_ms": 152.9,
+      "first": { "preprocess": 11.15, "inference": 33.44, "postprocess": 0.21 },
+      "warm": { "preprocess": 4.72, "inference": 23.14, "postprocess": 0.13 },
+      "top5": [
+        { "index": 934, "label": "hotdog", "probability": 0.99881 },
+        { "index": 930, "label": "French loaf", "probability": 0.00034 },
+        { "index": 965, "label": "burrito", "probability": 0.00007 },
+        { "index": 964, "label": "potpie", "probability": 0.00007 },
+        { "index": 987, "label": "corn", "probability": 0.00007 }
+      ],
+      "same_top1_as_reference": true
+    },
+    {
+      "variant": "onnx-fp32",
+      "load_ms": 146.8,
+      "first": { "preprocess": 20.02, "inference": 16.24, "postprocess": 0.22 },
+      "warm": { "preprocess": 5.31, "inference": 15.21, "postprocess": 0.16 },
+      "top5": [
+        { "index": 934, "label": "hotdog", "probability": 0.99881 },
+        { "index": 930, "label": "French loaf", "probability": 0.00034 },
+        { "index": 965, "label": "burrito", "probability": 0.00007 },
+        { "index": 964, "label": "potpie", "probability": 0.00007 },
+        { "index": 987, "label": "corn", "probability": 0.00007 }
+      ],
+      "same_top1_as_reference": true
+    },
+    {
+      "variant": "onnx-int8",
+      "load_ms": 35.6,
+      "first": { "preprocess": 15.69, "inference": 17.71, "postprocess": 0.19 },
+      "warm": { "preprocess": 7.68, "inference": 5.61, "postprocess": 0.14 },
+      "top5": [
+        { "index": 934, "label": "hotdog", "probability": 0.99991 },
+        { "index": 930, "label": "French loaf", "probability": 0.00003 },
+        { "index": 964, "label": "potpie", "probability": 0.0 },
+        { "index": 415, "label": "bakery", "probability": 0.0 },
+        { "index": 965, "label": "burrito", "probability": 0.0 }
+      ],
+      "same_top1_as_reference": true
+    }
+  ],
+  "import_ms": { "pytorch": 2246.1, "onnxruntime": 23.9 },
+  "wait_ms": 1,
+  "total_ms": 4093,
+  "hardware_id": "5a519e71059e"
+}

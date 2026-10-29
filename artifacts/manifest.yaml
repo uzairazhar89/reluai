@@ -153,3 +153,101 @@ artifacts:
       - url: https://pypi.org/project/rapidocr/3.10.0/
         path: /opt/venv/lib/python3.13/site-packages/rapidocr/models/
     used_by: [document-intelligence]
+
+  - id: mobilenetv3-small-100-lamb
+    kind: model
+    title: MobileNetV3-Small (timm mobilenetv3_small_100.lamb_in1k)
+    publisher: PyTorch Image Models (timm), Ross Wightman
+    homepage: https://github.com/huggingface/pytorch-image-models
+    description: >-
+      An ImageNet-1k image classifier designed for phones: depthwise-separable convolutions,
+      squeeze-and-excitation and hard-swish, 2.5 million parameters (Howard et al., 2019). One
+      of the two models the Edge AI Benchmark Lab runs as PyTorch, ONNX and 8-bit ONNX.
+    real_data: true
+    modifications:
+      - Exported to ONNX and quantised to 8 bits at image build time, calibrated on
+        licence-cleared COCO photos; layers whose 8-bit version changes the answers too much
+        are kept in 32-bit (the report is published with the results). The original weights
+        are kept for the PyTorch variant.
+    licence:
+      name: Apache 2.0
+      url: https://github.com/huggingface/pytorch-image-models/blob/main/LICENSE
+      attribution: >-
+        Howard, A. et al. (2019). Searching for MobileNetV3. ICCV. Weights from PyTorch Image
+        Models (timm) by Ross Wightman, Apache 2.0.
+      notes: >-
+        Trained on ImageNet-1k; ImageNet's images have their own terms of access and are not
+        used or redistributed here. Published accuracy is quoted from timm's results.
+    files:
+      - url: https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/mobilenetv3_small_100_lamb-266a294c.pth
+        path: /var/lib/reluai/data/bench/weights/mobilenetv3_small_100_lamb-266a294c.pth
+        sha256: 266a294cbf3d119000a760bf5664a4d80a9674d0616b5cc0836b093d20c38249
+        bytes: 10256237
+    used_by: [edge-benchmark]
+
+  - id: resnet18-a1-in1k
+    kind: model
+    title: ResNet-18 (timm resnet18.a1_in1k)
+    publisher: PyTorch Image Models (timm), Ross Wightman
+    homepage: https://github.com/huggingface/pytorch-image-models
+    description: >-
+      The classic residual network built from plain 3×3 convolutions (He et al., 2016),
+      11.7 million parameters, trained on ImageNet-1k with the "ResNet strikes back" recipe
+      (Wightman et al., 2021). One of the two models the Edge AI Benchmark Lab runs as
+      PyTorch, ONNX and 8-bit ONNX.
+    real_data: true
+    modifications:
+      - Exported to ONNX and quantised to 8 bits at image build time, calibrated on
+        licence-cleared COCO photos, with the same check on the answers as above. The
+        original weights are kept for the PyTorch variant.
+    licence:
+      name: Apache 2.0
+      url: https://github.com/huggingface/pytorch-image-models/blob/main/LICENSE
+      attribution: >-
+        He, K. et al. (2016). Deep Residual Learning for Image Recognition. CVPR. Wightman,
+        R. et al. (2021). ResNet strikes back. Weights from PyTorch Image Models (timm),
+        Apache 2.0.
+      notes: >-
+        Trained on ImageNet-1k; ImageNet's images have their own terms of access and are not
+        used or redistributed here. Published accuracy is quoted from timm's results.
+    files:
+      - url: https://github.com/huggingface/pytorch-image-models/releases/download/v0.1-rsb-weights/resnet18_a1_0-d63eafa0.pth
+        path: /var/lib/reluai/data/bench/weights/resnet18_a1_0-d63eafa0.pth
+        sha256: d63eafa07a6e32a39d328e364f8c9f89d671444ecc7f02aa0f7eb8882af3dd29
+        bytes: 46812648
+    used_by: [edge-benchmark]
+
+  - id: coco-cc-subset-v1
+    kind: images
+    title: COCO 2017 validation photos with reuse licences (coco-cc bundle v1)
+    publisher: COCO Consortium; photos by their Flickr authors
+    homepage: https://cocodataset.org/
+    description: >-
+      622 photos from the COCO 2017 validation set whose recorded Flickr licence allows reuse
+      with changes, with their COCO annotations. The Edge AI Benchmark Lab calibrates its 8-bit
+      models on 128 of them, measures agreement with PyTorch on 200 others, and offers 8 in
+      "Try it"; the 222 street photos (bicycles, cars, motorcycles, buses, trucks) are for
+      measuring detectors.
+    real_data: true
+    modifications:
+      - Selected and packed by scripts/assets/coco_cc.py in the `assets` workflow (licence
+        filter by name; street and general subsets; each photo checked against its record) and
+        published as a release of this repository. Photos are unchanged; "Try it" shows them
+        as they are.
+    licence:
+      name: CC BY 2.0 / CC BY-SA 2.0 (per photo); annotations CC BY 4.0
+      url: https://cocodataset.org/#termsofuse
+      attribution: >-
+        Photos: their Flickr authors, under the licence recorded for each photo (413 CC BY 2.0,
+        208 CC BY-SA 2.0, 1 with no known copyright restrictions), linked from each photo's
+        record. Annotations: Lin, T.-Y. et al. (2014). Microsoft COCO: Common Objects in
+        Context. ECCV. COCO Consortium, CC BY 4.0.
+      notes: >-
+        COCO records each photo's Flickr licence; non-commercial and no-derivatives photos are
+        excluded. The source archive's SHA-256 is recorded in the bundle's provenance.json.
+    files:
+      - url: https://github.com/uzairazhar89/reluai/releases/download/assets-coco-cc-v1/coco-cc-subset-v1.tar
+        path: /var/lib/reluai/data/bench/images/ (336 of the photos are kept)
+        sha256: 747c1a7aac8f8229131cd22664575e1f36246481e119dfbe63387ea409d36b2f
+        bytes: 108544000
+    used_by: [edge-benchmark]

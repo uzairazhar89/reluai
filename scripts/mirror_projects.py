@@ -61,6 +61,12 @@ MIRRORS = (
         title="Document Intelligence",
         packages=("platform-core", "inference", "retrieval", "datasets"),
     ),
+    Mirror(
+        project="edge-benchmark",
+        repo="reluai-edge-benchmark",
+        title="Edge AI Benchmark Lab",
+        packages=("platform-core", "datasets"),
+    ),
 )
 
 ALWAYS = ("LICENSE", "artifacts/manifest.yaml", ".gitattributes", ".editorconfig")

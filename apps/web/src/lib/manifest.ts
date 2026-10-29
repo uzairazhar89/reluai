@@ -48,10 +48,10 @@ export interface ManifestArtifactFile {
   notes?: string;
 }
 
-/** A model or document fetched (or installed) at image build time and pinned by hash. */
+/** A model, document or photo set fetched (or installed) at image build time and pinned by hash. */
 export interface ManifestArtifact {
   id: string;
-  kind: "model" | "document";
+  kind: "model" | "document" | "images";
   title: string;
   publisher: string;
   homepage: string;

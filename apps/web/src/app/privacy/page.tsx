@@ -51,6 +51,10 @@ const sections = [
     "An invoice PDF you upload to be read is processed in memory on this server, in a separate process, and only the extracted fields are sent back to your browser; the file and the result are not stored or logged (only page and line counts and timings are). Reading a sample invoice is counted against the hourly limit with the daily usage code described above.",
   ],
   [
+    "Edge AI Benchmark Lab: photos",
+    "A photo you upload to “Try it” is decoded and re-encoded (without its metadata, such as location or camera details) in a separate process on this server, classified, and discarded with the result once it has been sent back to your browser; it is never written to disk, stored or logged (only the model and timings are). Runs on a sample photo count against the hourly limit with the daily usage code described above. No provider is involved.",
+  ],
+  [
     "AI providers",
     "Questions about the retailer table that the rule-based parser cannot read may be sent to a language model provider (Groq, or Cerebras as a fallback) with the table's column names, types and example values, when one is configured. For your own uploads this happens only if you tick the box that allows it, and then only your question and the file's column names and types are sent, never its rows. In the support agent demo, when a provider is configured, the conversation (your messages, the anonymised invoice details the agent looks up and the demo's policy text) is sent to it to choose the next step. In the Document Intelligence demo, questions about the sample document may be answered by a provider with the retrieved passages; for a PDF you uploaded, your question and up to six retrieved passages (never the whole file) are sent only if you tick the box that allows it. Invoices are read without any provider. Each page says when no provider is configured. Providers' own terms govern what they keep.",
   ],

@@ -62,6 +62,20 @@ export type InvoiceComparison = S["InvoiceComparisonOut"];
 export type InvoiceEvaluation = S["InvoiceEvaluationOut"];
 export type InvoiceEvaluationItem = S["InvoiceEvaluationItemOut"];
 
+export type BenchRegistry = S["BenchRegistryOut"];
+export type BenchModel = S["BenchModelOut"];
+export type BenchVariant = S["BenchVariantOut"];
+export type BenchQuantisation = S["BenchQuantisationOut"];
+export type BenchRun = S["BenchRunOut"];
+export type BenchRunSummary = S["BenchRunSummaryOut"];
+export type BenchResult = S["BenchResultOut"];
+export type BenchLatency = S["BenchLatencyOut"];
+export type BenchAgreement = S["BenchAgreementOut"];
+export type BenchHardware = S["BenchHardwareOut"];
+export type BenchSample = S["BenchSampleOut"];
+export type BenchTry = S["BenchTryOut"];
+export type BenchTryVariant = S["BenchTryVariantOut"];
+
 /** RFC 9457 problem details returned by the API on errors. */
 export interface Problem {
   status: number;

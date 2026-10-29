@@ -10,12 +10,12 @@ with headroom for the OS, Docker and page cache.
 | --- | --- | --- | --- |
 | nginx | 64 MB | 0.25 | |
 | web | 256 MB | 0.5 | read-only root filesystem; ISR cache in memory |
-| api | 1 GB | 1.0 | request handling; CSV analyst queries (DuckDB, 256 MB and 1 thread per query, one at a time per process); `/tmp` capped at 256 MB for uploads |
+| api | 1.5 GB | 1.0 | request handling; CSV analyst queries (DuckDB, 256 MB and 1 thread per query, one at a time per process); `/tmp` capped at 256 MB for uploads; one isolated child at a time under the CPU lease (an invoice read, or a benchmark "Try it": the PyTorch child peaks at about 0.5 GB) |
 | worker | 1.5 GB | 1.0 | one heavy job at a time (CPU lease) |
 | postgres | 768 MB | 0.75 | |
 | migrate | 512 MB | – | one-off, exits after migrations |
-| **Always on** | **≈ 3.6 GB** | | leaves ≈ 4 GB for the OS, Docker and page cache |
-| llm (profile `llm`) | 2 GB | 1.5 | optional local model; ≈ 5.6 GB in total when enabled |
+| **Always on** | **≈ 4.1 GB** | | leaves ≈ 3.9 GB for the OS, Docker and page cache |
+| llm (profile `llm`) | 2 GB | 1.5 | optional local model; ≈ 6.1 GB in total when enabled |
 
 A 2 GB swap file (Ansible `swap_size_mb`) absorbs short spikes.
 
@@ -37,6 +37,9 @@ deployment.
 | CSV analyst query time, the 65 answered evaluation questions | median 9 ms, 95th percentile 74 ms |
 | API process after support-agent conversations (scripted agent) | ≈ 230 MB RSS |
 | Support scenario suite, 44 scenarios, scripted agent (10 October 2026) | median 20 ms, 95th percentile 33 ms per scenario |
+| Benchmark Lab child processes, peak memory (29 October 2026): PyTorch / ONNX Runtime FP32 / INT8 | ResNet-18 ≈ 500 / 225 / 110 MB; MobileNetV3-Small ≈ 415 / 120 / 115 MB |
+| Benchmark Lab full daily suite (2 models × 3 variants × 2 thread counts, 200 agreement photos) | ≈ 90 s |
+| Benchmark Lab "Try it" (one photo, three variants; PyTorch start-up is most of it) | ≈ 4 s |
 
 ## Rules that keep it inside the budget
 

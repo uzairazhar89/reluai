@@ -51,6 +51,12 @@ export const invoiceGallery = fixture<Json & { documents: { id: string }[] }>("i
 const invoiceSampleRun = fixture<Json>("invoice-run-sample");
 const invoiceUploadRun = fixture<Json>("invoice-run-upload");
 
+export const benchRegistry = fixture<Json>("bench-registry");
+export const benchSamples = fixture<{ name: string; url: string }[]>("bench-samples");
+const benchTrySample = fixture<Json>("bench-try-sample");
+const benchTryUpload = fixture<Json>("bench-try-upload");
+const benchPhoto = readFileSync(path.join(__dirname, "fixtures", "bench-photo.jpg"));
+
 function emptyDetail(run: RunJson): Json {
   return {
     run,
@@ -89,6 +95,8 @@ export interface ApiOptions {
   docsAsk?: { status: number; body: Json; headers?: Record<string, string> };
   /** Response for POST /api/documents/invoices/{id}/extract instead of the recorded run. */
   invoiceRun?: { status: number; body: Json; headers?: Record<string, string> };
+  /** Response for the benchmark's "Try it" requests instead of the recorded runs. */
+  benchTry?: { status: number; body: Json; headers?: Record<string, string> };
 }
 
 export async function mockApi(page: Page, options: ApiOptions = {}) {
@@ -168,6 +176,26 @@ export async function mockApi(page: Page, options: ApiOptions = {}) {
       return json(route, invoiceUploadRun);
     }
     if (p === "/api/documents/invoices") return json(route, invoiceGallery);
+    const benchSample = p.match(/^\/api\/bench\/try\/samples\/([^/]+)$/);
+    if (req.method() === "POST" && (benchSample || p === "/api/bench/try")) {
+      const model = url.searchParams.get("model");
+      posted.push(
+        benchSample
+          ? { benchSample: benchSample[1], model }
+          : { benchUpload: req.headers()["content-type"]?.split(";")[0] },
+      );
+      if (options.benchTry) {
+        const r = options.benchTry;
+        return json(route, r.body, r.status, r.headers);
+      }
+      const recorded = benchSample ? benchTrySample : benchTryUpload;
+      return json(route, { ...recorded, model: model ?? recorded.model });
+    }
+    if (p === "/api/bench/registry") return json(route, benchRegistry);
+    if (p === "/api/bench/samples") return json(route, benchSamples);
+    if (p.startsWith("/api/bench/samples/")) {
+      return route.fulfill({ status: 200, contentType: "image/jpeg", body: benchPhoto });
+    }
     if (req.method() === "POST" && p === "/api/documents/uploads") {
       posted.push({ upload: req.headers()["content-type"]?.split(";")[0] });
       return json(route, docsUpload, 202);

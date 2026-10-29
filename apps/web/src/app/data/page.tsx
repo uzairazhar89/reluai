@@ -131,7 +131,7 @@ function Artifact({ a }: { a: ManifestArtifact }) {
     <article id={a.id} className="scroll-mt-24 border-t border-line pt-8">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="heading text-lg">{a.title}</h3>
-        <Pill>{a.kind === "model" ? "Model" : "Document"}</Pill>
+        <Pill>{{ model: "Model", document: "Document", images: "Photos" }[a.kind]}</Pill>
       </div>
       <p className="mt-1 text-sm text-muted">
         <a href={a.homepage} className="prose-link">

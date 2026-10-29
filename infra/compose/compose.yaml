@@ -75,7 +75,9 @@ services:
     tmpfs: ["/tmp:size=256m"]
     # Uploaded PDFs wait here, in memory, until the worker reads them (see doc-spool below).
     volumes: ["doc-spool:/run/reluai/doc-spool"]
-    mem_limit: 1g
+    # Two workers plus, under the CPU lease, one isolated child at a time (an invoice read,
+    # or a "Try it" photo through PyTorch: about 0.5 GB).
+    mem_limit: 1536m
     cpus: 1.0
     pids_limit: 256
     logging: *logging

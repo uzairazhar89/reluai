@@ -5,6 +5,7 @@ from __future__ import annotations
 from procrastinate import App, Blueprint
 
 from reluai_api.contact import purge_old_messages
+from reluai_bench.tasks import blueprint as bench_blueprint
 from reluai_core.jobs import QUEUE_DEFAULT, create_job_app
 from reluai_core.logging import get_logger
 from reluai_core.ratelimit import purge_expired
@@ -44,6 +45,7 @@ def build_job_app(settings: CoreSettings) -> App:
             "csv": csv_blueprint,
             "support": support_blueprint,
             "docs": docs_blueprint,
+            "bench": bench_blueprint,
         },
     )
 

@@ -1,0 +1,16 @@
+# The PyTorch environment used by the Edge AI Benchmark Lab, kept apart from the
+# application's own Python: it runs the PyTorch variant (in isolated child processes) and
+# exports the models to ONNX at image build. CPU-only builds from conda-forge.
+# conda-linux-64.lock pins the exact result; see README.md for how to regenerate it.
+name: reluai-torch
+channels: [conda-forge]
+dependencies:
+  - python=3.13
+  - pytorch=2.14.1=cpu*
+  - torchvision=0.29.1=cpu*
+  - nomkl            # OpenBLAS instead of MKL: about 600 MB smaller
+  - numpy
+  - pillow>=13
+  - timm=1.0.30
+  - onnx             # exporting to ONNX (image build only)
+  - onnxscript

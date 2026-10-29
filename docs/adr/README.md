@@ -15,3 +15,4 @@ A decision is changed by adding a new record that supersedes the old one.
 | [0008](0008-agent-actions-bounded-by-rules.md) | Agents act through tools, with amounts from rules and a person above a limit | Accepted |
 | [0009](0009-untrusted-documents-isolated-answers-cited.md) | Uploaded documents are read in an isolated process; answers must cite them | Accepted |
 | [0010](0010-invoice-extraction-checked-and-measured.md) | Invoices are read by geometry and checked by arithmetic, and measured against real records | Accepted |
+| [0011](0011-edge-benchmark-measured-in-isolation.md) | Model variants are measured on the serving machine, each in its own process, with agreement as the accuracy check | Accepted |

@@ -10,6 +10,7 @@ from fastapi import FastAPI
 
 from reluai_api import contact, status
 from reluai_api.jobs import EXECUTE_TASK, build_job_app
+from reluai_bench import api as bench_api
 from reluai_core import health, metrics
 from reluai_core.db import Database
 from reluai_core.errors import install_error_handlers
@@ -86,6 +87,10 @@ def create_app(
             "/api/documents/invoices/uploads": 10_700_000,
             # Multipart overhead on top of the 2 MB file limit.
             "/api/csv/uploads": 2_200_000,
+            "/api/bench": 8 * 1024,
+            # Multipart overhead on top of the 5 MB photo limit.
+            "/api/bench/try": 5_400_000,
+            "/api/bench/try/samples": 8 * 1024,
         },
     )
     app.add_middleware(RequestContextMiddleware)
@@ -98,5 +103,6 @@ def create_app(
     app.include_router(csv_api.router, prefix="/api/csv")
     app.include_router(support_api.router, prefix="/api/support")
     app.include_router(docs_api.router, prefix="/api/documents")
+    app.include_router(bench_api.router, prefix="/api/bench")
     app.include_router(crm.router, prefix="/internal/crm")
     return app

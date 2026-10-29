@@ -22,6 +22,7 @@ COPY projects/pipeline-observatory/pyproject.toml projects/pipeline-observatory/
 COPY projects/csv-analyst/pyproject.toml projects/csv-analyst/
 COPY projects/support-agent/pyproject.toml projects/support-agent/
 COPY projects/document-intelligence/pyproject.toml projects/document-intelligence/
+COPY projects/edge-benchmark/pyproject.toml projects/edge-benchmark/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-workspace --package reluai-api
 
@@ -31,6 +32,20 @@ COPY packages packages
 COPY projects projects
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable --package reluai-api
+
+# ---------------------------------------------------------------- PyTorch environment
+# The Edge AI Benchmark Lab measures PyTorch itself. PyTorch lives in its own environment
+# (CPU-only conda-forge builds; every package and its hash come from the lock file) that
+# only the lab's child processes use: the application never imports it.
+FROM python:3.13-slim-trixie AS torch-env
+ADD --checksum=sha256:366cd9cd8be14df1ab8ed50352a82111082a36686b2d389fdb79a92c3fafb3e3 \
+    --chmod=755 \
+    https://github.com/mamba-org/micromamba-releases/releases/download/2.9.0-0/micromamba-linux-64 \
+    /usr/local/bin/micromamba
+COPY projects/edge-benchmark/torch/conda-linux-64.lock /tmp/torch.lock
+RUN MAMBA_ROOT_PREFIX=/tmp/mamba micromamba create -y -q -p /opt/torch -f /tmp/torch.lock \
+ && rm -rf /tmp/mamba /tmp/torch.lock /opt/torch/include \
+ && find /opt/torch -name "*.a" -delete
 
 # ---------------------------------------------------------------- verified datasets
 # Fetched at build time (never at container start) and accepted only if they pass the
@@ -60,6 +75,15 @@ RUN reluai-docs fetch --out /data/docs \
  && reluai-docs build-sample --out /data/docs \
  && reluai-docs invoices build --canonical /data/canonical/online-retail-ii.parquet --out /data/docs \
  && rm -rf /data/docs/source /data/docs/models/bge-small-en-v1.5.onnx
+# Edge AI Benchmark Lab: the classifiers' weights and the licence-cleared photos (both pinned
+# by SHA-256), each model exported to ONNX in the PyTorch environment and quantised to 8 bits
+# on the calibration photos (with the same ONNX Runtime that serves it).
+COPY --from=torch-env /opt/torch /opt/torch
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable --inexact \
+      --package reluai-edge-benchmark --group quantize
+RUN RELUAI_BENCH_TORCH_PYTHON=/opt/torch/bin/python reluai-bench build --out /data/bench \
+ && rm -rf /data/bench/source
 
 # ---------------------------------------------------------------- runtime base
 # Debian stable (trixie). Security fixes published since the base image was built are
@@ -84,6 +108,7 @@ ENV PATH=/opt/venv/bin:$PATH \
     RELUAI_PIPELINE_CANONICAL_DIR=/var/lib/reluai/data/canonical \
     RELUAI_PIPELINE_SOURCES_DIR=/var/lib/reluai/data/pipeline/sources
 COPY --from=build /opt/venv /opt/venv
+COPY --from=torch-env /opt/torch /opt/torch
 COPY --from=data --chown=reluai:reluai /data /var/lib/reluai/data
 COPY artifacts/manifest.yaml /opt/reluai/artifacts/manifest.yaml
 COPY infra/docker/entrypoint.sh /usr/local/bin/entrypoint.sh

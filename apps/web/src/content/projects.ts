@@ -89,13 +89,19 @@ export const projects: Project[] = [
   {
     slug: "edge-ai-benchmark-lab",
     title: "Edge AI Benchmark Lab",
-    status: "planned",
+    status: "live",
     roles: ["Computer vision"],
-    oneLiner: "PyTorch vs ONNX vs INT8 on CPU: latency, memory and accuracy, measured.",
-    problem: "",
-    solution: "",
-    tech: ["PyTorch", "ONNX Runtime", "quantisation"],
-    repoPath: "projects/edge-bench",
+    oneLiner: "PyTorch vs ONNX vs 8-bit on this server's CPU: speed, memory and answers, measured.",
+    problem:
+      "ONNX and 8-bit quantisation are sold as “faster and smaller”, but the gain depends on " +
+      "the model and the processor, and an 8-bit model can quietly change its answers.",
+    solution:
+      "Runs each classifier as PyTorch, ONNX and 8-bit ONNX in isolated processes every day, " +
+      "records latency per phase, memory and agreement with PyTorch with the hardware, and " +
+      "keeps the layers that break in 8 bits at 32.",
+    tech: ["PyTorch", "ONNX Runtime", "quantisation", "timm", "FastAPI", "Next.js"],
+    repoPath: "projects/edge-benchmark",
+    dataNote: "Licence-cleared COCO photos; try your own",
   },
   {
     slug: "invoice-matching",

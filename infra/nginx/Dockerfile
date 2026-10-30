@@ -1,6 +1,10 @@
 # Edge proxy image. Build context: infra/nginx
 FROM nginx:1.31-alpine
-RUN apk add --no-cache openssl \
+# Every release passes its own VERSION, so the upgrade below re-runs instead of coming from the
+# build cache, and picks up security fixes Alpine has published since the base image was built.
+ARG VERSION=dev
+RUN apk upgrade --no-cache \
+ && apk add --no-cache openssl \
  && rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY snippets/ /etc/nginx/snippets/
